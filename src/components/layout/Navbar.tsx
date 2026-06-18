@@ -20,6 +20,31 @@ export function Navbar() {
   const [menuOpen, setMenuOpen] = useState(false)
   const [scrolled, setScrolled] = useState(false)
   const [activeLink, setActiveLink] = useState('#home')
+  const [cartCount, setCartCount] = useState(0)
+
+  useEffect(() => {
+    const updateCount = () => {
+      const saved = localStorage.getItem('amruth_cart')
+      if (saved) {
+        try {
+          const items = JSON.parse(saved)
+          const count = items.reduce((sum: number, item: any) => sum + item.quantity, 0)
+          setCartCount(count)
+        } catch {
+          setCartCount(0)
+        }
+      } else {
+        setCartCount(0)
+      }
+    }
+    updateCount()
+    window.addEventListener('cart-updated', updateCount)
+    window.addEventListener('storage', updateCount)
+    return () => {
+      window.removeEventListener('cart-updated', updateCount)
+      window.removeEventListener('storage', updateCount)
+    }
+  }, [])
 
   useEffect(() => {
     const handleScroll = () => {
@@ -86,10 +111,11 @@ export function Navbar() {
           <nav className="hidden md:flex items-center gap-8">
             {navLinks.map(({ href, label }) => {
               const isActive = activeLink === href
+              const targetHref = href.startsWith('#') && pathname !== '/' ? `/${href}` : href
               return (
                 <Link
                   key={href}
-                  href={href}
+                  href={targetHref}
                   onClick={() => setActiveLink(href)}
                   className={cn(
                     'text-sm font-bold transition-all relative py-1.5 text-[#0f2e5c]/80 hover:text-[#0066cc] group',
@@ -109,11 +135,16 @@ export function Navbar() {
           {/* Desktop Actions */}
           <div className="hidden md:flex items-center gap-4">
             {/* Cart Icon */}
-            <div className="relative cursor-pointer group mr-2">
+            <div 
+              onClick={() => window.dispatchEvent(new CustomEvent('open-cart'))}
+              className="relative cursor-pointer group mr-2"
+            >
               <ShoppingCart size={20} className="text-[#0f2e5c]/80 group-hover:text-[#0066cc] transition-colors" />
-              <span className="absolute -top-1.5 -right-1.5 bg-[#0066cc] text-white text-[9px] font-bold w-4.5 h-4.5 rounded-full flex items-center justify-center shadow-sm">
-                0
-              </span>
+              {cartCount > 0 && (
+                <span className="absolute -top-1.5 -right-1.5 bg-[#0066cc] text-white text-[9px] font-bold w-4.5 h-4.5 rounded-full flex items-center justify-center shadow-sm">
+                  {cartCount}
+                </span>
+              )}
             </div>
 
             {/* Login button (Outline) */}
@@ -181,19 +212,22 @@ export function Navbar() {
       {menuOpen && (
         <div className="fixed inset-0 z-40 bg-white/95 backdrop-blur-lg flex flex-col pt-[100px] px-6">
           <nav className="flex flex-col gap-4 mb-8">
-            {navLinks.map(({ href, label }) => (
-              <Link
-                key={href}
-                href={href}
-                onClick={() => {
-                  setActiveLink(href)
-                  setMenuOpen(false)
-                }}
-                className="text-lg font-bold text-[#0f2e5c] hover:text-[#0066cc] py-2 border-b border-slate-100"
-              >
-                {label}
-              </Link>
-            ))}
+            {navLinks.map(({ href, label }) => {
+              const targetHref = href.startsWith('#') && pathname !== '/' ? `/${href}` : href
+              return (
+                <Link
+                  key={href}
+                  href={targetHref}
+                  onClick={() => {
+                    setActiveLink(href)
+                    setMenuOpen(false)
+                  }}
+                  className="text-lg font-bold text-[#0f2e5c] hover:text-[#0066cc] py-2 border-b border-slate-100"
+                >
+                  {label}
+                </Link>
+              )
+            })}
           </nav>
           <div className="flex flex-col gap-3">
             <Link
