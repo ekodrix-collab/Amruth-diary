@@ -3,6 +3,19 @@
 import { useRef } from 'react'
 import { useIntersection } from '@/hooks/useIntersection'
 import { cn } from '@/lib/utils'
+import { Smartphone, Calculator, Frown, BookOpen, Moon, TrendingUp, XCircle, CheckCircle2, Smile } from 'lucide-react'
+
+function getIcon(emoji: string, className?: string) {
+  switch (emoji) {
+    case '📱': return <Smartphone className={className} />
+    case '🧮': return <Calculator className={className} />
+    case '😤': return <Frown className={className} />
+    case '📓': return <BookOpen className={className} />
+    case '🌙': return <Moon className={className} />
+    case '📈': return <TrendingUp className={className} />
+    default: return null
+  }
+}
 
 const problems = [
   {
@@ -108,8 +121,8 @@ export function ProblemSection() {
           <div className="relative grid grid-cols-1 md:grid-cols-[1fr_auto_1fr] gap-8 items-center">
             {/* Bad side */}
             <div>
-              <h3 className="text-subhead font-extrabold text-red-300 mb-5">
-                😩 Without Website
+              <h3 className="text-subhead font-extrabold text-red-300 mb-5 flex items-center gap-2">
+                <Frown size={18} className="text-red-400" /> Without Website
               </h3>
               <ul className="flex flex-col gap-3">
                 {badSide.map((item) => (
@@ -138,8 +151,8 @@ export function ProblemSection() {
 
             {/* Good side */}
             <div>
-              <h3 className="text-subhead font-extrabold text-green-300 mb-5">
-                😊 With Website
+              <h3 className="text-subhead font-extrabold text-green-300 mb-5 flex items-center gap-2">
+                <Smile size={18} className="text-green-400" /> With Website
               </h3>
               <ul className="flex flex-col gap-3">
                 {goodSide.map((item) => (
@@ -190,8 +203,8 @@ function ProblemCard({
       />
 
       {/* Icon */}
-      <div className="w-12 h-12 bg-red-50 rounded-[14px] flex items-center justify-center text-2xl mb-5">
-        <span role="img" aria-label={title}>{emoji}</span>
+      <div className="w-12 h-12 bg-red-50 rounded-[14px] flex items-center justify-center text-red-500 mb-5">
+        {getIcon(emoji, "w-6 h-6")}
       </div>
 
       <h3 className="text-subhead font-bold text-teal-900 mb-2">{title}</h3>

@@ -1,6 +1,6 @@
 // components/layout/Footer.tsx
 import Link from 'next/link'
-import { Milk, Phone, Globe, MapPin, Clock, ArrowUpRight, Heart } from 'lucide-react'
+import { Milk, Phone, Globe, MapPin, Clock, ArrowUpRight, Heart, Home, Sprout } from 'lucide-react'
 
 // Custom brand icons since the project's lucide-react version doesn't export them
 function InstagramIcon({ size = 24, ...props }: React.SVGProps<SVGSVGElement> & { size?: number }) {
@@ -123,8 +123,8 @@ export function Footer() {
 
             {/* Logo */}
             <div className="ft-logo">
-              <div className="ft-logo-icon">
-                <span className="ft-logo-emoji">🥛</span>
+              <div className="ft-logo-icon flex items-center justify-center">
+                <Milk size={20} className="text-teal-600" />
               </div>
               <div>
                 <p className="ft-logo-name">Amruth</p>
@@ -221,8 +221,10 @@ export function Footer() {
 
             {/* Freshness card */}
             <div className="ft-freshness-card">
-              <div className="ft-freshness-row">
-                <span className="ft-freshness-emoji">🐄</span>
+              <div className="ft-freshness-row flex items-start gap-3">
+                <div className="ft-freshness-icon-wrap flex items-center justify-center p-2 bg-teal-50 rounded-lg text-teal-600">
+                  <Sprout size={20} />
+                </div>
                 <div>
                   <p className="ft-freshness-title">Farm to Doorstep</p>
                   <p className="ft-freshness-desc">Milked at dawn, at your door by 7 AM</p>
@@ -234,7 +236,7 @@ export function Footer() {
               <div className="ft-freshness-labels">
                 <span>Farm</span>
                 <span>Processing</span>
-                <span>Your Door 🏠</span>
+                <span className="flex items-center gap-1 justify-end">Your Door <Home size={12} className="inline" /></span>
               </div>
             </div>
           </div>

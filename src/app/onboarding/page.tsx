@@ -4,7 +4,8 @@ import { useState, useEffect } from 'react'
 import {
   Calendar, MapPin, CreditCard, CheckCircle,
   ArrowRight, User, Home, Building2, FileText,
-  Phone, ShieldCheck, Clock, Leaf, ChevronDown
+  Phone, ShieldCheck, Clock, Leaf, ChevronDown,
+  Package, Tag, Sprout, Milk, AlertCircle
 } from 'lucide-react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { cn } from '@/lib/utils'
@@ -148,8 +149,8 @@ export default function OnboardingPage() {
       {/* ── TOP BRAND BAR ──────────────────────── */}
       <div className="ob-topbar">
         <div className="ob-brand">
-          <div className="ob-brand-icon">
-            <span className="ob-brand-cow">🐄</span>
+          <div className="ob-brand-icon flex items-center justify-center">
+            <Sprout size={16} className="text-teal-600" />
           </div>
           <div>
             <p className="ob-brand-name">Amruth Milk</p>
@@ -186,8 +187,8 @@ export default function OnboardingPage() {
               <div className="ob-bottle-neck" />
               <div className="ob-bottle-body">
                 <div className="ob-bottle-shine" />
-                <div className="ob-bottle-label">
-                  <span className="ob-bottle-label-cow">🐄</span>
+                <div className="ob-bottle-label flex flex-col items-center justify-center gap-1">
+                  <Sprout size={14} className="text-teal-600" />
                   <span className="ob-bottle-label-name">Amruth<br/>Dairy</span>
                 </div>
               </div>
@@ -365,7 +366,7 @@ export default function OnboardingPage() {
                       </div>
                     </div>
 
-                    {error && <p className="ob-error">⚠️ {error}</p>}
+                    {error && <p className="ob-error flex items-center gap-1.5"><AlertCircle size={14} /> {error}</p>}
 
                     <button type="submit" disabled={loading} className="ob-btn-primary">
                       {loading
@@ -473,7 +474,7 @@ export default function OnboardingPage() {
                       </div>
                     </div>
 
-                    {error && <p className="ob-error">⚠️ {error}</p>}
+                    {error && <p className="ob-error flex items-center gap-1.5"><AlertCircle size={14} /> {error}</p>}
 
                     <div className="ob-btn-row">
                       <button type="button" onClick={() => setStep(1)} className="ob-btn-back">
@@ -510,14 +511,17 @@ export default function OnboardingPage() {
                     {/* Summary */}
                     <div className="ob-summary">
                       {[
-                        { label: '📦 Plan Quantity', value: `${quantity} Litre${quantity > 1 ? 's' : ''} / Day` },
-                        { label: '📅 Starting Date', value: new Date(startDate).toLocaleDateString('en-IN', { day: 'numeric', month: 'long', year: 'numeric' }) },
-                        { label: '🏷️ Monthly Rate', value: `₹${monthlyAmount.toFixed(2)}` },
-                        { label: '📍 Delivery Area', value: area },
-                        { label: '🏠 Address', value: address },
-                      ].map(({ label, value }) => (
+                        { label: 'Plan Quantity', icon: <Package size={13} />, value: `${quantity} Litre${quantity > 1 ? 's' : ''} / Day` },
+                        { label: 'Starting Date', icon: <Calendar size={13} />, value: new Date(startDate).toLocaleDateString('en-IN', { day: 'numeric', month: 'long', year: 'numeric' }) },
+                        { label: 'Monthly Rate', icon: <Tag size={13} />, value: `₹${monthlyAmount.toFixed(2)}` },
+                        { label: 'Delivery Area', icon: <MapPin size={13} />, value: area },
+                        { label: 'Address', icon: <Home size={13} />, value: address },
+                      ].map(({ label, icon, value }) => (
                         <div key={label} className="ob-summary-row">
-                          <span className="ob-summary-key">{label}</span>
+                          <span className="ob-summary-key flex items-center gap-1.5">
+                            {icon}
+                            {label}
+                          </span>
                           <span className="ob-summary-val">{value}</span>
                         </div>
                       ))}
@@ -540,7 +544,7 @@ export default function OnboardingPage() {
                       </div>
                     </div>
 
-                    {error && <p className="ob-error">⚠️ {error}</p>}
+                    {error && <p className="ob-error flex items-center gap-1.5"><AlertCircle size={14} /> {error}</p>}
 
                     <div className="ob-btn-row">
                       <button onClick={() => setStep(2)} className="ob-btn-back">
@@ -587,7 +591,7 @@ export default function OnboardingPage() {
                   <h2 className="ob-success-title">Subscription Confirmed!</h2>
                   <p className="ob-success-desc">
                     Payment of <strong>₹{proRataAmount.toFixed(2)}</strong> confirmed.
-                    <br />Your milk delivery starts soon! 🥛
+                    <br />Your milk delivery starts soon! <Milk size={14} style={{ display: 'inline-block', verticalAlign: 'middle' }} />
                   </p>
                   <div className="ob-success-loader">
                     <motion.div
@@ -622,7 +626,7 @@ export default function OnboardingPage() {
                   <h2 className="ob-success-title" style={{ color: '#d97706' }}>Added to Waitlist!</h2>
                   <p className="ob-success-desc">
                     Daily capacity is currently full. You have been placed on the waitlist at <strong>Position #{waitlistPosition}</strong>.
-                    <br />We will notify you as soon as delivery slots open! 🥛
+                    <br />We will notify you as soon as delivery slots open! <Milk size={14} style={{ display: 'inline-block', verticalAlign: 'middle' }} />
                   </p>
                   <div className="ob-success-loader">
                     <motion.div

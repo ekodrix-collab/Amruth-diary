@@ -1,4 +1,5 @@
 import Link from 'next/link'
+import { Milk, Phone } from 'lucide-react'
 
 export function FinalCTA() {
   return (
@@ -10,7 +11,9 @@ export function FinalCTA() {
       }} />
 
       <div className="container-page relative z-10" style={{ textAlign: 'center' }}>
-        <span style={{ fontSize: '48px', display: 'block', marginBottom: '24px' }}>🥛</span>
+        <div style={{ display: 'flex', justifyContent: 'center', marginBottom: '24px' }}>
+          <Milk size={48} className="text-amber-400" />
+        </div>
         <h2 style={{ fontSize: 'clamp(2rem, 4vw, 3rem)', fontWeight: 800, color: '#fff', letterSpacing: '-0.03em', lineHeight: 1.1, marginBottom: '16px' }}>
           Fresh morning delivery starts here
         </h2>
@@ -26,7 +29,7 @@ export function FinalCTA() {
             textDecoration: 'none', boxShadow: '0 4px 20px rgba(245,156,26,0.3)',
             transition: 'all 0.2s ease'
           }}>
-            🥛 Start Subscription
+            <Milk size={16} style={{ marginRight: '8px' }} /> Start Subscription
           </Link>
           <a href="tel:+919048571147" style={{
             display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
@@ -35,7 +38,7 @@ export function FinalCTA() {
             fontWeight: 600, fontSize: '0.9rem', textDecoration: 'none',
             transition: 'all 0.2s ease'
           }}>
-            📞 Call 90485 71147
+            <Phone size={14} style={{ marginRight: '8px' }} /> Call 90485 71147
           </a>
         </div>
 

@@ -5,8 +5,24 @@ import Link from 'next/link'
 import {
   ShoppingBag, Plus, Minus, ArrowLeft, ShoppingCart,
   X, Truck, CheckCircle, Loader2, Leaf,
-  ChevronRight, Zap, Star
+  ChevronRight, Zap, Star, Milk, Flame, Award, Calendar, Wind, Sprout, Clock, Heart, RefreshCw, AlertCircle
 } from 'lucide-react'
+
+function getCategoryIcon(emoji: string, className?: string) {
+  switch (emoji) {
+    case '🥛': return <Milk className={className} />
+    case '🫕': return <Flame className={className} />
+    case '🍯': return <Award className={className} />
+    case '🧈': return <Award className={className} />
+    case '🧀': return <Award className={className} />
+    case '🥣': return <Milk className={className} />
+    case '🥤': return <Milk className={className} />
+    case '🌿': return <Leaf className={className} />
+    case '🍼': return <Milk className={className} />
+    case '🏺': return <Milk className={className} />
+    default: return <ShoppingBag className={className} />
+  }
+}
 import { motion, AnimatePresence } from 'framer-motion'
 import { cn } from '@/lib/utils'
 import { Navbar } from '@/components/layout/Navbar'
@@ -286,16 +302,17 @@ function ProductCard({
                   transform: 'translate(-50%, -50%)',
                 }}
               />
-              <span
+              <div
                 style={{
-                  fontSize: 72,
-                  lineHeight: 1,
                   filter: 'drop-shadow(0 6px 12px rgba(0,0,0,0.12))',
-                  display: 'block',
+                  display: 'flex',
+                  justifyContent: 'center',
+                  alignItems: 'center',
+                  color: cfg.accentHex,
                 }}
               >
-                {cfg.emoji}
-              </span>
+                {getCategoryIcon(cfg.emoji, "w-16 h-16")}
+              </div>
             </div>
           )}
         </motion.div>
@@ -563,11 +580,11 @@ function DeliveryCard() {
           width: 'fit-content',
         }}
       >
-        ⏰ ON TIME, EVERY TIME
+        <Clock size={10} /> ON TIME, EVERY TIME
       </div>
 
       {/* Big visual */}
-      <div style={{ textAlign: 'center', padding: '20px 0', position: 'relative' }}>
+      <div style={{ textAlign: 'center', padding: '20px 0', position: 'relative', display: 'flex', justifyContent: 'center' }}>
         <div
           style={{
             position: 'absolute',
@@ -575,9 +592,9 @@ function DeliveryCard() {
             background: 'radial-gradient(ellipse, rgba(255,255,255,0.5) 0%, transparent 70%)',
           }}
         />
-        <span style={{ fontSize: 64, lineHeight: 1, filter: 'drop-shadow(0 8px 16px rgba(0,0,0,0.1))' }}>
-          🥛
-        </span>
+        <div style={{ color: '#1d4ed8', filter: 'drop-shadow(0 8px 16px rgba(0,0,0,0.1))' }}>
+          <Milk size={64} />
+        </div>
       </div>
 
       <div>
@@ -597,9 +614,13 @@ function DeliveryCard() {
           Every Morning. Every Day.
         </p>
         <div style={{ display: 'flex', gap: 8, marginBottom: 16, flexWrap: 'wrap' as const }}>
-          {['⏰ Early Morning', '🛡️ Safe Delivery', '🌿 Fresh & Pure'].map((f) => (
+          {[
+            { label: 'Early Morning', icon: <Clock size={10} /> },
+            { label: 'Safe Delivery', icon: <CheckCircle size={10} /> },
+            { label: 'Fresh & Pure', icon: <Leaf size={10} /> }
+          ].map((f) => (
             <span
-              key={f}
+              key={f.label}
               style={{
                 fontSize: 9,
                 fontWeight: 700,
@@ -608,9 +629,13 @@ function DeliveryCard() {
                 border: '1px solid #bfdbfe',
                 borderRadius: 999,
                 padding: '3px 8px',
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: 4
               }}
             >
-              {f}
+              {f.icon}
+              {f.label}
             </span>
           ))}
         </div>
@@ -653,10 +678,10 @@ function FarmCard() {
         minHeight: 300,
       }}
     >
-      <div style={{ textAlign: 'center', padding: '20px 0', flex: 1 }}>
-        <span style={{ fontSize: 64, lineHeight: 1, filter: 'drop-shadow(0 6px 12px rgba(0,0,0,0.08))' }}>
-          🌾
-        </span>
+      <div style={{ textAlign: 'center', padding: '20px 0', flex: 1, display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
+        <div style={{ color: '#16a34a', filter: 'drop-shadow(0 6px 12px rgba(0,0,0,0.08))' }}>
+          <Sprout size={64} />
+        </div>
       </div>
 
       <div>
@@ -696,9 +721,13 @@ function FarmCard() {
           From our healthy cows to your home before sunrise.
         </p>
         <div style={{ display: 'flex', gap: 6, marginBottom: 14, flexWrap: 'wrap' as const }}>
-          {['🌿 Ethical Farming', '🐄 Healthy Cows', '♻️ Sustainable'].map((f) => (
+          {[
+            { label: 'Ethical Farming', icon: <Leaf size={10} /> },
+            { label: 'Healthy Cows', icon: <Sprout size={10} /> },
+            { label: 'Sustainable', icon: <RefreshCw size={10} /> }
+          ].map((f) => (
             <span
-              key={f}
+              key={f.label}
               style={{
                 fontSize: 9,
                 fontWeight: 700,
@@ -707,9 +736,13 @@ function FarmCard() {
                 border: '1px solid #86efac',
                 borderRadius: 999,
                 padding: '3px 8px',
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: 4
               }}
             >
-              {f}
+              {f.icon}
+              {f.label}
             </span>
           ))}
         </div>
@@ -793,7 +826,7 @@ function PlanCard() {
               transition: 'all 0.15s',
             }}
           >
-            <span style={{ fontSize: 24 }}>{p.emoji}</span>
+            <span style={{ color: '#1a3a8f' }}>{getCategoryIcon(p.emoji, "w-6 h-6")}</span>
             <span
               style={{
                 fontSize: 10,
@@ -817,9 +850,14 @@ function PlanCard() {
       </div>
 
       <div style={{ display: 'flex', flexDirection: 'column' as const, gap: 6, marginBottom: 16 }}>
-        {['✅ Pause or Skip anytime', '✅ Easy monthly billing', '✅ Cancel anytime'].map((f) => (
-          <p key={f} style={{ fontSize: 11, fontWeight: 600, color: '#57534E' }}>
-            {f}
+        {[
+          'Pause or Skip anytime',
+          'Easy monthly billing',
+          'Cancel anytime'
+        ].map((f) => (
+          <p key={f} style={{ fontSize: 11, fontWeight: 600, color: '#57534E', display: 'flex', alignItems: 'center', gap: 6 }}>
+            <CheckCircle size={12} className="text-green-600" />
+            <span>{f}</span>
           </p>
         ))}
       </div>
@@ -1001,7 +1039,7 @@ export default function ShopPage() {
               fontFamily: 'var(--font-display)',
             }}
           >
-            Order Placed! 🎉
+            Order Placed!
           </h2>
           <p style={{ fontSize: 12, fontWeight: 600, color: '#A8A29E', marginBottom: 20, lineHeight: 1.7 }}>
             Your farm-fresh products will arrive with your morning milk!
@@ -1169,14 +1207,14 @@ export default function ShopPage() {
               </h1>
               <p style={{ fontSize: 13, color: 'rgba(219,234,254,0.75)', fontWeight: 500, maxWidth: 420, lineHeight: 1.7 }}>
                 Handcrafted from our dairy farm — pure ghee, raw honey, fresh butter &amp; more.
-                Delivered with your morning milk. 🥛
+                Delivered with your morning milk.
               </p>
             </div>
 
             <div style={{ display: 'flex', gap: 12 }}>
               {[
-                { icon: '🌿', top: '100% Pure', bot: 'No additives' },
-                { icon: '⏰', top: 'By 7 AM', bot: 'Every morning' },
+                { icon: <Leaf className="text-blue-300 w-6 h-6 mx-auto" />, top: '100% Pure', bot: 'No additives' },
+                { icon: <Clock className="text-blue-300 w-6 h-6 mx-auto" />, top: 'By 7 AM', bot: 'Every morning' },
               ].map((s) => (
                 <div
                   key={s.top}
@@ -1189,7 +1227,7 @@ export default function ShopPage() {
                     backdropFilter: 'blur(8px)',
                   }}
                 >
-                  <div style={{ fontSize: 24, marginBottom: 6 }}>{s.icon}</div>
+                  <div style={{ marginBottom: 6 }}>{s.icon}</div>
                   <div style={{ fontSize: 12, fontWeight: 800, color: '#fff', marginBottom: 2 }}>{s.top}</div>
                   <div style={{ fontSize: 9, fontWeight: 600, color: '#93c5fd' }}>{s.bot}</div>
                 </div>
@@ -1244,7 +1282,7 @@ export default function ShopPage() {
                   whiteSpace: 'nowrap' as const,
                 }}
               >
-                <span>{cat === 'all' ? '🛍️' : cfg?.emoji || '📦'}</span>
+                <span className="flex items-center">{cat === 'all' ? <ShoppingBag size={12} /> : getCategoryIcon(cfg?.emoji || '📦', "w-3 h-3")}</span>
                 <span style={{ textTransform: 'capitalize' as const }}>
                   {cat === 'all' ? 'All Products' : (cfg?.label || cat)}
                 </span>
@@ -1271,8 +1309,8 @@ export default function ShopPage() {
             <p style={{ fontSize: 12, fontWeight: 600, color: '#A8A29E' }}>Loading farm products...</p>
           </div>
         ) : products.length === 0 ? (
-          <div style={{ textAlign: 'center', padding: '80px 0' }}>
-            <div style={{ fontSize: 48, marginBottom: 16 }}>📦</div>
+          <div style={{ textAlign: 'center', padding: '80px 0', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+            <div style={{ color: '#A8A29E', marginBottom: 16 }}><ShoppingBag size={48} /></div>
             <h3 style={{ fontSize: 18, fontWeight: 800, color: '#292524', marginBottom: 8 }}>No products yet</h3>
             <p style={{ fontSize: 12, color: '#A8A29E', fontWeight: 600 }}>Check back soon!</p>
           </div>
@@ -1294,10 +1332,10 @@ export default function ShopPage() {
                         display: 'flex',
                         alignItems: 'center',
                         justifyContent: 'center',
-                        fontSize: 22,
+                        color: cfg.accentHex,
                       }}
                     >
-                      {cfg.emoji}
+                      {getCategoryIcon(cfg.emoji, "w-5 h-5")}
                     </div>
                     <div>
                       <h2
@@ -1360,10 +1398,10 @@ export default function ShopPage() {
                       display: 'flex',
                       alignItems: 'center',
                       justifyContent: 'center',
-                      fontSize: 22,
+                      color: '#D97706',
                     }}
                   >
-                    ✨
+                    <Award size={22} />
                   </div>
                   <div>
                     <h2
@@ -1408,9 +1446,13 @@ export default function ShopPage() {
               fontWeight: 700,
               color: '#dc2626',
               marginTop: 16,
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              gap: 8,
             }}
           >
-            ⚠️ {error}
+            <AlertCircle size={14} /> {error}
           </div>
         )}
       </main>
@@ -1543,7 +1585,7 @@ export default function ShopPage() {
               <div style={{ flex: 1, overflowY: 'auto' as const, padding: '16px 20px' }}>
                 {cart.length === 0 ? (
                   <div style={{ textAlign: 'center', padding: '60px 0' }}>
-                    <div style={{ fontSize: 48, marginBottom: 12, opacity: 0.3 }}>🛒</div>
+                    <div style={{ color: '#A8A29E', marginBottom: 12, opacity: 0.3 }}><ShoppingCart size={48} className="mx-auto" /></div>
                     <p style={{ fontSize: 13, fontWeight: 600, color: '#A8A29E' }}>Your cart is empty</p>
                     <button
                       onClick={() => setCartOpen(false)}
@@ -1591,11 +1633,11 @@ export default function ShopPage() {
                               display: 'flex',
                               alignItems: 'center',
                               justifyContent: 'center',
-                              fontSize: 24,
+                              color: cfg.accentHex,
                               flexShrink: 0,
                             }}
                           >
-                            {cfg.emoji}
+                            {getCategoryIcon(cfg.emoji, "w-6 h-6")}
                           </div>
                           <div style={{ flex: 1, minWidth: 0 }}>
                             <p
@@ -1725,7 +1767,7 @@ export default function ShopPage() {
                   >
                     <Truck size={13} color="#D97706" />
                     <span style={{ fontSize: 10, fontWeight: 700, color: '#D97706' }}>
-                      Delivered tomorrow morning with your milk 🥛
+                      Delivered tomorrow morning with your milk <Milk size={10} style={{ display: 'inline' }} />
                     </span>
                   </div>
 

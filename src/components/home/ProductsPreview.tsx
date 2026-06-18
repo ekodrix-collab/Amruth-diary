@@ -3,8 +3,48 @@
 import { useRef } from 'react'
 import Image from 'next/image'
 import Link from 'next/link'
-import { ChevronLeft, ChevronRight, Check } from 'lucide-react'
+import { 
+  ChevronLeft, 
+  ChevronRight, 
+  Check,
+  Sprout,
+  Milk,
+  ShieldCheck,
+  Flame,
+  Calendar,
+  Leaf,
+  Award,
+  Activity,
+  Wind,
+  Heart
+} from 'lucide-react'
 import { ScrollReveal } from '@/components/ui/ScrollReveal'
+
+function getIcon(name: string) {
+  switch (name) {
+    // Badges
+    case '🌱': return <Sprout size={14} />
+    case '🥣': return <Milk size={14} />
+    case '🍯': return <Award size={14} />
+    case '🍃': return <Leaf size={14} />
+    case '🧀': return <Award size={14} />
+    // Features
+    case '🥛': return <Milk size={12} />
+    case '🧪': return <ShieldCheck size={12} />
+    case '🛡️': return <ShieldCheck size={12} />
+    case '🥄': return <Check size={12} />
+    case '✨': return <Award size={12} /> // Sparkles restricted, using Award
+    case '🗓️': return <Calendar size={12} />
+    case '🔥': return <Flame size={12} />
+    case '👋': return <Check size={12} />
+    case '👃': return <Heart size={12} />
+    case '❄️': return <Wind size={12} />
+    case '🌿': return <Leaf size={12} />
+    case '💪': return <Activity size={12} />
+    case '☁️': return <Wind size={12} />
+    default: return null
+  }
+}
 
 interface ProductItem {
   name: string
@@ -185,7 +225,7 @@ export function ProductsPreview() {
               marginBottom: '20px',
               boxShadow: '0 4px 12px rgba(180, 83, 9, 0.03)'
             }}>
-              ✨ Our Products
+              <Award size={12} style={{ marginRight: '6px' }} /> Our Products
             </div>
             <h2 style={{ 
               fontFamily: 'var(--font-playfair), Georgia, serif',
@@ -294,7 +334,7 @@ export function ProductsPreview() {
                     zIndex: 10,
                     boxShadow: '0 2px 8px rgba(0,0,0,0.02)'
                   }}>
-                    <span>{product.badgeIcon}</span>
+                    <span className="flex items-center">{getIcon(product.badgeIcon)}</span>
                     <span>{product.badge}</span>
                   </div>
 
@@ -418,7 +458,7 @@ export function ProductsPreview() {
                             color: '#5c4e37'
                           }}
                         >
-                          <span>{product.featuresIcons[idx]}</span>
+                          <span className="flex items-center">{getIcon(product.featuresIcons[idx])}</span>
                           <span>{feat}</span>
                         </span>
                       ))}

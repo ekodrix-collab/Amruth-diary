@@ -199,14 +199,14 @@ export default function ExtraMilkPage() {
         )}
 
         {error && (
-          <p className="text-xs text-red-500 font-bold flex items-center gap-1">
-            <span>⚠️</span> {error}
+          <p className="text-xs text-red-500 font-bold flex items-center gap-1.5">
+            <ShieldAlert size={14} /> {error}
           </p>
         )}
 
         {successMsg && (
-          <p className="text-xs text-green-600 font-bold flex items-center gap-1">
-            <span>✅</span> {successMsg}
+          <p className="text-xs text-green-600 font-bold flex items-center gap-1.5">
+            <CheckCircle size={14} /> {successMsg}
           </p>
         )}
 

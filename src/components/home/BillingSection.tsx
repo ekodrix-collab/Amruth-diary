@@ -1,4 +1,15 @@
 import { cn } from '@/lib/utils'
+import { ArrowUpRight, Palmtree, PlusCircle, FastForward } from 'lucide-react'
+
+function getRuleIcon(key: string) {
+  switch (key) {
+    case 'skip': return <FastForward className="w-5 h-5 text-red-500" />
+    case 'vacation': return <Palmtree className="w-5 h-5 text-blue-500" />
+    case 'extra': return <PlusCircle className="w-5 h-5 text-green-500" />
+    case 'carryforward': return <ArrowUpRight className="w-5 h-5 text-amber-500" />
+    default: return null
+  }
+}
 
 const billingRows = [
   { label: 'Base Subscription (30 days × ₹82.67)', value: '₹2,480.00', type: 'base' },
@@ -11,22 +22,26 @@ const billingRows = [
 const rules = [
   {
     color: 'border-red-400',
-    title: '⏭️ Skip Credits',
+    iconKey: 'skip',
+    title: 'Skip Credits',
     body: 'Skip any day before 9 PM. Daily rate is credited to your next bill automatically. No hassle, no negotiations.',
   },
   {
     color: 'border-blue-400',
-    title: '🏖️ Vacation Credits',
+    iconKey: 'vacation',
+    title: 'Vacation Credits',
     body: 'Pause for any number of days. Total credits calculated and applied to your next month\'s bill in full.',
   },
   {
     color: 'border-green-400',
-    title: '➕ Extra Charges',
+    iconKey: 'extra',
+    title: 'Extra Charges',
     body: 'Order extra milk anytime. Charges are added to the following month\'s bill at the same daily rate.',
   },
   {
     color: 'border-amber-400',
-    title: '📤 Monthly Carryforward',
+    iconKey: 'carryforward',
+    title: 'Monthly Carryforward',
     body: 'If you have unused credit, it carries to next month automatically. Never lose what you\'ve saved.',
   },
 ]
@@ -123,7 +138,10 @@ export function BillingSection() {
                   'transition-transform duration-200 hover:translate-x-1'
                 )}
               >
-                <h4 className="text-small font-bold text-teal-900 mb-2">{rule.title}</h4>
+                <h4 className="text-small font-bold text-teal-900 mb-2 flex items-center gap-2">
+                  {getRuleIcon(rule.iconKey)}
+                  {rule.title}
+                </h4>
                 <p className="text-small text-teal-900/55 leading-relaxed">{rule.body}</p>
               </div>
             ))}

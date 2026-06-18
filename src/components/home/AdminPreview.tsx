@@ -1,4 +1,20 @@
 import { cn } from '@/lib/utils'
+import { Truck, FastForward, Milk, PlusCircle, Lock, BarChart3, Users, Coins, Package, TrendingUp, Sun, Printer, Search } from 'lucide-react'
+
+function getAdminIcon(name: string, className?: string) {
+  switch (name) {
+    case '🚚': return <Truck className={className} />
+    case '⏭️': return <FastForward className={className} />
+    case '🥛': return <Milk className={className} />
+    case '➕': return <PlusCircle className={className} />
+    case '📊': return <BarChart3 className={className} />
+    case '👥': return <Users className={className} />
+    case '💰': return <Coins className={className} />
+    case '📦': return <Package className={className} />
+    case '📈': return <TrendingUp className={className} />
+    default: return null
+  }
+}
 
 const customers = [
   {
@@ -86,7 +102,7 @@ export function AdminPreview() {
               <div className="w-3 h-3 rounded-full bg-green-500" aria-hidden="true" />
             </div>
             <div className="flex-1 max-w-md mx-auto bg-[#2A2A2A] rounded-lg px-4 py-1.5 flex items-center gap-2">
-              <span className="text-green-400 text-xs" aria-hidden="true">🔒</span>
+              <Lock className="text-green-400 w-3 h-3" />
               <span className="text-xs text-white/50 font-mono">amruthmilk.com/admin/delivery</span>
             </div>
           </div>
@@ -96,8 +112,8 @@ export function AdminPreview() {
             {/* Sidebar */}
             <div className="bg-slate-900 w-52 flex-shrink-0 p-4 flex flex-col hidden md:flex">
               <div className="flex items-center gap-2.5 mb-8">
-                <div className="w-7 h-7 bg-teal-600 rounded-lg flex items-center justify-center text-sm">
-                  🥛
+                <div className="w-7 h-7 bg-teal-600 rounded-lg flex items-center justify-center text-white">
+                  <Milk size={14} />
                 </div>
                 <div>
                   <p className="text-xs font-bold text-white">Amruth Milk</p>
@@ -123,8 +139,10 @@ export function AdminPreview() {
                   )}
                   aria-current={item.active ? 'page' : undefined}
                 >
-                  <span role="img" aria-label={item.label}>{item.icon}</span>
-                  {item.label}
+                  <span className="flex items-center gap-2">
+                    {getAdminIcon(item.icon, "w-4 h-4")}
+                    {item.label}
+                  </span>
                 </div>
               ))}
             </div>
@@ -134,13 +152,13 @@ export function AdminPreview() {
               {/* Top */}
               <div className="flex items-center justify-between mb-5">
                 <div>
-                  <h3 className="text-sm font-bold text-slate-800">
-                    Good Morning! ☀️ Thursday, June 18
+                  <h3 className="text-sm font-bold text-slate-800 flex items-center gap-1.5">
+                    Good Morning! <Sun className="w-4 h-4 text-amber-500 inline-block" /> Thursday, June 18
                   </h3>
                   <p className="text-xs text-slate-500">243 deliveries · 7 skips · 312L total</p>
                 </div>
                 <button className="flex items-center gap-1.5 bg-teal-700 text-white text-xs font-bold px-3 py-2 rounded-lg hover:bg-teal-600 transition-colors">
-                  🖨️ Print List
+                  <Printer size={13} /> Print List
                 </button>
               </div>
 
@@ -149,7 +167,7 @@ export function AdminPreview() {
                 {stats.map((s) => (
                   <div key={s.label} className="bg-white rounded-2xl p-3 border border-slate-100">
                     <div className="flex items-center justify-between mb-2">
-                      <span className="text-lg" role="img" aria-label={s.label}>{s.icon}</span>
+                      <span className="text-teal-600 flex items-center">{getAdminIcon(s.icon, "w-5 h-5")}</span>
                       <span
                         className={cn(
                           'text-[10px] font-bold px-1.5 py-0.5 rounded-full',
@@ -170,8 +188,8 @@ export function AdminPreview() {
                 <div className="flex items-center justify-between px-4 py-3 border-b border-slate-100">
                   <p className="text-xs font-bold text-slate-700">Today&apos;s Delivery List</p>
                   <div className="flex gap-2">
-                    <div className="bg-slate-100 rounded-lg px-3 py-1.5 text-[10px] text-slate-500 font-medium">
-                      🔍 Search customer
+                    <div className="bg-slate-100 rounded-lg px-3 py-1.5 text-[10px] text-slate-500 font-medium flex items-center gap-1.5">
+                      <Search size={11} /> Search customer
                     </div>
                   </div>
                 </div>
@@ -214,9 +232,10 @@ export function AdminPreview() {
                     ))}
                   </tbody>
                 </table>
-                <div className="px-4 py-3 bg-teal-50 border-t border-teal-100">
+                <div className="px-4 py-3 bg-teal-50 border-t border-teal-100 flex items-center gap-2">
+                  <Milk size={14} className="text-teal-700" />
                   <p className="text-xs font-bold text-teal-700">
-                    🥛 Total milk needed today: <span className="text-teal-900">312 Litres</span>
+                    Total milk needed today: <span className="text-teal-900">312 Litres</span>
                   </p>
                 </div>
               </div>

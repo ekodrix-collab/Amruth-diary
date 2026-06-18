@@ -1,5 +1,17 @@
 import Link from 'next/link'
 import { cn } from '@/lib/utils'
+import { Zap, CreditCard, MessageSquare, Rocket, Triangle, Calendar, Lock, BookOpen } from 'lucide-react'
+
+function getTechIcon(iconName: string, className?: string) {
+  switch (iconName) {
+    case '▲': return <Triangle className={className} fill="currentColor" />
+    case '⚡': return <Zap className={className} />
+    case '💳': return <CreditCard className={className} />
+    case '💬': return <MessageSquare className={className} />
+    case '🚀': return <Rocket className={className} />
+    default: return null
+  }
+}
 
 const techStack = [
   { icon: '▲', name: 'Next.js 14', role: 'Framework', desc: 'App Router, Server Components, Edge API' },
@@ -51,7 +63,9 @@ export function PricingSection() {
                   'hover:-translate-y-1 hover:border-teal-100 hover:shadow-card'
                 )}
               >
-                <div className="text-4xl mb-3" role="img" aria-label={tech.name}>{tech.icon}</div>
+                <div className="text-teal-600 mb-3" aria-hidden="true">
+                  {getTechIcon(tech.icon, "w-8 h-8")}
+                </div>
                 <p className="text-small font-bold text-teal-900 mb-0.5">{tech.name}</p>
                 <p className="text-tiny font-semibold text-teal-500 uppercase tracking-wider mb-2">{tech.role}</p>
                 <p className="text-tiny text-teal-900/50 leading-relaxed">{tech.desc}</p>
@@ -107,13 +121,13 @@ export function PricingSection() {
 
                   <div className="flex flex-col gap-2 mb-8">
                     <div className="flex items-center gap-2 text-small text-teal-900/70">
-                      <span className="text-teal-500">📅</span> 6 weeks delivery timeline
+                      <Calendar className="w-4 h-4 text-teal-500" /> 6 weeks delivery timeline
                     </div>
                     <div className="flex items-center gap-2 text-small text-teal-900/70">
-                      <span className="text-teal-500">🔒</span> 1 month post-launch support
+                      <Lock className="w-4 h-4 text-teal-500" /> 1 month post-launch support
                     </div>
                     <div className="flex items-center gap-2 text-small text-teal-900/70">
-                      <span className="text-teal-500">📚</span> Admin training session included
+                      <BookOpen className="w-4 h-4 text-teal-500" /> Admin training session included
                     </div>
                   </div>
 

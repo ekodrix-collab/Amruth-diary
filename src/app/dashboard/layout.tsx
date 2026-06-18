@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
-import { LayoutDashboard, SkipForward, Palmtree, PlusCircle, FileText, LogOut, Menu, User, ShoppingBag } from 'lucide-react'
+import { LayoutDashboard, SkipForward, Palmtree, PlusCircle, FileText, LogOut, Menu, User, ShoppingBag, Milk } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { createClient } from '@/utils/supabase/client'
 
@@ -142,7 +142,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
         <div className="lg:hidden sticky top-0 z-20 bg-cream-100 px-4 py-3 flex items-center justify-between border-b border-border shadow-sm">
           <Link href="/dashboard" className="flex items-center gap-2">
             <div className="w-8 h-8 bg-amber-400 rounded-full flex items-center justify-center text-brown-800 shadow-sm">
-              🥛
+              <Milk size={14} />
             </div>
             <span className="text-sm font-black text-brown-800 font-display">Amruth Milk</span>
           </Link>

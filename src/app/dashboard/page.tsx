@@ -117,8 +117,8 @@ export default function CustomerDashboard() {
     return (
       <div className="max-w-xl mx-auto space-y-6">
         <div>
-          <h1 className="text-2xl sm:text-3xl font-black text-brown-800 font-display tracking-tight mb-1">
-            Waitlist Status ⏳
+          <h1 className="text-2xl sm:text-3xl font-black text-brown-800 font-display tracking-tight mb-1 flex items-center gap-2">
+            Waitlist Status <Clock size={24} className="text-amber-500 animate-pulse" />
           </h1>
           <p className="text-xs font-semibold text-brown-600">You are currently in queue for a delivery slot.</p>
         </div>
@@ -130,7 +130,8 @@ export default function CustomerDashboard() {
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-6 relative z-10">
             <div>
               <span className="inline-flex items-center gap-1.5 bg-amber-500/30 px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-wider text-amber-200 mb-4 border border-amber-400/20 backdrop-blur-md">
-                <span>🥛 {requestedPlan} Daily Plan</span>
+                <Milk size={10} />
+                <span>{requestedPlan} Daily Plan</span>
               </span>
               <p className="text-xl sm:text-2xl font-black text-white font-display leading-tight mb-1">
                 Amruth Milk Waitlist
@@ -153,7 +154,7 @@ export default function CustomerDashboard() {
         {/* Info Box */}
         <div className="bg-warm-white border border-border/80 rounded-2xl p-5 shadow-shadow shadow-sm space-y-4 text-xs font-semibold text-brown-600 leading-relaxed">
           <h3 className="text-sm font-black text-brown-800 flex items-center gap-2">
-            <span>ℹ️</span> How the Waitlist Works
+            <HelpCircle size={14} className="text-amber-500" /> How the Waitlist Works
           </h3>
           <p>
             At Amruth Dairy Farm, we limit our daily production to ensure every drop of milk is fresh, raw, and delivered directly within hours of milking. We never compromise on quality or blend with third-party sources.
@@ -220,7 +221,7 @@ export default function CustomerDashboard() {
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
           <h1 className="text-2xl sm:text-3xl font-black text-brown-800 font-display tracking-tight mb-1">
-            {greeting}, {profile.full_name.split(' ')[0]}! 🥛
+            {greeting}, {profile.full_name.split(' ')[0]}!
           </h1>
           <p className="text-xs font-semibold text-brown-600 flex items-center gap-1.5">
             <Calendar size={13} className="text-amber-600" />
@@ -239,7 +240,8 @@ export default function CustomerDashboard() {
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-6 relative z-10">
           <div>
             <div className="inline-flex items-center gap-1.5 bg-white/10 px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-wider text-cream-100 mb-4 border border-white/10 backdrop-blur-md">
-              <span>🥛 {subscription.quantity_litres} Litre Daily Plan</span>
+              <Milk size={10} />
+              <span>{subscription.quantity_litres} Litre Daily Plan</span>
             </div>
             <p className="text-xl sm:text-2xl font-black text-white font-display leading-tight mb-1">
               Amruth Farm Milk
