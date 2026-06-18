@@ -8,11 +8,11 @@ import { cn } from '@/lib/utils'
 
 const navLinks = [
   { href: '#home', label: 'Home' },
+  { href: '#our-story', label: 'Our Story' },
   { href: '#about-us', label: 'About Us' },
   { href: '#products', label: 'Our Products' },
   { href: '/subscribe', label: 'Subscription' },
   { href: '/shop', label: 'Farm Shop' },
-  { href: '#farm-visit', label: 'Farm Visit' },
 ]
 
 export function Navbar() {
@@ -51,7 +51,7 @@ export function Navbar() {
       setScrolled(window.scrollY > 20)
       
       // Determine active section based on scroll position
-      const sections = ['home', 'about-us', 'products', 'plans', 'farm-visit']
+      const sections = ['home', 'our-story', 'about-us', 'products', 'plans']
       const scrollPos = window.scrollY + 120
 
       for (const section of sections) {

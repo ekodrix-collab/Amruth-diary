@@ -72,8 +72,8 @@ const footerLinks = {
   ],
   Company: [
     { label: 'About Us', href: '#about-us' },
-    { label: 'Farm Visit', href: '#farm-visit' },
-    { label: 'How It Works', href: '#how-it-works' },
+    { label: 'Our Story', href: '#our-story' },
+    { label: 'How It Works', href: '#about-us' }, // or keep as is or map properly
     { label: 'Admin Panel', href: '/admin' },
   ],
   Legal: [

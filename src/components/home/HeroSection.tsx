@@ -208,7 +208,7 @@ export function HeroSection() {
 
               {/* Styled like play-button link from mockup */}
               <Link
-                href="#farm-visit"
+                href="#our-story"
                 style={{
                   display: 'inline-flex',
                   alignItems: 'center',
@@ -241,8 +241,8 @@ export function HeroSection() {
                   <Play size={14} fill="#0066cc" style={{ marginLeft: '2px' }} />
                 </div>
                 <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start', lineHeight: 1.2 }}>
-                  <span style={{ fontSize: '0.8rem', fontWeight: 800, color: '#0f2e5c' }}>Visit Our Farm</span>
-                  <span style={{ fontSize: '0.65rem', fontWeight: 500, color: '#64748b', textTransform: 'none', letterSpacing: 0 }}>Watch Story</span>
+                  <span style={{ fontSize: '0.8rem', fontWeight: 800, color: '#0f2e5c' }}>Watch Our Story</span>
+                  <span style={{ fontSize: '0.65rem', fontWeight: 500, color: '#64748b', textTransform: 'none', letterSpacing: 0 }}>Watch Reels</span>
                 </div>
               </Link>
             </div>
