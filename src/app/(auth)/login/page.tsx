@@ -87,31 +87,83 @@ export default function LoginPage() {
   }
 
   async function handleOtpSubmit(code: string) {
-    if (code.length !== 6) return
-    setLoading(true); setError('')
+    if (code.length !== 6) return;
+    
+    setLoading(true);
+    setError('');
+
     try {
       const res = await fetch('/api/auth/verify-otp', {
-        method: 'POST', headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ phone, token: code })
-      })
-      const data = await res.json()
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ phone, token: code }),
+      });
+
+      const data = await res.json();
+
       if (data.success) {
-        setStep('success')
-        setTimeout(async () => {
-          if (data.role === 'admin') { window.location.href = '/admin'; return }
-          try {
-            const dash = await fetch('/api/customer/dashboard')
-            const dashData = await dash.json()
-            window.location.href = (dashData.success && dashData.subscription) ? '/dashboard' : '/onboarding'
-          } catch { window.location.href = '/dashboard' }
-        }, 1400)
+        setStep('success');
+
+        // ── Decide where to redirect ─────────────────────
+        // Read ONLY from verify-otp response
+        // NO extra API calls — session may not be propagated yet
+        
+        const destination = getRedirectDestination(data);
+
+        // Wait for success animation, then redirect
+        setTimeout(() => {
+          window.location.href = destination;
+        }, 1400);
+
       } else {
-        setError(data.message || 'Wrong OTP. Please try again.')
-        setOtp(['', '', '', '', '', ''])
-        setTimeout(() => { (document.getElementById('otp-0') as HTMLInputElement)?.focus() }, 50)
+        // OTP wrong or expired
+        setError(data.message || 'Wrong OTP. Please try again.');
+        setOtp(['', '', '', '', '', '']);
+        
+        // Focus first OTP box
+        setTimeout(() => {
+          const firstBox = document.getElementById('otp-0') as HTMLInputElement;
+          firstBox?.focus();
+        }, 50);
       }
-    } catch { setError('Network error. Please try again.') }
-    finally { setLoading(false) }
+
+    } catch (err) {
+      setError('Network error. Please check your connection and try again.');
+      console.error('[login] OTP submit error:', err);
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  // ─────────────────────────────────────────────────────
+  // PURE FUNCTION: Decide redirect from API response
+  // No API calls — just logic on the data we already have
+  // ─────────────────────────────────────────────────────
+  function getRedirectDestination(data: {
+    role: string;
+    is_new_user: boolean;
+    has_active_subscription: boolean;
+  }): string {
+    
+    // Admin always goes to admin panel
+    if (data.role === 'admin') {
+      return '/admin';
+    }
+
+    // New user — never logged in before
+    // Must complete onboarding (name, address, choose plan)
+    if (data.is_new_user) {
+      return '/onboarding';
+    }
+
+    // Existing user with active/paused/pending subscription
+    if (data.has_active_subscription) {
+      return '/dashboard';
+    }
+
+    // Existing user but no subscription
+    // (cancelled before, or never completed onboarding)
+    return '/onboarding';
   }
 
   const features = [

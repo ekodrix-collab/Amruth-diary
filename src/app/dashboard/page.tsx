@@ -21,7 +21,15 @@ interface DashboardData {
     daily_rate: number;
     start_date: string;
     balance: number;
-  };
+  } | null;
+  waitlist?: {
+    id: string;
+    quantity_litres: number;
+    requested_start_date: string;
+    position: number;
+    status: string;
+    created_at: string;
+  } | null;
   current_month: {
     billing_month: string;
     days_delivered: number;
@@ -86,12 +94,102 @@ export default function CustomerDashboard() {
     )
   }
 
-  if (error || !data || !data.subscription) {
+  if (error || !data) {
     return (
       <div className="max-w-md mx-auto text-center py-12 bg-warm-white border border-border/80 rounded-3xl p-8 shadow-shadow shadow-md">
         <AlertTriangle className="text-amber-500 mx-auto mb-4" size={40} />
         <h3 className="text-lg font-black text-brown-800">Dashboard Unavailable</h3>
-        <p className="text-xs font-semibold text-brown-600 mt-2 mb-6">{error || 'Active subscription not found.'}</p>
+        <p className="text-xs font-semibold text-brown-600 mt-2 mb-6">{error || 'Failed to load details.'}</p>
+        <button onClick={() => window.location.reload()} className="inline-flex items-center justify-center px-5 h-10 bg-amber-400 text-brown-800 font-extrabold rounded-xl text-xs shadow-sm hover:bg-amber-500 border-none cursor-pointer">
+          Retry Loading
+        </button>
+      </div>
+    )
+  }
+
+  if (data.waitlist) {
+    const wl = data.waitlist
+    const requestedPlan = wl.quantity_litres === 0.5 ? '½ L' : `${wl.quantity_litres} L`
+    const formattedStartDate = new Date(wl.requested_start_date).toLocaleDateString('en-IN', {
+      day: 'numeric', month: 'long', year: 'numeric'
+    })
+    
+    return (
+      <div className="max-w-xl mx-auto space-y-6">
+        <div>
+          <h1 className="text-2xl sm:text-3xl font-black text-brown-800 font-display tracking-tight mb-1">
+            Waitlist Status ⏳
+          </h1>
+          <p className="text-xs font-semibold text-brown-600">You are currently in queue for a delivery slot.</p>
+        </div>
+
+        {/* Waitlist Position Card */}
+        <div className="rounded-[28px] p-6 sm:p-8 text-white relative overflow-hidden shadow-[0_16px_40px_rgba(217,119,6,0.12)] border border-amber-500/20 bg-gradient-to-br from-[#78350f] to-[#b45309]">
+          <div className="absolute top-0 right-0 w-64 h-64 bg-white/[0.03] rounded-full blur-3xl pointer-events-none" />
+          
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-6 relative z-10">
+            <div>
+              <span className="inline-flex items-center gap-1.5 bg-amber-500/30 px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-wider text-amber-200 mb-4 border border-amber-400/20 backdrop-blur-md">
+                <span>🥛 {requestedPlan} Daily Plan</span>
+              </span>
+              <p className="text-xl sm:text-2xl font-black text-white font-display leading-tight mb-1">
+                Amruth Milk Waitlist
+              </p>
+              <p className="text-xs text-amber-100/70 font-semibold">
+                Requested Start Date: {formattedStartDate}
+              </p>
+            </div>
+
+            <div className="text-left sm:text-right">
+              <p className="text-[10px] text-amber-100/60 uppercase tracking-widest font-black mb-1">Queue Position</p>
+              <p className="text-4xl font-black font-mono tracking-tight leading-none text-amber-300">
+                #{wl.position}
+              </p>
+              <p className="text-[9px] text-amber-100/50 font-bold mt-1">Updates dynamically as slots clear</p>
+            </div>
+          </div>
+        </div>
+
+        {/* Info Box */}
+        <div className="bg-warm-white border border-border/80 rounded-2xl p-5 shadow-shadow shadow-sm space-y-4 text-xs font-semibold text-brown-600 leading-relaxed">
+          <h3 className="text-sm font-black text-brown-800 flex items-center gap-2">
+            <span>ℹ️</span> How the Waitlist Works
+          </h3>
+          <p>
+            At Amruth Dairy Farm, we limit our daily production to ensure every drop of milk is fresh, raw, and delivered directly within hours of milking. We never compromise on quality or blend with third-party sources.
+          </p>
+          <p>
+            Due to high demand, all local delivery zones are operating at full capacity. We review active orders every morning. As soon as a spot opens up in your delivery zone, your queue status will update and your subscription will automatically activate!
+          </p>
+          <p>
+            No payment has been charged yet. First payment will be triggered once your slot is confirmed.
+          </p>
+          <div className="pt-2 border-t border-border/40 flex justify-between items-center text-[10px] text-brown-400">
+            <span>Registered: {new Date(wl.created_at).toLocaleDateString('en-IN')}</span>
+            <span>Status: <strong className="text-amber-600 uppercase font-black">{wl.status}</strong></span>
+          </div>
+        </div>
+
+        {/* Support contacts */}
+        <div className="bg-amber-50/50 border border-amber-200/60 rounded-2xl p-4 flex justify-between items-center gap-4 text-xs">
+          <div>
+            <p className="font-black text-brown-800">Need help or want to cancel?</p>
+            <p className="text-[10px] font-semibold text-brown-500 mt-0.5">Reach our delivery support line anytime.</p>
+          </div>
+          <a href="tel:+919876543210" className="inline-flex items-center justify-center px-4 h-9 bg-warm-white border border-border text-brown-800 font-extrabold rounded-lg hover:bg-cream-50 transition-all text-xs cursor-pointer decoration-none">
+            Call Support
+          </a>
+        </div>
+      </div>
+    )
+  }
+
+  if (!data.subscription) {
+    return (
+      <div className="max-w-md mx-auto text-center py-12 bg-warm-white border border-border/80 rounded-3xl p-8 shadow-shadow shadow-md">
+        <AlertTriangle className="text-amber-500 mx-auto mb-4" size={40} />
+        <h3 className="text-lg font-black text-brown-800">Subscription Missing</h3>
+        <p className="text-xs font-semibold text-brown-600 mt-2 mb-6">You don&apos;t have an active milk subscription yet.</p>
         <Link href="/onboarding" className="inline-flex items-center justify-center px-6 h-11 bg-amber-400 text-brown-800 font-extrabold rounded-xl text-xs shadow-sm hover:bg-amber-500 transition-all border-none">
           Complete Onboarding
         </Link>

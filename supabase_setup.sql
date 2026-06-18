@@ -1079,3 +1079,313 @@ SELECT cron.schedule(
   ON CONFLICT (date) DO NOTHING;
   $$
 );
+
+
+-- ═════════════════════════════════════════════════════════════
+-- ADDITIONAL TABLES (Spec Chapters 6, 12, 13)
+-- ═════════════════════════════════════════════════════════════
+
+-- ─────────────────────────────────────────
+-- STEP 15: SUBSCRIPTION PLANS TABLE
+-- Admin-configurable plan catalog
+-- ─────────────────────────────────────────
+CREATE TABLE IF NOT EXISTS public.subscription_plans (
+  id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+  name TEXT NOT NULL,
+  quantity_litres DECIMAL(4,2) NOT NULL
+    CHECK (quantity_litres IN (0.5, 1.0, 1.5, 2.0)),
+  monthly_price DECIMAL(10,2) NOT NULL,
+  daily_rate DECIMAL(10,4) GENERATED ALWAYS AS (ROUND(monthly_price / 30.0, 4)) STORED,
+  is_popular BOOLEAN DEFAULT false,
+  is_active BOOLEAN DEFAULT true,
+  sort_order INT DEFAULT 0,
+  created_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+ALTER TABLE public.subscription_plans ENABLE ROW LEVEL SECURITY;
+CREATE POLICY "anyone_view_plans" ON public.subscription_plans FOR SELECT USING (true);
+CREATE POLICY "admin_manage_plans" ON public.subscription_plans FOR ALL
+  USING (EXISTS (SELECT 1 FROM public.profiles WHERE id = auth.uid() AND role = 'admin'));
+
+-- Seed default plans
+INSERT INTO public.subscription_plans (name, quantity_litres, monthly_price, is_popular, sort_order)
+VALUES
+  ('Starter', 0.5, 1240.00, false, 1),
+  ('Standard', 1.0, 2480.00, true, 2),
+  ('Family', 1.5, 3720.00, false, 3),
+  ('Premium', 2.0, 4960.00, false, 4)
+ON CONFLICT DO NOTHING;
+
+-- ─────────────────────────────────────────
+-- STEP 16: PRODUCT ORDERS TABLE
+-- Tracks customer purchases of ghee, honey etc
+-- ─────────────────────────────────────────
+CREATE TABLE IF NOT EXISTS public.product_orders (
+  id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+  customer_id UUID REFERENCES public.profiles(id) ON DELETE CASCADE NOT NULL,
+  
+  total_amount DECIMAL(10,2) NOT NULL,
+  item_count INT NOT NULL DEFAULT 0,
+  
+  status TEXT DEFAULT 'pending'
+    CHECK (status IN ('pending', 'confirmed', 'delivered', 'cancelled')),
+  
+  delivery_date DATE,
+  delivery_notes TEXT,
+  
+  -- Payment
+  payment_status TEXT DEFAULT 'pending'
+    CHECK (payment_status IN ('pending', 'paid', 'failed', 'refunded')),
+  razorpay_order_id TEXT,
+  razorpay_payment_id TEXT,
+  
+  created_at TIMESTAMPTZ DEFAULT NOW(),
+  updated_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+ALTER TABLE public.product_orders ENABLE ROW LEVEL SECURITY;
+CREATE POLICY "customer_own_product_orders" ON public.product_orders FOR ALL
+  USING (customer_id = auth.uid());
+CREATE POLICY "admin_all_product_orders" ON public.product_orders FOR ALL
+  USING (EXISTS (SELECT 1 FROM public.profiles WHERE id = auth.uid() AND role = 'admin'));
+
+-- ─────────────────────────────────────────
+-- STEP 17: PRODUCT ORDER ITEMS TABLE
+-- Individual items in each order
+-- ─────────────────────────────────────────
+CREATE TABLE IF NOT EXISTS public.product_order_items (
+  id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+  order_id UUID REFERENCES public.product_orders(id) ON DELETE CASCADE NOT NULL,
+  product_id UUID REFERENCES public.products(id) NOT NULL,
+  
+  product_name TEXT NOT NULL,
+  unit_price DECIMAL(10,2) NOT NULL,
+  quantity INT NOT NULL DEFAULT 1,
+  subtotal DECIMAL(10,2) NOT NULL,
+  
+  created_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+ALTER TABLE public.product_order_items ENABLE ROW LEVEL SECURITY;
+CREATE POLICY "customer_own_order_items" ON public.product_order_items FOR SELECT
+  USING (EXISTS (SELECT 1 FROM public.product_orders WHERE id = order_id AND customer_id = auth.uid()));
+CREATE POLICY "admin_all_order_items" ON public.product_order_items FOR ALL
+  USING (EXISTS (SELECT 1 FROM public.profiles WHERE id = auth.uid() AND role = 'admin'));
+
+-- ─────────────────────────────────────────
+-- STEP 18: NOTIFICATIONS LOG TABLE
+-- Queue for WhatsApp / SMS notifications
+-- Cron picks up pending items and sends via Twilio
+-- ─────────────────────────────────────────
+CREATE TABLE IF NOT EXISTS public.notifications_log (
+  id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+  
+  recipient_id UUID REFERENCES public.profiles(id),
+  recipient_phone TEXT NOT NULL,
+  recipient_name TEXT,
+  
+  -- Who gets it
+  recipient_type TEXT NOT NULL DEFAULT 'customer'
+    CHECK (recipient_type IN ('customer', 'admin')),
+  
+  -- Notification category (from the 16 types in spec)
+  notification_type TEXT NOT NULL
+    CHECK (notification_type IN (
+      'skip_confirmed', 'skip_deadline_missed',
+      'vacation_confirmed', 'vacation_resumed',
+      'extra_milk_confirmed', 'extra_milk_delivered',
+      'bill_generated', 'bill_reminder',
+      'payment_received', 'quantity_change',
+      'subscription_activated', 'slot_available',
+      'waitlist_joined',
+      'admin_daily_summary', 'new_subscriber', 'custom'
+    )),
+  
+  -- Message content
+  channel TEXT DEFAULT 'whatsapp'
+    CHECK (channel IN ('whatsapp', 'sms')),
+  message_body TEXT NOT NULL,
+  
+  -- Delivery tracking
+  status TEXT DEFAULT 'pending'
+    CHECK (status IN ('pending', 'sent', 'failed', 'skipped')),
+  
+  -- External IDs
+  twilio_message_sid TEXT,
+  error_message TEXT,
+  
+  -- Scheduling
+  scheduled_at TIMESTAMPTZ DEFAULT NOW(),
+  sent_at TIMESTAMPTZ,
+  
+  created_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+ALTER TABLE public.notifications_log ENABLE ROW LEVEL SECURITY;
+CREATE POLICY "admin_all_notifications" ON public.notifications_log FOR ALL
+  USING (EXISTS (SELECT 1 FROM public.profiles WHERE id = auth.uid() AND role = 'admin'));
+CREATE POLICY "customer_own_notifications" ON public.notifications_log FOR SELECT
+  USING (recipient_id = auth.uid());
+
+CREATE INDEX idx_notifications_status ON public.notifications_log(status) WHERE status = 'pending';
+CREATE INDEX idx_notifications_type ON public.notifications_log(notification_type);
+
+-- ─────────────────────────────────────────
+-- STEP 19: SYSTEM SETTINGS TABLE
+-- Key-value store for admin-configurable settings
+-- ─────────────────────────────────────────
+CREATE TABLE IF NOT EXISTS public.system_settings (
+  key TEXT PRIMARY KEY,
+  value JSONB NOT NULL,
+  description TEXT,
+  updated_at TIMESTAMPTZ DEFAULT NOW(),
+  updated_by UUID REFERENCES public.profiles(id)
+);
+
+ALTER TABLE public.system_settings ENABLE ROW LEVEL SECURITY;
+CREATE POLICY "anyone_read_settings" ON public.system_settings FOR SELECT USING (true);
+CREATE POLICY "admin_manage_settings" ON public.system_settings FOR ALL
+  USING (EXISTS (SELECT 1 FROM public.profiles WHERE id = auth.uid() AND role = 'admin'));
+
+-- Seed default settings
+INSERT INTO public.system_settings (key, value, description)
+VALUES
+  ('daily_capacity_litres', '100', 'Maximum litres of milk available per day'),
+  ('base_price_per_litre', '2480', 'Monthly price for 1 litre/day subscription'),
+  ('skip_deadline_hour_ist', '21', 'IST hour after which skips are not allowed (21 = 9 PM)'),
+  ('waitlist_offer_hours', '24', 'Hours a waitlist offer is valid before expiring'),
+  ('owner_phone', '"+919048571147"', 'Owner phone number for admin notifications'),
+  ('delivery_start_time', '"Before 7:00 AM"', 'Delivery time shown to customers'),
+  ('razorpay_enabled', 'true', 'Whether Razorpay payments are enabled'),
+  ('whatsapp_enabled', 'false', 'Whether WhatsApp notifications are enabled')
+ON CONFLICT (key) DO NOTHING;
+
+-- ─────────────────────────────────────────
+-- STEP 20: WAITLIST AUTO-NOTIFICATION TRIGGER
+-- When a subscription is cancelled, automatically
+-- notify the first person on the waitlist
+-- ─────────────────────────────────────────
+CREATE OR REPLACE FUNCTION notify_waitlist_on_cancel()
+RETURNS TRIGGER AS $$
+DECLARE
+  v_freed_litres DECIMAL(8,2);
+  v_next_waiter RECORD;
+  v_owner_phone TEXT;
+BEGIN
+  -- Only fire when status changes to 'cancelled'
+  IF OLD.status != 'cancelled' AND NEW.status = 'cancelled' THEN
+    v_freed_litres := OLD.quantity_litres;
+    
+    -- Find the first waiting person who wants <= freed litres
+    SELECT w.*, p.phone, p.full_name
+    INTO v_next_waiter
+    FROM public.waitlist w
+    JOIN public.profiles p ON p.id = w.customer_id
+    WHERE w.status = 'waiting'
+      AND w.quantity_litres <= v_freed_litres
+    ORDER BY w.position ASC
+    LIMIT 1;
+    
+    IF v_next_waiter.id IS NOT NULL THEN
+      -- Update waitlist entry to 'notified' with 24-hour deadline
+      UPDATE public.waitlist
+      SET status = 'notified',
+          notified_at = NOW(),
+          response_deadline = NOW() + INTERVAL '24 hours'
+      WHERE id = v_next_waiter.id;
+      
+      -- Insert notification for the waitlisted customer
+      INSERT INTO public.notifications_log (
+        recipient_id, recipient_phone, recipient_name,
+        recipient_type, notification_type, message_body
+      ) VALUES (
+        v_next_waiter.customer_id,
+        v_next_waiter.phone,
+        v_next_waiter.full_name,
+        'customer',
+        'slot_available',
+        '🎉 Good news! A milk delivery slot just opened up! ' ||
+        'You requested ' || v_next_waiter.quantity_litres || 'L/day. ' ||
+        'Subscribe now at amruthmilk.com/subscribe — ' ||
+        '⚠️ This offer is valid for 24 hours only!'
+      );
+      
+      -- Notify admin too
+      SELECT value::TEXT INTO v_owner_phone FROM public.system_settings WHERE key = 'owner_phone';
+      IF v_owner_phone IS NOT NULL THEN
+        INSERT INTO public.notifications_log (
+          recipient_phone, recipient_type, notification_type, message_body
+        ) VALUES (
+          REPLACE(v_owner_phone, '"', ''),
+          'admin',
+          'custom',
+          'Waitlist notification sent to ' || v_next_waiter.full_name ||
+          ' (' || v_next_waiter.phone || ') for ' ||
+          v_next_waiter.quantity_litres || 'L/day slot.'
+        );
+      END IF;
+    END IF;
+  END IF;
+  
+  RETURN NEW;
+END;
+$$ LANGUAGE plpgsql SECURITY DEFINER;
+
+CREATE TRIGGER trg_notify_waitlist_on_cancel
+AFTER UPDATE ON public.subscriptions
+FOR EACH ROW EXECUTE FUNCTION notify_waitlist_on_cancel();
+
+-- ─────────────────────────────────────────
+-- CRON 7: Expire waitlist offers after 24 hours
+-- Runs every hour, moves expired 'notified' → next person
+-- ─────────────────────────────────────────
+SELECT cron.schedule(
+  'expire-waitlist-offers',
+  '0 * * * *',
+  $$
+  DO $$
+  DECLARE
+    v_expired RECORD;
+    v_next RECORD;
+  BEGIN
+    FOR v_expired IN
+      SELECT w.*, p.phone, p.full_name
+      FROM public.waitlist w
+      JOIN public.profiles p ON p.id = w.customer_id
+      WHERE w.status = 'notified'
+        AND w.response_deadline < NOW()
+    LOOP
+      -- Mark as expired
+      UPDATE public.waitlist SET status = 'expired' WHERE id = v_expired.id;
+      
+      -- Find next waiting person
+      SELECT w2.*, p2.phone, p2.full_name
+      INTO v_next
+      FROM public.waitlist w2
+      JOIN public.profiles p2 ON p2.id = w2.customer_id
+      WHERE w2.status = 'waiting'
+        AND w2.quantity_litres <= v_expired.quantity_litres
+      ORDER BY w2.position ASC
+      LIMIT 1;
+      
+      IF v_next.id IS NOT NULL THEN
+        UPDATE public.waitlist
+        SET status = 'notified',
+            notified_at = NOW(),
+            response_deadline = NOW() + INTERVAL '24 hours'
+        WHERE id = v_next.id;
+        
+        INSERT INTO public.notifications_log (
+          recipient_id, recipient_phone, recipient_name,
+          recipient_type, notification_type, message_body
+        ) VALUES (
+          v_next.customer_id, v_next.phone, v_next.full_name,
+          'customer', 'slot_available',
+          '🎉 A milk slot is available! You requested ' || v_next.quantity_litres ||
+          'L/day. Subscribe now — offer valid 24 hours!'
+        );
+      END IF;
+    END LOOP;
+  END $$;
+  $$
+);

@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
-import { LayoutDashboard, SkipForward, Palmtree, PlusCircle, FileText, LogOut, Menu, User } from 'lucide-react'
+import { LayoutDashboard, SkipForward, Palmtree, PlusCircle, FileText, LogOut, Menu, User, ShoppingBag } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { createClient } from '@/utils/supabase/client'
 
@@ -13,6 +13,7 @@ const navItems = [
   { href: '/dashboard/vacation', icon: Palmtree, label: 'Vacation' },
   { href: '/dashboard/extra', icon: PlusCircle, label: 'Extra Milk' },
   { href: '/dashboard/bills', icon: FileText, label: 'My Bills' },
+  { href: '/shop', icon: ShoppingBag, label: 'Farm Shop' },
   { href: '/account', icon: User, label: 'Account' },
 ]
 

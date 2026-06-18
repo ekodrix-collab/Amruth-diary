@@ -26,10 +26,18 @@ export async function GET(request: Request) {
       .maybeSingle();
 
     if (!subscription) {
+      const { data: waitlist } = await supabase
+        .from('waitlist')
+        .select('id, quantity_litres, requested_start_date, position, status, created_at')
+        .eq('customer_id', user.id)
+        .in('status', ['waiting', 'notified'])
+        .maybeSingle();
+
       return NextResponse.json({
         success: true,
         profile,
-        subscription: null
+        subscription: null,
+        waitlist: waitlist || null
       });
     }
 

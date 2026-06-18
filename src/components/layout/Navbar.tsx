@@ -11,6 +11,7 @@ const navLinks = [
   { href: '#about-us', label: 'About Us' },
   { href: '#products', label: 'Our Products' },
   { href: '/subscribe', label: 'Subscription' },
+  { href: '/shop', label: 'Farm Shop' },
   { href: '#farm-visit', label: 'Farm Visit' },
 ]
 

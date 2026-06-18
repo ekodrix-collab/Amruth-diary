@@ -9,7 +9,7 @@ import {
 import { motion, AnimatePresence } from 'framer-motion'
 import { cn } from '@/lib/utils'
 
-type OnboardingStep = 1 | 2 | 3 | 'success'
+type OnboardingStep = 1 | 2 | 3 | 'success' | 'waitlist'
 
 const AREAS = [
   'Padil', 'Kulshekar', 'Kadri', 'Alape',
@@ -51,6 +51,7 @@ export default function OnboardingPage() {
   const [proRataAmount, setProRataAmount] = useState(0)
   const [monthlyAmount, setMonthlyAmount] = useState(0)
   const [dailyRate, setDailyRate] = useState(0)
+  const [waitlistPosition, setWaitlistPosition] = useState<number | null>(null)
 
   useEffect(() => {
     const tomorrow = new Date()
@@ -75,12 +76,18 @@ export default function OnboardingPage() {
     fetch('/api/customer/dashboard')
       .then(r => r.json())
       .then(data => {
-        if (data.success && data.profile) {
-          setFullName(data.profile.full_name || '')
-          setAddress(data.profile.address || '')
-          setArea(data.profile.area || 'Padil')
-          setLandmark(data.profile.landmark || '')
-          setFloorNotes(data.profile.floor_notes || '')
+        if (data.success) {
+          if (data.subscription) {
+            window.location.href = '/dashboard'
+            return
+          }
+          if (data.profile) {
+            setFullName(data.profile.full_name || '')
+            setAddress(data.profile.address || '')
+            setArea(data.profile.area || 'Padil')
+            setLandmark(data.profile.landmark || '')
+            setFloorNotes(data.profile.floor_notes || '')
+          }
         }
       }).catch(() => {})
   }, [])
@@ -122,7 +129,13 @@ export default function OnboardingPage() {
       if (data.success) {
         setStep('success')
         setTimeout(() => { window.location.href = '/dashboard' }, 2000)
-      } else setError(data.message || 'Failed to create subscription.')
+      } else if (data.waitlisted) {
+        setWaitlistPosition(data.position)
+        setStep('waitlist')
+        setTimeout(() => { window.location.href = '/dashboard' }, 4000)
+      } else {
+        setError(data.message || 'Failed to create subscription.')
+      }
     } catch { setError('Network error.') }
     finally { setLoading(false) }
   }
@@ -582,6 +595,42 @@ export default function OnboardingPage() {
                       initial={{ width: 0 }}
                       animate={{ width: '100%' }}
                       transition={{ duration: 1.8 }}
+                    />
+                  </div>
+                  <p className="ob-success-redirect">Redirecting to your dashboard...</p>
+                </motion.div>
+              )}
+
+              {/* WAITLIST SUCCESS */}
+              {step === 'waitlist' && (
+                <motion.div
+                  key="waitlist"
+                  initial={{ opacity: 0, scale: 0.92 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  transition={{ duration: 0.3 }}
+                  className="ob-success"
+                >
+                  <motion.div
+                    initial={{ scale: 0 }}
+                    animate={{ scale: 1 }}
+                    transition={{ delay: 0.1, type: 'spring', stiffness: 220 }}
+                    className="ob-success-icon"
+                    style={{ backgroundColor: '#fef3c7', borderColor: '#fde68a' }}
+                  >
+                    <Clock size={36} color="#d97706" />
+                  </motion.div>
+                  <h2 className="ob-success-title" style={{ color: '#d97706' }}>Added to Waitlist!</h2>
+                  <p className="ob-success-desc">
+                    Daily capacity is currently full. You have been placed on the waitlist at <strong>Position #{waitlistPosition}</strong>.
+                    <br />We will notify you as soon as delivery slots open! 🥛
+                  </p>
+                  <div className="ob-success-loader">
+                    <motion.div
+                      className="ob-success-bar"
+                      style={{ backgroundColor: '#f59e0b', width: '100%' }}
+                      initial={{ width: 0 }}
+                      animate={{ width: '100%' }}
+                      transition={{ duration: 3.8 }}
                     />
                   </div>
                   <p className="ob-success-redirect">Redirecting to your dashboard...</p>
