@@ -1,6 +1,6 @@
 'use client'
 
-import { useRef } from 'react'
+import { useRef, useState, useEffect } from 'react'
 import Image from 'next/image'
 import Link from 'next/link'
 import { 
@@ -172,6 +172,34 @@ const products: ProductItem[] = [
 
 export function ProductsPreview() {
   const scrollContainerRef = useRef<HTMLDivElement>(null)
+  const [dynamicPrices, setDynamicPrices] = useState<{ [key: string]: { price: number, unit: string } }>({})
+  const [milkPrice, setMilkPrice] = useState<number | null>(null)
+
+  useEffect(() => {
+    // Fetch extra products
+    fetch('/api/admin/products')
+      .then(res => res.json())
+      .then(data => {
+        if (data.success && data.products) {
+          const priceMap: any = {}
+          data.products.forEach((p: any) => {
+            priceMap[p.name] = { price: p.price, unit: p.unit }
+          })
+          setDynamicPrices(priceMap)
+        }
+      })
+      .catch(err => console.error("Failed to fetch products", err))
+
+    // Fetch milk price
+    fetch('/api/admin/settings?key=price_per_litre')
+      .then(res => res.json())
+      .then(data => {
+        if (data.success && data.value?.amount) {
+          setMilkPrice(data.value.amount)
+        }
+      })
+      .catch(err => console.error("Failed to fetch milk price", err))
+  }, [])
 
   const scroll = (direction: 'left' | 'right') => {
     if (scrollContainerRef.current) {
@@ -296,7 +324,19 @@ export function ProductsPreview() {
               }}
               className="products-scroll-container"
             >
-              {products.map((product) => (
+              {products.map((product) => {
+                let displayPrice = product.price
+                let displayUnit = product.unit
+
+                if (product.name === 'A2 Cow Milk' && milkPrice) {
+                  displayPrice = `₹${milkPrice}`
+                  displayUnit = 'Litre'
+                } else if (dynamicPrices[product.name]) {
+                  displayPrice = `₹${dynamicPrices[product.name].price}`
+                  displayUnit = dynamicPrices[product.name].unit
+                }
+
+                return (
                 <div
                   key={product.name}
                   style={{
@@ -481,7 +521,7 @@ export function ProductsPreview() {
                           Price
                         </p>
                         <p style={{ fontSize: '1.3rem', fontWeight: 900, color: '#0f2e5c' }}>
-                          {product.price} <span style={{ fontSize: '0.8rem', fontWeight: 600, color: '#64748b' }}>/ {product.unit}</span>
+                          {displayPrice} <span style={{ fontSize: '0.8rem', fontWeight: 600, color: '#64748b' }}>/ {displayUnit}</span>
                         </p>
                       </div>
 
@@ -511,7 +551,7 @@ export function ProductsPreview() {
                   </div>
 
                 </div>
-              ))}
+              )})}
             </div>
 
             {/* Right Arrow */}
