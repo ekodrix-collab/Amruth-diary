@@ -3,8 +3,9 @@
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { useState, useEffect } from 'react'
-import { Menu, X, ShoppingCart, User } from 'lucide-react'
+import { Menu, X, ShoppingCart, User, LogOut } from 'lucide-react'
 import { cn } from '@/lib/utils'
+import { createClient } from '@/utils/supabase/client'
 
 const navLinks = [
   { href: '#home', label: 'Home' },
@@ -21,6 +22,30 @@ export function Navbar() {
   const [scrolled, setScrolled] = useState(false)
   const [activeLink, setActiveLink] = useState('#home')
   const [cartCount, setCartCount] = useState(0)
+  const [user, setUser] = useState<any>(null)
+  
+  const supabase = createClient()
+
+  useEffect(() => {
+    // Initial check
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      setUser(session?.user || null)
+    })
+
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+      setUser(session?.user || null)
+    })
+
+    return () => {
+      subscription.unsubscribe()
+    }
+  }, [supabase])
+
+  const handleLogout = async () => {
+    await supabase.auth.signOut()
+    setUser(null)
+    window.location.reload()
+  }
 
   useEffect(() => {
     const updateCount = () => {
@@ -147,54 +172,107 @@ export function Navbar() {
               )}
             </div>
 
-            {/* Login button (Outline) */}
-            <Link
-              href="/login"
-              style={{
-                display: 'inline-flex',
-                alignItems: 'center',
-                gap: '8px',
-                height: '40px',
-                padding: '0 20px',
-                borderRadius: '12px',
-                background: 'transparent',
-                color: '#0f2e5c',
-                fontWeight: 600,
-                fontSize: '0.9rem',
-                textDecoration: 'none',
-                border: '1.5px solid #ECD8B0',
-                transition: 'all 0.2s'
-              }}
-              className="hover:bg-slate-50/50 hover:border-[#0f2e5c]/45"
-            >
-              <User size={14} className="text-[#0f2e5c]" />
-              <span>Login</span>
-            </Link>
+            {/* Auth Actions */}
+            {user ? (
+              <>
+                <Link
+                  href="/dashboard"
+                  style={{
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    gap: '8px',
+                    height: '40px',
+                    padding: '0 20px',
+                    borderRadius: '12px',
+                    background: 'transparent',
+                    color: '#0f2e5c',
+                    fontWeight: 600,
+                    fontSize: '0.9rem',
+                    textDecoration: 'none',
+                    border: '1.5px solid #ECD8B0',
+                    transition: 'all 0.2s'
+                  }}
+                  className="hover:bg-slate-50/50 hover:border-[#0f2e5c]/45"
+                >
+                  <User size={14} className="text-[#0f2e5c]" />
+                  <span>Dashboard</span>
+                </Link>
+                <button
+                  onClick={handleLogout}
+                  style={{
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    gap: '8px',
+                    height: '40px',
+                    padding: '0 20px',
+                    borderRadius: '12px',
+                    background: 'linear-gradient(to bottom, #ef4444 0%, #dc2626 100%)',
+                    color: '#fff',
+                    fontWeight: 600,
+                    fontSize: '0.9rem',
+                    textTransform: 'none',
+                    border: '1px solid rgba(220, 38, 38, 0.15)',
+                    boxShadow: 'inset 0 1px 0 rgba(255, 255, 255, 0.3), inset 0 -1px 0 rgba(0, 0, 0, 0.15), 0 4px 12px rgba(220, 38, 38, 0.15)',
+                    transition: 'transform 0.2s, box-shadow 0.2s'
+                  }}
+                  className="hover:scale-105 hover:shadow-md cursor-pointer"
+                >
+                  <LogOut size={14} />
+                  <span>Logout</span>
+                </button>
+              </>
+            ) : (
+              <>
+                {/* Login button (Outline) */}
+                <Link
+                  href="/login"
+                  style={{
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    gap: '8px',
+                    height: '40px',
+                    padding: '0 20px',
+                    borderRadius: '12px',
+                    background: 'transparent',
+                    color: '#0f2e5c',
+                    fontWeight: 600,
+                    fontSize: '0.9rem',
+                    textDecoration: 'none',
+                    border: '1.5px solid #ECD8B0',
+                    transition: 'all 0.2s'
+                  }}
+                  className="hover:bg-slate-50/50 hover:border-[#0f2e5c]/45"
+                >
+                  <User size={14} className="text-[#0f2e5c]" />
+                  <span>Login</span>
+                </Link>
 
-            {/* Sign Up button (Elegant 3D Rounded Bubble style matching requests) */}
-            <Link
-              href="/login?mode=signup"
-              style={{
-                display: 'inline-flex',
-                alignItems: 'center',
-                gap: '8px',
-                height: '40px',
-                padding: '0 20px',
-                borderRadius: '12px',
-                background: 'linear-gradient(to bottom, #3b82f6 0%, #1d4ed8 100%)',
-                color: '#fff',
-                fontWeight: 600,
-                fontSize: '0.9rem',
-                textTransform: 'none',
-                textDecoration: 'none',
-                boxShadow: 'inset 0 1px 0 rgba(255, 255, 255, 0.3), inset 0 -1px 0 rgba(0, 0, 0, 0.15), 0 4px 12px rgba(29, 78, 216, 0.15)',
-                border: '1px solid rgba(29, 78, 216, 0.15)',
-                transition: 'transform 0.2s, box-shadow 0.2s'
-              }}
-              className="hover:scale-105 hover:shadow-md"
-            >
-              <span>Sign Up</span>
-            </Link>
+                {/* Sign Up button (Elegant 3D Rounded Bubble style matching requests) */}
+                <Link
+                  href="/login?mode=signup"
+                  style={{
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    gap: '8px',
+                    height: '40px',
+                    padding: '0 20px',
+                    borderRadius: '12px',
+                    background: 'linear-gradient(to bottom, #3b82f6 0%, #1d4ed8 100%)',
+                    color: '#fff',
+                    fontWeight: 600,
+                    fontSize: '0.9rem',
+                    textTransform: 'none',
+                    textDecoration: 'none',
+                    boxShadow: 'inset 0 1px 0 rgba(255, 255, 255, 0.3), inset 0 -1px 0 rgba(0, 0, 0, 0.15), 0 4px 12px rgba(29, 78, 216, 0.15)',
+                    border: '1px solid rgba(29, 78, 216, 0.15)',
+                    transition: 'transform 0.2s, box-shadow 0.2s'
+                  }}
+                  className="hover:scale-105 hover:shadow-md"
+                >
+                  <span>Sign Up</span>
+                </Link>
+              </>
+            )}
           </div>
 
           {/* Mobile Menu Toggle */}
@@ -230,48 +308,101 @@ export function Navbar() {
             })}
           </nav>
           <div className="flex flex-col gap-3">
-            <Link
-              href="/login"
-              onClick={() => setMenuOpen(false)}
-              style={{
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                gap: '8px',
-                height: '44px',
-                borderRadius: '12px',
-                background: 'transparent',
-                color: '#0f2e5c',
-                fontWeight: 600,
-                fontSize: '0.95rem',
-                textDecoration: 'none',
-                border: '1.5px solid #ECD8B0'
-              }}
-            >
-              <User size={16} />
-              Login
-            </Link>
-            <Link
-              href="/login?mode=signup"
-              onClick={() => setMenuOpen(false)}
-              style={{
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                gap: '8px',
-                height: '44px',
-                borderRadius: '12px',
-                background: 'linear-gradient(to bottom, #3b82f6 0%, #1d4ed8 100%)',
-                color: '#fff',
-                fontWeight: 600,
-                fontSize: '0.95rem',
-                textDecoration: 'none',
-                boxShadow: 'inset 0 1px 0 rgba(255, 255, 255, 0.3), inset 0 -1px 0 rgba(0, 0, 0, 0.15), 0 4px 14px rgba(29, 78, 216, 0.2)',
-                border: '1px solid rgba(29, 78, 216, 0.15)'
-              }}
-            >
-              Sign Up
-            </Link>
+            {user ? (
+              <>
+                <Link
+                  href="/dashboard"
+                  onClick={() => setMenuOpen(false)}
+                  style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    gap: '8px',
+                    height: '44px',
+                    borderRadius: '12px',
+                    background: 'transparent',
+                    color: '#0f2e5c',
+                    fontWeight: 600,
+                    fontSize: '0.95rem',
+                    textDecoration: 'none',
+                    border: '1.5px solid #ECD8B0'
+                  }}
+                >
+                  <User size={16} />
+                  Dashboard
+                </Link>
+                <button
+                  onClick={() => {
+                    handleLogout()
+                    setMenuOpen(false)
+                  }}
+                  style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    gap: '8px',
+                    height: '44px',
+                    borderRadius: '12px',
+                    background: 'linear-gradient(to bottom, #ef4444 0%, #dc2626 100%)',
+                    color: '#fff',
+                    fontWeight: 600,
+                    fontSize: '0.95rem',
+                    textDecoration: 'none',
+                    boxShadow: 'inset 0 1px 0 rgba(255, 255, 255, 0.3), inset 0 -1px 0 rgba(0, 0, 0, 0.15), 0 4px 14px rgba(220, 38, 38, 0.2)',
+                    border: '1px solid rgba(220, 38, 38, 0.15)',
+                    cursor: 'pointer'
+                  }}
+                >
+                  <LogOut size={16} />
+                  Logout
+                </button>
+              </>
+            ) : (
+              <>
+                <Link
+                  href="/login"
+                  onClick={() => setMenuOpen(false)}
+                  style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    gap: '8px',
+                    height: '44px',
+                    borderRadius: '12px',
+                    background: 'transparent',
+                    color: '#0f2e5c',
+                    fontWeight: 600,
+                    fontSize: '0.95rem',
+                    textDecoration: 'none',
+                    border: '1.5px solid #ECD8B0'
+                  }}
+                >
+                  <User size={16} />
+                  Login
+                </Link>
+                <Link
+                  href="/login?mode=signup"
+                  onClick={() => setMenuOpen(false)}
+                  style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    gap: '8px',
+                    height: '44px',
+                    borderRadius: '12px',
+                    background: 'linear-gradient(to bottom, #3b82f6 0%, #1d4ed8 100%)',
+                    color: '#fff',
+                    fontWeight: 600,
+                    fontSize: '0.95rem',
+                    textDecoration: 'none',
+                    boxShadow: 'inset 0 1px 0 rgba(255, 255, 255, 0.3), inset 0 -1px 0 rgba(0, 0, 0, 0.15), 0 4px 14px rgba(29, 78, 216, 0.2)',
+                    border: '1px solid rgba(29, 78, 216, 0.15)'
+                  }}
+                >
+                  Sign Up
+                </Link>
+              </>
+            )}
           </div>
         </div>
       )}
