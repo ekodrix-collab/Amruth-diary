@@ -15,33 +15,45 @@ export async function GET(request: Request) {
     const { searchParams } = new URL(request.url);
     const key = searchParams.get('key');
 
-    if (!key) {
-      return NextResponse.json(
-        { success: false, message: 'key query parameter is required' },
-        { status: 400 }
-      );
-    }
-
     const adminClient = createAdminClient();
-    const { data, error } = await adminClient
-      .from('app_settings')
-      .select('key, value, updated_at')
-      .eq('key', key)
-      .single();
+    
+    if (key) {
+      const { data, error } = await adminClient
+        .from('app_settings')
+        .select('key, value, updated_at')
+        .eq('key', key)
+        .single();
 
-    if (error || !data) {
-      return NextResponse.json(
-        { success: false, message: `Setting '${key}' not found` },
-        { status: 404 }
-      );
+      if (error || !data) {
+        return NextResponse.json(
+          { success: false, message: `Setting '${key}' not found` },
+          { status: 404 }
+        );
+      }
+
+      return NextResponse.json({
+        success: true,
+        key: data.key,
+        value: data.value,
+        updated_at: data.updated_at,
+      });
+    } else {
+      const { data, error } = await adminClient
+        .from('app_settings')
+        .select('key, value, updated_at');
+
+      if (error) {
+        return NextResponse.json(
+          { success: false, message: 'Failed to fetch settings' },
+          { status: 500 }
+        );
+      }
+
+      return NextResponse.json({
+        success: true,
+        settings: data
+      });
     }
-
-    return NextResponse.json({
-      success: true,
-      key: data.key,
-      value: data.value,
-      updated_at: data.updated_at,
-    });
   } catch (err: unknown) {
     const message = err instanceof Error ? err.message : 'Unknown error';
     console.error('[admin/settings GET] Exception:', message);
@@ -82,6 +94,37 @@ export async function PUT(request: Request) {
 
     // Business logic
     const body = await request.json();
+
+    // Batch update support
+    if (Array.isArray(body)) {
+      const updates = body.map((item: any) => ({
+        key: item.key,
+        value: item.value,
+        updated_by: user.id,
+        updated_at: new Date().toISOString(),
+      }));
+
+      const { data, error } = await adminClient
+        .from('app_settings')
+        .upsert(updates, { onConflict: 'key' })
+        .select();
+
+      if (error) {
+        console.error('[admin/settings PUT] Batch update error:', error.message);
+        return NextResponse.json(
+          { success: false, message: 'Failed to batch update settings' },
+          { status: 500 }
+        );
+      }
+
+      return NextResponse.json({
+        success: true,
+        settings: data,
+        message: 'Settings batch updated successfully',
+      });
+    }
+
+    // Single update support
     const { key, value } = body;
 
     if (!key || value === undefined) {
