@@ -176,6 +176,7 @@ export function HowItWorks() {
                   src="/images/amruth_farm_gate.png"
                   alt="Amruth Dairy Farm gate"
                   fill
+                  sizes="(max-width: 900px) 100vw, 50vw"
                   style={{ objectFit: 'cover' }}
                 />
               </div>

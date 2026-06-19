@@ -388,6 +388,7 @@ export function ProductsPreview() {
                         src={product.image}
                         alt={product.name}
                         fill
+                        sizes="(max-width: 768px) 100vw, 350px"
                         style={{ objectFit: 'contain' }}
                         priority
                       />
