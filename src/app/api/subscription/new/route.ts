@@ -38,20 +38,19 @@ export async function POST(request: Request) {
       }, { status: 400 });
     }
 
-    // 4. CHECK CAPACITY: Call RPC check_capacity
-    const { data: capacityCheck, error: capacityError } = await adminSupabase.rpc('check_capacity', {
-      p_date: start_date,
+    // 4. BOOK CAPACITY: Call RPC book_recurring_capacity
+    const { data: bookingSuccess, error: bookingError } = await adminSupabase.rpc('book_recurring_capacity', {
+      p_start_date: start_date,
       p_litres: quantity
     });
 
-    if (capacityError) {
-      console.error('Capacity check error:', capacityError.message);
-      return NextResponse.json({ success: false, message: 'Failed to check capacity' }, { status: 500 });
+    if (bookingError) {
+      console.error('Capacity booking error:', bookingError.message);
+      return NextResponse.json({ success: false, message: 'Failed to secure capacity' }, { status: 500 });
     }
 
-    const { can_book, is_full } = capacityCheck;
-
-    if (!can_book || is_full) {
+    // If false, it means capacity was insufficient
+    if (!bookingSuccess) {
       // INSERT into waitlist
       const { data: waitlistEntry, error: waitlistError } = await adminSupabase
         .from('waitlist')

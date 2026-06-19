@@ -54,24 +54,34 @@ export async function POST(request: Request) {
     const effectiveMonth = effectiveDateObj.getMonth() + 1;
     const new_monthly_amount = calculateMonthlyAmount(new_daily_rate, effectiveYear, effectiveMonth);
 
-    // 8. Check capacity for next month if quantity increasing
-    if (new_quantity > subscription.quantity_litres) {
-      const extra_needed = new_quantity - subscription.quantity_litres;
-      // In a real app we'd check daily_capacity for the whole next month. 
-      // For MVP, we assume we can handle it or we log it. We will proceed.
+    // 8. Secure capacity for next month if quantity changing
+    const extra_needed = new_quantity - subscription.quantity_litres;
+    if (extra_needed !== 0) {
+      const { data: bookingSuccess, error: bookingError } = await adminSupabase.rpc('book_recurring_capacity', {
+        p_start_date: effective_month,
+        p_litres: extra_needed
+      });
+
+      if (bookingError || !bookingSuccess) {
+        return NextResponse.json({
+          success: false,
+          capacity_full: true,
+          message: `Sorry! Insufficient capacity for next month. Cannot increase by ${extra_needed}L.`
+        }, { status: 400 });
+      }
     }
 
-    // 9. INSERT quantity_changes (using adminClient — RLS requires it)
+    // 9. INSERT quantity_change_requests (using adminClient — RLS requires it)
     const { error: insertError } = await adminSupabase
-      .from('quantity_changes')
+      .from('quantity_change_requests')
       .insert({
         subscription_id: subscription.id,
         customer_id: user.id,
-        from_quantity: subscription.quantity_litres,
-        to_quantity: new_quantity,
+        current_quantity: subscription.quantity_litres,
+        requested_quantity: new_quantity,
         new_monthly_amount: new_monthly_amount,
         new_daily_rate: new_daily_rate,
-        effective_month: effective_month,
+        effective_from_month: effective_month,
         status: 'pending'
       });
 
@@ -80,10 +90,10 @@ export async function POST(request: Request) {
       return NextResponse.json({ success: false, message: 'Failed to request quantity change' }, { status: 500 });
     }
 
-    // 10. UPDATE subscriptions.next_month_quantity (using adminClient)
+    // 10. UPDATE subscriptions.next_month_quantity_litres (using adminClient)
     await adminSupabase
       .from('subscriptions')
-      .update({ next_month_quantity: new_quantity })
+      .update({ next_month_quantity_litres: new_quantity })
       .eq('id', subscription.id);
 
     return NextResponse.json({

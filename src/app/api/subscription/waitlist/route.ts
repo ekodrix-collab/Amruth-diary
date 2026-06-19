@@ -63,7 +63,7 @@ export async function POST(request: Request) {
       .from('waitlist')
       .insert({
         customer_id: user.id,
-        quantity_litres,
+        requested_quantity_litres: quantity_litres,
         requested_start_date,
         status: 'waiting'
       })
@@ -87,7 +87,7 @@ export async function POST(request: Request) {
     return NextResponse.json({
       success: true,
       position: entry.position,
-      quantity_litres: entry.quantity_litres,
+      quantity_litres: entry.requested_quantity_litres,
       requested_start_date: entry.requested_start_date,
       message: `You have been added to the waitlist at position #${entry.position}!`
     });

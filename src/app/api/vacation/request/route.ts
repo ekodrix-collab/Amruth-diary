@@ -93,7 +93,7 @@ export async function POST(request: Request) {
 
       // Update capacity for dateStr
       const { data: capacity } = await adminSupabase
-        .from('daily_capacity')
+        .from('milk_capacity')
         .select('*')
         .eq('date', dateStr)
         .maybeSingle();
@@ -101,10 +101,9 @@ export async function POST(request: Request) {
       if (capacity) {
         const newBooked = Math.max(0, Number(capacity.booked_litres) - Number(subscription.quantity_litres));
         await adminSupabase
-          .from('daily_capacity')
+          .from('milk_capacity')
           .update({
-            booked_litres: newBooked,
-            is_full: newBooked >= Number(capacity.total_litres)
+            booked_litres: newBooked
           })
           .eq('id', capacity.id);
       }
@@ -112,42 +111,23 @@ export async function POST(request: Request) {
       currentLoopDate.setUTCDate(currentLoopDate.getUTCDate() + 1);
     }
 
-    // Split billing credits and update/insert billing_months
+    // Split billing credits and insert into billing_adjustments (Rule #7)
     for (const [monthStr, pausedDays] of Object.entries(monthDaysMap)) {
       const creditAmount = Number(pausedDays) * Number(subscription.daily_rate);
-      const daysInMonth = new Date(new Date(monthStr).getFullYear(), new Date(monthStr).getMonth() + 1, 0).getDate();
+      
+      const { error: adjustmentError } = await adminSupabase
+        .from('billing_adjustments')
+        .insert({
+          subscription_id: subscription.id,
+          customer_id: user.id,
+          adjustment_type: 'vacation_credit',
+          amount: creditAmount,
+          target_month: monthStr,
+          notes: `Vacation credit for ${pausedDays} days`
+        });
 
-      const { data: bMonth } = await adminSupabase
-        .from('billing_months')
-        .select('*')
-        .eq('subscription_id', subscription.id)
-        .eq('billing_month', monthStr)
-        .maybeSingle();
-
-      if (bMonth) {
-        await adminSupabase
-          .from('billing_months')
-          .update({
-            pause_credit: Number(bMonth.pause_credit) + creditAmount,
-            days_paused: (bMonth.days_paused || 0) + pausedDays,
-            net_due: Math.max(0, Number(bMonth.net_due) - creditAmount)
-          })
-          .eq('id', bMonth.id);
-      } else {
-        await adminSupabase
-          .from('billing_months')
-          .insert({
-            subscription_id: subscription.id,
-            customer_id: user.id,
-            billing_month: monthStr,
-            quantity_litres: subscription.quantity_litres,
-            monthly_amount: subscription.monthly_amount,
-            daily_rate: subscription.daily_rate,
-            days_in_month: daysInMonth,
-            pause_credit: creditAmount,
-            days_paused: pausedDays,
-            net_due: Math.max(0, Number(subscription.monthly_amount) - creditAmount)
-          });
+      if (adjustmentError) {
+        console.error('Adjustment error:', adjustmentError.message);
       }
     }
 
