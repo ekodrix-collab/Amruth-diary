@@ -128,7 +128,7 @@ const CAT: Record<string, {
     badgeBg: '#dbeafe',
     badgeColor: '#1e40af',
     cardBg: 'linear-gradient(160deg, #eff6ff 0%, #dbeafe 50%, #eff6ff 100%)',
-    accentHex: '#1d4ed8',
+    accentHex: '#0369A1',
     btnText: '#ffffff',
     features: ['Rich & Thick', 'Good for Gut', 'Daily Fresh'],
   },
@@ -568,7 +568,7 @@ function DeliveryCard() {
           alignItems: 'center',
           gap: 5,
           background: 'rgba(255,255,255,0.7)',
-          color: '#1d4ed8',
+          color: '#0369A1',
           fontSize: 9,
           fontWeight: 800,
           padding: '4px 10px',
@@ -592,7 +592,7 @@ function DeliveryCard() {
             background: 'radial-gradient(ellipse, rgba(255,255,255,0.5) 0%, transparent 70%)',
           }}
         />
-        <div style={{ color: '#1d4ed8', filter: 'drop-shadow(0 8px 16px rgba(0,0,0,0.1))' }}>
+        <div style={{ color: '#0369A1', filter: 'drop-shadow(0 8px 16px rgba(0,0,0,0.1))' }}>
           <Milk size={64} />
         </div>
       </div>
@@ -610,7 +610,7 @@ function DeliveryCard() {
         >
           Delivered Before 7 AM
         </h3>
-        <p style={{ fontSize: 11, fontWeight: 600, color: '#3b82f6', marginBottom: 14 }}>
+        <p style={{ fontSize: 11, fontWeight: 600, color: '#0EA5E9', marginBottom: 14 }}>
           Every Morning. Every Day.
         </p>
         <div style={{ display: 'flex', gap: 8, marginBottom: 16, flexWrap: 'wrap' as const }}>
@@ -624,7 +624,7 @@ function DeliveryCard() {
               style={{
                 fontSize: 9,
                 fontWeight: 700,
-                color: '#1d4ed8',
+                color: '#0369A1',
                 background: 'rgba(255,255,255,0.6)',
                 border: '1px solid #bfdbfe',
                 borderRadius: 999,
@@ -840,7 +840,7 @@ function PlanCard() {
               style={{
                 fontSize: 9,
                 fontWeight: 700,
-                color: sel === p.label ? '#3b82f6' : '#A8A29E',
+                color: sel === p.label ? '#0EA5E9' : '#A8A29E',
               }}
             >
               ₹{p.price}/day

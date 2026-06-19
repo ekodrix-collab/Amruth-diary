@@ -77,14 +77,14 @@ export function Navbar() {
         className={cn(
           'fixed top-0 left-0 right-0 z-50 transition-all duration-500 h-[88px] flex items-center',
           scrolled
-            ? 'bg-white/80 backdrop-blur-md shadow-[0_2px_20px_rgba(15,46,92,0.03)] border-b border-[#ECD8B0]/20 h-[80px]'
+            ? 'bg-white/80 backdrop-blur-md shadow-[0_2px_20px_rgba(15, 23, 42,0.03)] border-b border-[#E2E8F0]/20 h-[80px]'
             : 'bg-transparent'
         )}
       >
         <div className="container-page flex items-center justify-between w-full">
           {/* Logo with Cow icon */}
           <Link href="/" className="flex items-center gap-3 group">
-            <div className="w-10 h-10 rounded-full bg-[#e6f4fe] flex items-center justify-center text-[#0066cc] border border-[#bce0fd] transition-transform duration-500 group-hover:rotate-[360deg]">
+            <div className="w-10 h-10 rounded-full bg-[#F0F9FF] flex items-center justify-center text-[#0284C7] border border-[#BAE6FD] transition-transform duration-500 group-hover:rotate-[360deg]">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="w-5 h-5">
                 <path d="M5 10c0-2 2-3 4-3h6c2 0 4 1 4 3" />
                 <path d="M5 10v6c0 2 2 3 4 3h6c2 0 4-1 4-3v-6" />
@@ -98,10 +98,10 @@ export function Navbar() {
               </svg>
             </div>
             <div className="flex flex-col leading-none">
-              <span className="text-lg font-black tracking-tight text-[#0f2e5c]">
+              <span className="text-lg font-black tracking-tight text-[#0F172A]">
                 Amruth
               </span>
-              <span className="text-[9px] font-black tracking-widest uppercase mt-0.5 text-[#0066cc]">
+              <span className="text-[9px] font-black tracking-widest uppercase mt-0.5 text-[#0284C7]">
                 Dairy Farm
               </span>
             </div>
@@ -118,13 +118,13 @@ export function Navbar() {
                   href={targetHref}
                   onClick={() => setActiveLink(href)}
                   className={cn(
-                    'text-sm font-bold transition-all relative py-1.5 text-[#0f2e5c]/80 hover:text-[#0066cc] group',
-                    isActive && 'text-[#0066cc]'
+                    'text-sm font-bold transition-all relative py-1.5 text-[#0F172A]/80 hover:text-[#0284C7] group',
+                    isActive && 'text-[#0284C7]'
                   )}
                 >
                   {label}
                   <span className={cn(
-                    "absolute bottom-0 left-0 right-0 h-[2px] bg-[#0066cc] rounded-full transform origin-left transition-transform duration-300",
+                    "absolute bottom-0 left-0 right-0 h-[2px] bg-[#0284C7] rounded-full transform origin-left transition-transform duration-300",
                     isActive ? "scale-x-100" : "scale-x-0 group-hover:scale-x-100"
                   )} />
                 </Link>
@@ -139,9 +139,9 @@ export function Navbar() {
               onClick={() => window.dispatchEvent(new CustomEvent('open-cart'))}
               className="relative cursor-pointer group mr-2"
             >
-              <ShoppingCart size={20} className="text-[#0f2e5c]/80 group-hover:text-[#0066cc] transition-colors" />
+              <ShoppingCart size={20} className="text-[#0F172A]/80 group-hover:text-[#0284C7] transition-colors" />
               {cartCount > 0 && (
-                <span className="absolute -top-1.5 -right-1.5 bg-[#0066cc] text-white text-[9px] font-bold w-4.5 h-4.5 rounded-full flex items-center justify-center shadow-sm">
+                <span className="absolute -top-1.5 -right-1.5 bg-[#0284C7] text-white text-[9px] font-bold w-4.5 h-4.5 rounded-full flex items-center justify-center shadow-sm">
                   {cartCount}
                 </span>
               )}
@@ -158,16 +158,16 @@ export function Navbar() {
                 padding: '0 20px',
                 borderRadius: '12px',
                 background: 'transparent',
-                color: '#0f2e5c',
+                color: '#0F172A',
                 fontWeight: 600,
                 fontSize: '0.9rem',
                 textDecoration: 'none',
-                border: '1.5px solid #ECD8B0',
+                border: '1.5px solid #E2E8F0',
                 transition: 'all 0.2s'
               }}
-              className="hover:bg-slate-50/50 hover:border-[#0f2e5c]/45"
+              className="hover:bg-slate-50/50 hover:border-[#0F172A]/45"
             >
-              <User size={14} className="text-[#0f2e5c]" />
+              <User size={14} className="text-[#0F172A]" />
               <span>Login</span>
             </Link>
 
@@ -181,14 +181,14 @@ export function Navbar() {
                 height: '40px',
                 padding: '0 20px',
                 borderRadius: '12px',
-                background: 'linear-gradient(to bottom, #3b82f6 0%, #1d4ed8 100%)',
+                background: 'linear-gradient(to bottom, #0EA5E9 0%, #0369A1 100%)',
                 color: '#fff',
                 fontWeight: 600,
                 fontSize: '0.9rem',
                 textTransform: 'none',
                 textDecoration: 'none',
-                boxShadow: 'inset 0 1px 0 rgba(255, 255, 255, 0.3), inset 0 -1px 0 rgba(0, 0, 0, 0.15), 0 4px 12px rgba(29, 78, 216, 0.15)',
-                border: '1px solid rgba(29, 78, 216, 0.15)',
+                boxShadow: 'inset 0 1px 0 rgba(255, 255, 255, 0.3), inset 0 -1px 0 rgba(0, 0, 0, 0.15), 0 4px 12px rgba(3, 105, 161, 0.15)',
+                border: '1px solid rgba(3, 105, 161, 0.15)',
                 transition: 'transform 0.2s, box-shadow 0.2s'
               }}
               className="hover:scale-105 hover:shadow-md"
@@ -200,7 +200,7 @@ export function Navbar() {
           {/* Mobile Menu Toggle */}
           <button
             onClick={() => setMenuOpen(!menuOpen)}
-            className="md:hidden p-1.5 focus:outline-none text-[#0f2e5c]"
+            className="md:hidden p-1.5 focus:outline-none text-[#0F172A]"
             aria-label="Toggle menu"
           >
             {menuOpen ? <X size={24} /> : <Menu size={24} />}
@@ -222,7 +222,7 @@ export function Navbar() {
                     setActiveLink(href)
                     setMenuOpen(false)
                   }}
-                  className="text-lg font-bold text-[#0f2e5c] hover:text-[#0066cc] py-2 border-b border-slate-100"
+                  className="text-lg font-bold text-[#0F172A] hover:text-[#0284C7] py-2 border-b border-slate-100"
                 >
                   {label}
                 </Link>
@@ -241,11 +241,11 @@ export function Navbar() {
                 height: '44px',
                 borderRadius: '12px',
                 background: 'transparent',
-                color: '#0f2e5c',
+                color: '#0F172A',
                 fontWeight: 600,
                 fontSize: '0.95rem',
                 textDecoration: 'none',
-                border: '1.5px solid #ECD8B0'
+                border: '1.5px solid #E2E8F0'
               }}
             >
               <User size={16} />
@@ -261,13 +261,13 @@ export function Navbar() {
                 gap: '8px',
                 height: '44px',
                 borderRadius: '12px',
-                background: 'linear-gradient(to bottom, #3b82f6 0%, #1d4ed8 100%)',
+                background: 'linear-gradient(to bottom, #0EA5E9 0%, #0369A1 100%)',
                 color: '#fff',
                 fontWeight: 600,
                 fontSize: '0.95rem',
                 textDecoration: 'none',
-                boxShadow: 'inset 0 1px 0 rgba(255, 255, 255, 0.3), inset 0 -1px 0 rgba(0, 0, 0, 0.15), 0 4px 14px rgba(29, 78, 216, 0.2)',
-                border: '1px solid rgba(29, 78, 216, 0.15)'
+                boxShadow: 'inset 0 1px 0 rgba(255, 255, 255, 0.3), inset 0 -1px 0 rgba(0, 0, 0, 0.15), 0 4px 14px rgba(3, 105, 161, 0.2)',
+                border: '1px solid rgba(3, 105, 161, 0.15)'
               }}
             >
               Sign Up

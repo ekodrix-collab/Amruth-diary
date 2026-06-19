@@ -19,7 +19,7 @@ export function OurStory() {
     <section
       id="our-story"
       style={{
-        background: '#FAF7EF', // Warm creamy ivory background matching branding
+        background: '#F8FAFC', // Warm creamy ivory background matching branding
         padding: '80px 0',
         position: 'relative',
         overflow: 'hidden'
@@ -35,8 +35,8 @@ export function OurStory() {
                 alignItems: 'center',
                 gap: 6,
                 background: '#fff',
-                border: '1.5px solid rgba(0, 102, 204, 0.15)',
-                color: '#0066cc',
+                border: '1.5px solid rgba(2, 132, 199, 0.15)',
+                color: '#0284C7',
                 borderRadius: 999,
                 padding: '6px 16px',
                 fontSize: '0.75rem',
@@ -44,7 +44,7 @@ export function OurStory() {
                 textTransform: 'uppercase',
                 letterSpacing: '0.08em',
                 marginBottom: 16,
-                boxShadow: '0 2px 6px rgba(0, 102, 204, 0.04)'
+                boxShadow: '0 2px 6px rgba(2, 132, 199, 0.04)'
               }}
             >
               <Sparkles size={12} /> Farm Life
@@ -54,7 +54,7 @@ export function OurStory() {
                 fontFamily: 'var(--font-playfair), Georgia, serif',
                 fontSize: 'clamp(2rem, 3.8vw, 2.8rem)',
                 fontWeight: 500,
-                color: '#0f2e5c',
+                color: '#0F172A',
                 lineHeight: 1.2,
                 marginBottom: 14
               }}
@@ -64,7 +64,7 @@ export function OurStory() {
             <p
               style={{
                 fontSize: '1rem',
-                color: '#64748b',
+                color: '#475569',
                 lineHeight: 1.6,
                 maxWidth: 500,
                 margin: '0 auto',
@@ -163,8 +163,8 @@ function ReelPlayerCard({ reel }: { reel: Reel }) {
         overflow: 'hidden',
         background: '#0a0a0c',
         boxShadow: hovered 
-          ? '0 24px 48px rgba(15,46,92,0.2)' 
-          : '0 12px 28px rgba(15,46,92,0.08)',
+          ? '0 24px 48px rgba(15, 23, 42,0.2)' 
+          : '0 12px 28px rgba(15, 23, 42,0.08)',
         border: '3px solid #ffffff',
         cursor: 'pointer',
         transition: 'transform 0.4s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.4s cubic-bezier(0.16, 1, 0.3, 1)',
@@ -217,7 +217,7 @@ function ReelPlayerCard({ reel }: { reel: Reel }) {
             transition: 'transform 0.2s ease'
           }}
         >
-          <Play size={16} fill="#0f2e5c" color="#0f2e5c" style={{ marginLeft: 2 }} />
+          <Play size={16} fill="#0F172A" color="#0F172A" style={{ marginLeft: 2 }} />
         </div>
       </div>
 

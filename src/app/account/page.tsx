@@ -108,14 +108,14 @@ export default function AccountDashboard() {
     <div className="max-w-3xl">
       {/* Header */}
       <div className="mb-8">
-        <h1 className="text-3xl font-medium text-[#0f2e5c] mb-1 font-playfair" style={{ fontFamily: 'var(--font-playfair), Georgia, serif' }}>
+        <h1 className="text-3xl font-medium text-[#0F172A] mb-1 font-playfair" style={{ fontFamily: 'var(--font-playfair), Georgia, serif' }}>
           {greeting}, {firstName}! 👋
         </h1>
         <p className="text-sm text-slate-500 font-semibold">{today}</p>
       </div>
 
       {/* Subscription overview card */}
-      <div className="rounded-[24px] p-8 mb-8 text-white relative overflow-hidden shadow-[0_8px_30px_rgba(15,46,92,0.08)] border border-white/10" style={{ background: 'linear-gradient(135deg, #0f2e5c 0%, #0066cc 100%)' }}>
+      <div className="rounded-[24px] p-8 mb-8 text-white relative overflow-hidden shadow-[0_8px_30px_rgba(15, 23, 42,0.08)] border border-white/10" style={{ background: 'linear-gradient(135deg, #0F172A 0%, #0284C7 100%)' }}>
         <div className="absolute top-0 right-0 w-48 h-48 bg-white/5 rounded-full blur-2xl pointer-events-none" />
         
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-6 relative z-10">
@@ -152,13 +152,13 @@ export default function AccountDashboard() {
               height: '42px',
               padding: '0 24px',
               borderRadius: '12px',
-              background: 'linear-gradient(to bottom, #3b82f6 0%, #1d4ed8 100%)',
+              background: 'linear-gradient(to bottom, #0EA5E9 0%, #0369A1 100%)',
               color: '#fff',
               fontWeight: 500,
               fontSize: '0.9rem',
               textDecoration: 'none',
-              boxShadow: 'inset 0 1px 0 rgba(255, 255, 255, 0.3), inset 0 -1px 0 rgba(0, 0, 0, 0.15), 0 4px 12px rgba(29, 78, 216, 0.2)',
-              border: '1px solid rgba(29, 78, 216, 0.15)',
+              boxShadow: 'inset 0 1px 0 rgba(255, 255, 255, 0.3), inset 0 -1px 0 rgba(0, 0, 0, 0.15), 0 4px 12px rgba(3, 105, 161, 0.2)',
+              border: '1px solid rgba(3, 105, 161, 0.15)',
               transition: 'transform 0.2s'
             }}
             className="hover:scale-105 active:scale-[0.98]"
@@ -176,9 +176,9 @@ export default function AccountDashboard() {
             href={action.href}
             style={{ borderColor: 'rgba(236, 216, 176, 0.6)' }}
             className={cn(
-              'bg-white rounded-[20px] p-6 border shadow-[0_4px_20px_rgba(15,46,92,0.02)]',
+              'bg-white rounded-[20px] p-6 border shadow-[0_4px_20px_rgba(15, 23, 42,0.02)]',
               'flex items-center gap-4',
-              'transition-all duration-300 hover:shadow-[0_8px_30px_rgba(15,46,92,0.06)] hover:-translate-y-[2px]',
+              'transition-all duration-300 hover:shadow-[0_8px_30px_rgba(15, 23, 42,0.06)] hover:-translate-y-[2px]',
               'group'
             )}
           >
@@ -186,21 +186,21 @@ export default function AccountDashboard() {
               <span role="img" aria-label={action.title}>{action.icon}</span>
             </div>
             <div className="flex-1 min-w-0">
-              <p className="text-base font-bold text-[#0f2e5c]">{action.title}</p>
+              <p className="text-base font-bold text-[#0F172A]">{action.title}</p>
               <p className={cn('text-xs font-semibold mt-0.5', action.accentText)}>{action.sub}</p>
               {action.warning && (
                 <p className="text-xs text-orange-500 font-bold mt-1">⏰ {action.warning}</p>
               )}
             </div>
-            <span className="text-[#0f2e5c]/30 text-xl font-bold group-hover:text-[#0066cc] group-hover:translate-x-1 transition-all" aria-hidden="true">›</span>
+            <span className="text-[#0F172A]/30 text-xl font-bold group-hover:text-[#0284C7] group-hover:translate-x-1 transition-all" aria-hidden="true">›</span>
           </Link>
         ))}
       </div>
 
       {/* Recent activity */}
-      <div className="bg-white rounded-[20px] border border-[#ECD8B0]/50 shadow-[0_4px_20px_rgba(15,46,92,0.02)] overflow-hidden">
-        <div className="px-6 py-5 border-b border-[#ECD8B0]/30 bg-slate-50/50">
-          <h2 className="text-base font-bold text-[#0f2e5c]">Recent Delivery Log</h2>
+      <div className="bg-white rounded-[20px] border border-[#E2E8F0]/50 shadow-[0_4px_20px_rgba(15, 23, 42,0.02)] overflow-hidden">
+        <div className="px-6 py-5 border-b border-[#E2E8F0]/30 bg-slate-50/50">
+          <h2 className="text-base font-bold text-[#0F172A]">Recent Delivery Log</h2>
         </div>
         <div className="divide-y divide-slate-100">
           {data.recent_deliveries && data.recent_deliveries.length > 0 ? (
@@ -221,7 +221,7 @@ export default function AccountDashboard() {
                     <span className="text-base" role="img" aria-label={delivery.delivery_status}>{icon}</span>
                   </div>
                   <div className="flex-1 min-w-0">
-                    <p className="text-sm font-bold text-[#0f2e5c]">{dateStr}</p>
+                    <p className="text-sm font-bold text-[#0F172A]">{dateStr}</p>
                     <p className={cn('text-xs font-semibold', color)}>{sub}</p>
                   </div>
                 </div>

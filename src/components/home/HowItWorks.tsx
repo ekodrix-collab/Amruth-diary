@@ -17,8 +17,8 @@ export function HowItWorks() {
                 display: 'inline-flex',
                 alignItems: 'center',
                 background: '#fff',
-                border: '1.5px solid rgba(0, 102, 204, 0.15)',
-                color: '#0066cc',
+                border: '1.5px solid rgba(2, 132, 199, 0.15)',
+                color: '#0284C7',
                 borderRadius: '999px',
                 padding: '6px 16px',
                 fontSize: '0.75rem',
@@ -26,7 +26,7 @@ export function HowItWorks() {
                 textTransform: 'uppercase',
                 letterSpacing: '0.08em',
                 marginBottom: '18px',
-                boxShadow: '0 2px 6px rgba(0, 102, 204, 0.04)'
+                boxShadow: '0 2px 6px rgba(2, 132, 199, 0.04)'
               }}>
                 Why Choose Amruth Dairy
               </div>
@@ -35,7 +35,7 @@ export function HowItWorks() {
                 fontFamily: 'var(--font-playfair), Georgia, serif',
                 fontSize: 'clamp(2rem, 3.8vw, 3rem)', 
                 fontWeight: 500, 
-                color: '#0f2e5c', 
+                color: '#0F172A', 
                 letterSpacing: '-0.01em', 
                 lineHeight: 1.2, 
                 marginBottom: '36px' 
@@ -52,8 +52,8 @@ export function HowItWorks() {
                     width: '40px',
                     height: '40px',
                     borderRadius: '50%',
-                    background: '#e3f2fd',
-                    color: '#0066cc',
+                    background: '#F0F9FF',
+                    color: '#0284C7',
                     display: 'flex',
                     alignItems: 'center',
                     justifyContent: 'center',
@@ -62,8 +62,8 @@ export function HowItWorks() {
                     <Heart size={20} />
                   </div>
                   <div>
-                    <h4 style={{ fontSize: '1rem', fontWeight: 800, color: '#0f2e5c', marginBottom: '6px' }}>Healthy Cows</h4>
-                    <p style={{ fontSize: '0.85rem', color: '#64748b', lineHeight: 1.5, fontWeight: 500 }}>
+                    <h4 style={{ fontSize: '1rem', fontWeight: 800, color: '#0F172A', marginBottom: '6px' }}>Healthy Cows</h4>
+                    <p style={{ fontSize: '0.85rem', color: '#475569', lineHeight: 1.5, fontWeight: 500 }}>
                       Our cows are fed with natural fodder and cared with love.
                     </p>
                   </div>
@@ -75,8 +75,8 @@ export function HowItWorks() {
                     width: '40px',
                     height: '40px',
                     borderRadius: '50%',
-                    background: '#e3f2fd',
-                    color: '#0066cc',
+                    background: '#F0F9FF',
+                    color: '#0284C7',
                     display: 'flex',
                     alignItems: 'center',
                     justifyContent: 'center',
@@ -85,8 +85,8 @@ export function HowItWorks() {
                     <Award size={20} />
                   </div>
                   <div>
-                    <h4 style={{ fontSize: '1rem', fontWeight: 800, color: '#0f2e5c', marginBottom: '6px' }}>Hygienic Milking</h4>
-                    <p style={{ fontSize: '0.85rem', color: '#64748b', lineHeight: 1.5, fontWeight: 500 }}>
+                    <h4 style={{ fontSize: '1rem', fontWeight: 800, color: '#0F172A', marginBottom: '6px' }}>Hygienic Milking</h4>
+                    <p style={{ fontSize: '0.85rem', color: '#475569', lineHeight: 1.5, fontWeight: 500 }}>
                       Modern equipment and hygienic milking process.
                     </p>
                   </div>
@@ -98,8 +98,8 @@ export function HowItWorks() {
                     width: '40px',
                     height: '40px',
                     borderRadius: '50%',
-                    background: '#e3f2fd',
-                    color: '#0066cc',
+                    background: '#F0F9FF',
+                    color: '#0284C7',
                     display: 'flex',
                     alignItems: 'center',
                     justifyContent: 'center',
@@ -108,8 +108,8 @@ export function HowItWorks() {
                     <ShieldCheck size={20} />
                   </div>
                   <div>
-                    <h4 style={{ fontSize: '1rem', fontWeight: 800, color: '#0f2e5c', marginBottom: '6px' }}>Quality Checked</h4>
-                    <p style={{ fontSize: '0.85rem', color: '#64748b', lineHeight: 1.5, fontWeight: 500 }}>
+                    <h4 style={{ fontSize: '1rem', fontWeight: 800, color: '#0F172A', marginBottom: '6px' }}>Quality Checked</h4>
+                    <p style={{ fontSize: '0.85rem', color: '#475569', lineHeight: 1.5, fontWeight: 500 }}>
                       Every drop is tested for purity before delivery.
                     </p>
                   </div>
@@ -121,8 +121,8 @@ export function HowItWorks() {
                     width: '40px',
                     height: '40px',
                     borderRadius: '50%',
-                    background: '#e3f2fd',
-                    color: '#0066cc',
+                    background: '#F0F9FF',
+                    color: '#0284C7',
                     display: 'flex',
                     alignItems: 'center',
                     justifyContent: 'center',
@@ -131,8 +131,8 @@ export function HowItWorks() {
                     <Clock size={20} />
                   </div>
                   <div>
-                    <h4 style={{ fontSize: '1rem', fontWeight: 800, color: '#0f2e5c', marginBottom: '6px' }}>On-Time Delivery</h4>
-                    <p style={{ fontSize: '0.85rem', color: '#64748b', lineHeight: 1.5, fontWeight: 500 }}>
+                    <h4 style={{ fontSize: '1rem', fontWeight: 800, color: '#0F172A', marginBottom: '6px' }}>On-Time Delivery</h4>
+                    <p style={{ fontSize: '0.85rem', color: '#475569', lineHeight: 1.5, fontWeight: 500 }}>
                       Delivered early morning to keep it fresh.
                     </p>
                   </div>
@@ -144,14 +144,14 @@ export function HowItWorks() {
                 height: '48px',
                 padding: '0 32px',
                 borderRadius: '12px', // Match 12px rounded style
-                background: 'linear-gradient(to bottom, #3b82f6 0%, #1d4ed8 100%)',
+                background: 'linear-gradient(to bottom, #0EA5E9 0%, #0369A1 100%)',
                 color: '#fff',
-                border: '1px solid rgba(29, 78, 216, 0.15)',
+                border: '1px solid rgba(3, 105, 161, 0.15)',
                 fontWeight: 500, // Medium weight
                 fontSize: '0.95rem',
                 textTransform: 'none', // Title case
                 cursor: 'pointer',
-                boxShadow: 'inset 0 1px 0 rgba(255, 255, 255, 0.3), inset 0 -1px 0 rgba(0, 0, 0, 0.15), 0 4px 12px rgba(29, 78, 216, 0.2)',
+                boxShadow: 'inset 0 1px 0 rgba(255, 255, 255, 0.3), inset 0 -1px 0 rgba(0, 0, 0, 0.15), 0 4px 12px rgba(3, 105, 161, 0.2)',
                 transition: 'transform 0.2s, box-shadow 0.2s'
               }} className="hover:scale-105 hover:shadow-lg">
                 Know More About Us
@@ -170,7 +170,7 @@ export function HowItWorks() {
                 height: '400px',
                 borderRadius: '20px',
                 overflow: 'hidden',
-                boxShadow: '0 12px 32px rgba(15, 46, 92, 0.04)'
+                boxShadow: '0 12px 32px rgba(15, 23, 42, 0.04)'
               }}>
                 <Image 
                   src="/images/amruth_farm_gate.png"
@@ -190,14 +190,14 @@ export function HowItWorks() {
                 borderRadius: '20px',
                 padding: '32px 28px',
                 width: '280px',
-                boxShadow: '0 12px 36px rgba(15, 46, 92, 0.08)',
+                boxShadow: '0 12px 36px rgba(15, 23, 42, 0.08)',
                 border: '1.5px solid rgba(236, 216, 176, 0.6)',
                 zIndex: 20
               }} className="floating-visit-card">
                 <span style={{ 
                   fontSize: '0.7rem', 
                   fontWeight: 800, 
-                  color: '#0066cc', 
+                  color: '#0284C7', 
                   textTransform: 'uppercase', 
                   display: 'block', 
                   marginBottom: '6px',
@@ -209,7 +209,7 @@ export function HowItWorks() {
                   fontFamily: 'var(--font-playfair), Georgia, serif',
                   fontSize: '1.15rem', 
                   fontWeight: 600, 
-                  color: '#0f2e5c', 
+                  color: '#0F172A', 
                   marginBottom: '16px', 
                   lineHeight: 1.3 
                 }}>
@@ -224,8 +224,8 @@ export function HowItWorks() {
                     'Understand Our Process'
                   ].map((item) => (
                     <div key={item} style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                      <Check size={12} className="text-[#0066cc]" style={{ strokeWidth: 3.5 }} />
-                      <span style={{ fontSize: '0.8rem', fontWeight: 600, color: '#64748b' }}>{item}</span>
+                      <Check size={12} className="text-[#0284C7]" style={{ strokeWidth: 3.5 }} />
+                      <span style={{ fontSize: '0.8rem', fontWeight: 600, color: '#475569' }}>{item}</span>
                     </div>
                   ))}
                 </div>
@@ -235,14 +235,14 @@ export function HowItWorks() {
                   width: '100%',
                   height: '42px',
                   borderRadius: '12px',
-                  background: 'linear-gradient(to bottom, #3b82f6 0%, #1d4ed8 100%)',
+                  background: 'linear-gradient(to bottom, #0EA5E9 0%, #0369A1 100%)',
                   color: '#fff',
-                  border: '1px solid rgba(29, 78, 216, 0.15)',
+                  border: '1px solid rgba(3, 105, 161, 0.15)',
                   fontWeight: 500,
                   fontSize: '0.85rem',
                   textTransform: 'none',
                   cursor: 'pointer',
-                  boxShadow: 'inset 0 1px 0 rgba(255, 255, 255, 0.3), inset 0 -1px 0 rgba(0, 0, 0, 0.15), 0 4px 12px rgba(29, 78, 216, 0.15)',
+                  boxShadow: 'inset 0 1px 0 rgba(255, 255, 255, 0.3), inset 0 -1px 0 rgba(0, 0, 0, 0.15), 0 4px 12px rgba(3, 105, 161, 0.15)',
                   transition: 'transform 0.2s'
                 }} className="hover:scale-[1.02]">
                   Book Your Visit
