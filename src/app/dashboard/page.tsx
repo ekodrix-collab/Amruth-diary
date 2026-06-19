@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
-import { LayoutDashboard, SkipForward, Palmtree, PlusCircle, FileText, Calendar, Compass, ArrowRight, CheckCircle2, AlertTriangle, HelpCircle } from 'lucide-react'
+import { LayoutDashboard, SkipForward, Palmtree, PlusCircle, FileText, Calendar, Compass, ArrowRight, CheckCircle2, AlertTriangle, HelpCircle, Clock, Milk } from 'lucide-react'
 import { motion } from 'framer-motion'
 import { cn } from '@/lib/utils'
 
