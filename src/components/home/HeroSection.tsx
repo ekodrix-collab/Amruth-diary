@@ -36,7 +36,7 @@ export function HeroSection() {
     <section 
       id="home"
       style={{ 
-        background: 'linear-gradient(to bottom, #eaf4fd 0%, #f5fafe 60%, #ffffff 100%)', 
+        background: 'linear-gradient(to bottom, #F8FAFC 0%, #F1F5F9 60%, #ffffff 100%)', 
         minHeight: '100vh',
         position: 'relative',
         display: 'flex',
@@ -71,19 +71,19 @@ export function HeroSection() {
               display: 'inline-flex',
               alignItems: 'center',
               gap: '6px',
-              border: '1px solid rgba(0, 102, 204, 0.12)',
+              border: '1px solid rgba(2, 132, 199, 0.12)',
               background: '#fff',
               borderRadius: '999px',
               padding: '6px 16px',
-              color: '#0066cc',
+              color: '#0284C7',
               fontSize: '0.8rem',
               fontWeight: 800,
               textTransform: 'uppercase',
               letterSpacing: '0.05em',
               marginBottom: '28px',
-              boxShadow: '0 2px 6px rgba(0, 102, 204, 0.04)'
+              boxShadow: '0 2px 6px rgba(2, 132, 199, 0.04)'
             }}>
-              <ShieldCheck size={14} className="text-[#0066cc]" />
+              <ShieldCheck size={14} className="text-[#0284C7]" />
               100% Pure • Farm Fresh
             </div>
 
@@ -92,20 +92,20 @@ export function HeroSection() {
               fontFamily: 'var(--font-playfair), Georgia, serif',
               fontSize: 'clamp(2.5rem, 5.2vw, 4.5rem)',
               fontWeight: 500, // Medium elegant weight
-              color: '#0f2e5c',
+              color: '#0F172A',
               lineHeight: 1.15,
               letterSpacing: '-0.01em',
               marginBottom: '24px'
             }}>
               Fresh Milk <br />
               Delivered <br />
-              <span style={{ color: '#0066cc' }}>Before Sunrise.</span>
+              <span style={{ color: '#0284C7' }}>Before Sunrise.</span>
             </h1>
 
             {/* Subheading */}
             <p style={{
               fontSize: '1.05rem',
-              color: '#64748b',
+              color: '#475569',
               lineHeight: 1.8,
               maxWidth: '520px',
               marginBottom: '36px',
@@ -127,16 +127,16 @@ export function HeroSection() {
                   width: '38px',
                   height: '38px',
                   borderRadius: '50%',
-                  background: '#e3f2fd',
+                  background: '#F0F9FF',
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center'
                 }}>
-                  <ShieldCheck size={18} className="text-[#0066cc]" />
+                  <ShieldCheck size={18} className="text-[#0284C7]" />
                 </div>
                 <div style={{ display: 'flex', flexDirection: 'column' }}>
-                  <span style={{ fontSize: '0.85rem', fontWeight: 800, color: '#0f2e5c' }}>Pure &</span>
-                  <span style={{ fontSize: '0.85rem', fontWeight: 800, color: '#0f2e5c' }}>Natural</span>
+                  <span style={{ fontSize: '0.85rem', fontWeight: 800, color: '#0F172A' }}>Pure &</span>
+                  <span style={{ fontSize: '0.85rem', fontWeight: 800, color: '#0F172A' }}>Natural</span>
                 </div>
               </div>
 
@@ -146,16 +146,16 @@ export function HeroSection() {
                   width: '38px',
                   height: '38px',
                   borderRadius: '50%',
-                  background: '#e3f2fd',
+                  background: '#F0F9FF',
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center'
                 }}>
-                  <Truck size={18} className="text-[#0066cc]" />
+                  <Truck size={18} className="text-[#0284C7]" />
                 </div>
                 <div style={{ display: 'flex', flexDirection: 'column' }}>
-                  <span style={{ fontSize: '0.85rem', fontWeight: 800, color: '#0f2e5c' }}>Daily Fresh</span>
-                  <span style={{ fontSize: '0.85rem', fontWeight: 800, color: '#0f2e5c' }}>Delivery</span>
+                  <span style={{ fontSize: '0.85rem', fontWeight: 800, color: '#0F172A' }}>Daily Fresh</span>
+                  <span style={{ fontSize: '0.85rem', fontWeight: 800, color: '#0F172A' }}>Delivery</span>
                 </div>
               </div>
 
@@ -165,16 +165,16 @@ export function HeroSection() {
                   width: '38px',
                   height: '38px',
                   borderRadius: '50%',
-                  background: '#e3f2fd',
+                  background: '#F0F9FF',
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center'
                 }}>
-                  <MapPin size={18} className="text-[#0066cc]" />
+                  <MapPin size={18} className="text-[#0284C7]" />
                 </div>
                 <div style={{ display: 'flex', flexDirection: 'column' }}>
-                  <span style={{ fontSize: '0.85rem', fontWeight: 800, color: '#0f2e5c' }}>Direct</span>
-                  <span style={{ fontSize: '0.85rem', fontWeight: 800, color: '#0f2e5c' }}>From Farm</span>
+                  <span style={{ fontSize: '0.85rem', fontWeight: 800, color: '#0F172A' }}>Direct</span>
+                  <span style={{ fontSize: '0.85rem', fontWeight: 800, color: '#0F172A' }}>From Farm</span>
                 </div>
               </div>
             </div>
@@ -190,14 +190,14 @@ export function HeroSection() {
                   height: '48px',
                   padding: '0 32px',
                   borderRadius: '12px', // exact rounded corners from image
-                  background: 'linear-gradient(to bottom, #3b82f6 0%, #1d4ed8 100%)', // modern blue-indigo gradient
+                  background: 'linear-gradient(to bottom, #0EA5E9 0%, #0369A1 100%)', // modern blue-indigo gradient
                   color: '#fff',
                   fontWeight: 500, // medium weight from image
                   fontSize: '0.95rem',
                   textTransform: 'none', // title-case from image
                   textDecoration: 'none',
-                  boxShadow: 'inset 0 1px 0 rgba(255, 255, 255, 0.3), inset 0 -1px 0 rgba(0, 0, 0, 0.15), 0 4px 12px rgba(29, 78, 216, 0.2)',
-                  border: '1px solid rgba(29, 78, 216, 0.15)',
+                  boxShadow: 'inset 0 1px 0 rgba(255, 255, 255, 0.3), inset 0 -1px 0 rgba(0, 0, 0, 0.15), 0 4px 12px rgba(3, 105, 161, 0.2)',
+                  border: '1px solid rgba(3, 105, 161, 0.15)',
                   transition: 'transform 0.2s, box-shadow 0.2s'
                 }}
                 className="hover:scale-105 hover:shadow-lg"
@@ -215,7 +215,7 @@ export function HeroSection() {
                   gap: '12px',
                   height: '52px',
                   background: 'transparent',
-                  color: '#0f2e5c',
+                  color: '#0F172A',
                   fontWeight: 700,
                   fontSize: '0.85rem',
                   textTransform: 'uppercase',
@@ -229,20 +229,20 @@ export function HeroSection() {
                   width: '44px',
                   height: '44px',
                   borderRadius: '50%',
-                  border: '1.5px solid #0066cc',
+                  border: '1.5px solid #0284C7',
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center',
-                  color: '#0066cc',
+                  color: '#0284C7',
                   background: '#fff',
-                  boxShadow: '0 2px 8px rgba(0, 102, 204, 0.05)',
+                  boxShadow: '0 2px 8px rgba(2, 132, 199, 0.05)',
                   transition: 'background-color 0.2s'
-                }} className="group-hover:bg-[#e3f2fd]">
-                  <Play size={14} fill="#0066cc" style={{ marginLeft: '2px' }} />
+                }} className="group-hover:bg-[#F0F9FF]">
+                  <Play size={14} fill="#0284C7" style={{ marginLeft: '2px' }} />
                 </div>
                 <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start', lineHeight: 1.2 }}>
-                  <span style={{ fontSize: '0.8rem', fontWeight: 800, color: '#0f2e5c' }}>Watch Our Story</span>
-                  <span style={{ fontSize: '0.65rem', fontWeight: 500, color: '#64748b', textTransform: 'none', letterSpacing: 0 }}>Watch Reels</span>
+                  <span style={{ fontSize: '0.8rem', fontWeight: 800, color: '#0F172A' }}>Watch Our Story</span>
+                  <span style={{ fontSize: '0.65rem', fontWeight: 500, color: '#475569', textTransform: 'none', letterSpacing: 0 }}>Watch Reels</span>
                 </div>
               </Link>
             </div>
@@ -321,25 +321,25 @@ export function HeroSection() {
           display: 'flex',
           alignItems: 'center',
           gap: '14px',
-          boxShadow: '0 12px 36px rgba(15, 46, 92, 0.16)',
-          border: '1px solid rgba(15, 46, 92, 0.04)',
+          boxShadow: '0 12px 36px rgba(15, 23, 42, 0.16)',
+          border: '1px solid rgba(15, 23, 42, 0.04)',
           pointerEvents: 'auto'
         }} className="floating-delivery-card">
           <div style={{
             width: '44px',
             height: '44px',
             borderRadius: '50%',
-            background: '#e3f2fd',
+            background: '#F0F9FF',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center'
           }}>
-            <Clock size={20} className="text-[#0066cc]" />
+            <Clock size={20} className="text-[#0284C7]" />
           </div>
           <div style={{ display: 'flex', flexDirection: 'column' }}>
-            <span style={{ fontSize: '0.75rem', fontWeight: 700, color: '#64748b' }}>Tomorrow Delivery</span>
-            <span style={{ fontSize: '1.25rem', fontWeight: 900, color: '#0f2e5c', lineHeight: 1.2 }}>6:00 AM</span>
-            <span style={{ fontSize: '0.7rem', fontWeight: 800, color: '#0088cc', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Before Sunrise</span>
+            <span style={{ fontSize: '0.75rem', fontWeight: 700, color: '#475569' }}>Tomorrow Delivery</span>
+            <span style={{ fontSize: '1.25rem', fontWeight: 900, color: '#0F172A', lineHeight: 1.2 }}>6:00 AM</span>
+            <span style={{ fontSize: '0.7rem', fontWeight: 800, color: '#0EA5E9', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Before Sunrise</span>
           </div>
         </div>
 
@@ -362,7 +362,7 @@ export function HeroSection() {
                 width: currentSlide === idx ? '24px' : '8px',
                 height: '8px',
                 borderRadius: '999px',
-                background: currentSlide === idx ? '#0066cc' : 'rgba(0, 102, 204, 0.25)',
+                background: currentSlide === idx ? '#0284C7' : 'rgba(2, 132, 199, 0.25)',
                 border: 'none',
                 cursor: 'pointer',
                 transition: 'all 0.4s cubic-bezier(0.16, 1, 0.3, 1)',
@@ -389,7 +389,7 @@ export function HeroSection() {
         }}
       >
         <svg viewBox="0 0 1200 120" preserveAspectRatio="none" style={{ position: 'relative', display: 'block', width: 'calc(100% + 1.3px)', height: '90px' }}>
-          <path d="M0,0 C150,90 350,10 600,70 C850,120 1050,40 1200,0 L1200,120 L0,120 Z" style={{ fill: '#FAF7EF' }}></path>
+          <path d="M0,0 C150,90 350,10 600,70 C850,120 1050,40 1200,0 L1200,120 L0,120 Z" style={{ fill: '#F8FAFC' }}></path>
         </svg>
       </div>
 
@@ -405,8 +405,8 @@ export function HeroSection() {
           background: '#fff',
           borderRadius: '24px',
           padding: '24px 40px',
-          boxShadow: '0 10px 30px rgba(15, 46, 92, 0.08)',
-          border: '1px solid rgba(15, 46, 92, 0.04)',
+          boxShadow: '0 10px 30px rgba(15, 23, 42, 0.08)',
+          border: '1px solid rgba(15, 23, 42, 0.04)',
           zIndex: 20
         }}
         className="hero-stats-bar"
@@ -418,7 +418,7 @@ export function HeroSection() {
               width: '48px',
               height: '48px',
               borderRadius: '50%',
-              background: '#0066cc',
+              background: '#0284C7',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center'
@@ -426,8 +426,8 @@ export function HeroSection() {
               <Users size={22} className="text-white" />
             </div>
             <div style={{ display: 'flex', flexDirection: 'column' }}>
-              <span style={{ fontSize: '1.25rem', fontWeight: 900, color: '#0f2e5c', lineHeight: 1.1 }}>5000+</span>
-              <span style={{ fontSize: '0.75rem', fontWeight: 700, color: '#64748b' }}>Happy Families</span>
+              <span style={{ fontSize: '1.25rem', fontWeight: 900, color: '#0F172A', lineHeight: 1.1 }}>5000+</span>
+              <span style={{ fontSize: '0.75rem', fontWeight: 700, color: '#475569' }}>Happy Families</span>
             </div>
           </div>
 
@@ -437,7 +437,7 @@ export function HeroSection() {
               width: '48px',
               height: '48px',
               borderRadius: '50%',
-              background: '#0088cc',
+              background: '#0EA5E9',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center'
@@ -445,8 +445,8 @@ export function HeroSection() {
               <Droplet size={22} className="text-white" />
             </div>
             <div style={{ display: 'flex', flexDirection: 'column' }}>
-              <span style={{ fontSize: '1.25rem', fontWeight: 900, color: '#0f2e5c', lineHeight: 1.1 }}>100%</span>
-              <span style={{ fontSize: '0.75rem', fontWeight: 700, color: '#64748b' }}>Pure Milk</span>
+              <span style={{ fontSize: '1.25rem', fontWeight: 900, color: '#0F172A', lineHeight: 1.1 }}>100%</span>
+              <span style={{ fontSize: '0.75rem', fontWeight: 700, color: '#475569' }}>Pure Milk</span>
             </div>
           </div>
 
@@ -464,8 +464,8 @@ export function HeroSection() {
               <Sparkles size={22} className="text-white" />
             </div>
             <div style={{ display: 'flex', flexDirection: 'column' }}>
-              <span style={{ fontSize: '1.25rem', fontWeight: 900, color: '#0f2e5c', lineHeight: 1.1 }}>50+</span>
-              <span style={{ fontSize: '0.75rem', fontWeight: 700, color: '#64748b' }}>Healthy Cows</span>
+              <span style={{ fontSize: '1.25rem', fontWeight: 900, color: '#0F172A', lineHeight: 1.1 }}>50+</span>
+              <span style={{ fontSize: '0.75rem', fontWeight: 700, color: '#475569' }}>Healthy Cows</span>
             </div>
           </div>
 
@@ -483,8 +483,8 @@ export function HeroSection() {
               <Truck size={22} className="text-white" />
             </div>
             <div style={{ display: 'flex', flexDirection: 'column' }}>
-              <span style={{ fontSize: '1.25rem', fontWeight: 900, color: '#0f2e5c', lineHeight: 1.1 }}>Daily</span>
-              <span style={{ fontSize: '0.75rem', fontWeight: 700, color: '#64748b' }}>On-Time Delivery</span>
+              <span style={{ fontSize: '1.25rem', fontWeight: 900, color: '#0F172A', lineHeight: 1.1 }}>Daily</span>
+              <span style={{ fontSize: '0.75rem', fontWeight: 700, color: '#475569' }}>On-Time Delivery</span>
             </div>
           </div>
         </div>

@@ -38,7 +38,7 @@ export default function AccountLayout({ children }: { children: React.ReactNode 
   return (
     <div className="min-h-screen flex bg-[#FDFBF7]">
       {/* Sidebar */}
-      <aside className="hidden lg:flex flex-col w-60 bg-[#0f2e5c] fixed top-0 bottom-0 left-0 z-30 border-r border-[#ECD8B0]/20">
+      <aside className="hidden lg:flex flex-col w-60 bg-[#0F172A] fixed top-0 bottom-0 left-0 z-30 border-r border-[#E2E8F0]/20">
         
         {/* Logo */}
         <div className="px-6 py-6 border-b border-white/10">
@@ -56,7 +56,7 @@ export default function AccountLayout({ children }: { children: React.ReactNode 
             </div>
             <div>
               <p className="text-sm font-black text-white leading-tight">Amruth</p>
-              <p className="text-[10px] text-[#0066cc] font-black uppercase tracking-wider">Dairy Farm</p>
+              <p className="text-[10px] text-[#0284C7] font-black uppercase tracking-wider">Dairy Farm</p>
             </div>
           </Link>
         </div>
@@ -96,7 +96,7 @@ export default function AccountLayout({ children }: { children: React.ReactNode 
                 'transition-all duration-150',
                 'hover:bg-white/10 hover:text-white',
                 // For demo dashboard active state
-                item.href === '/account' && 'bg-white/10 text-white border-l-[3.5px] border-[#0066cc]'
+                item.href === '/account' && 'bg-white/10 text-white border-l-[3.5px] border-[#0284C7]'
               )}
             >
               <span role="img" aria-label={item.label}>{item.icon}</span>
@@ -116,7 +116,7 @@ export default function AccountLayout({ children }: { children: React.ReactNode 
       {/* Main content */}
       <main className="flex-1 lg:ml-60 flex flex-col">
         {/* Mobile top nav */}
-        <div className="lg:hidden sticky top-0 z-20 bg-[#0f2e5c] px-4 py-3 flex items-center justify-between border-b border-[#ECD8B0]/10">
+        <div className="lg:hidden sticky top-0 z-20 bg-[#0F172A] px-4 py-3 flex items-center justify-between border-b border-[#E2E8F0]/10">
           <Link href="/" className="flex items-center gap-2">
             <div className="w-8 h-8 bg-white/10 rounded-lg flex items-center justify-center">
               <span className="text-sm">🥛</span>
@@ -133,7 +133,7 @@ export default function AccountLayout({ children }: { children: React.ReactNode 
         </div>
 
         {/* Mobile bottom nav */}
-        <nav className="lg:hidden sticky bottom-0 bg-white border-t border-[#ECD8B0]/20 flex z-30" aria-label="Mobile navigation">
+        <nav className="lg:hidden sticky bottom-0 bg-white border-t border-[#E2E8F0]/20 flex z-30" aria-label="Mobile navigation">
           {navItems.slice(0, 5).map((item) => {
             const isActive = item.href === '/account'
             return (
@@ -141,8 +141,8 @@ export default function AccountLayout({ children }: { children: React.ReactNode 
                 key={item.href}
                 href={item.href}
                 className={cn(
-                  "flex-1 flex flex-col items-center gap-1 py-3 text-slate-400 hover:text-[#0066cc] transition-colors min-w-0",
-                  isActive && "text-[#0066cc]"
+                  "flex-1 flex flex-col items-center gap-1 py-3 text-slate-400 hover:text-[#0284C7] transition-colors min-w-0",
+                  isActive && "text-[#0284C7]"
                 )}
               >
                 <span className="text-lg" role="img" aria-label={item.label}>{item.icon}</span>

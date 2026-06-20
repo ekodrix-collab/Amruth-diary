@@ -124,7 +124,7 @@ export function Footer() {
             {/* Logo */}
             <div className="ft-logo">
               <div className="ft-logo-icon flex items-center justify-center">
-                <Milk size={20} className="text-teal-600" />
+                <Milk size={20} className="text-white" />
               </div>
               <div>
                 <p className="ft-logo-name">Amruth</p>
@@ -222,7 +222,7 @@ export function Footer() {
             {/* Freshness card */}
             <div className="ft-freshness-card">
               <div className="ft-freshness-row flex items-start gap-3">
-                <div className="ft-freshness-icon-wrap flex items-center justify-center p-2 bg-teal-50 rounded-lg text-teal-600">
+                <div className="ft-freshness-icon-wrap flex items-center justify-center p-2 bg-slate-800 border border-slate-700 rounded-lg text-sky-400">
                   <Sprout size={20} />
                 </div>
                 <div>

@@ -17,7 +17,7 @@ export function SubscriptionPlans() {
     <section 
       id="plans" 
       style={{ 
-        background: 'linear-gradient(to bottom, #FAF7EF 0%, #FDFBF7 60%, #ffffff 100%)', 
+        background: 'linear-gradient(to bottom, #F8FAFC 0%, #FDFBF7 60%, #ffffff 100%)', 
         padding: '120px 0',
         position: 'relative'
       }}
@@ -30,7 +30,7 @@ export function SubscriptionPlans() {
           left: 0,
           right: 0,
           height: '24px',
-          background: '#FAF7EF'
+          background: '#F8FAFC'
         }}
       />
 
@@ -42,8 +42,8 @@ export function SubscriptionPlans() {
               display: 'inline-flex',
               alignItems: 'center',
               background: '#fff',
-              border: '1.5px solid rgba(0, 102, 204, 0.15)',
-              color: '#0066cc',
+              border: '1.5px solid rgba(2, 132, 199, 0.15)',
+              color: '#0284C7',
               borderRadius: '999px',
               padding: '6px 16px',
               fontSize: '0.75rem',
@@ -51,7 +51,7 @@ export function SubscriptionPlans() {
               textTransform: 'uppercase',
               letterSpacing: '0.08em',
               marginBottom: '18px',
-              boxShadow: '0 2px 6px rgba(0, 102, 204, 0.04)'
+              boxShadow: '0 2px 6px rgba(2, 132, 199, 0.04)'
             }}>
               Standard Subscription
             </div>
@@ -59,7 +59,7 @@ export function SubscriptionPlans() {
               fontFamily: 'var(--font-playfair), Georgia, serif',
               fontSize: 'clamp(2rem, 3.8vw, 3rem)', 
               fontWeight: 500, 
-              color: '#0f2e5c', 
+              color: '#0F172A', 
               letterSpacing: '-0.01em', 
               lineHeight: 1.2, 
               marginBottom: '16px' 
@@ -68,7 +68,7 @@ export function SubscriptionPlans() {
             </h2>
             <p style={{ 
               fontSize: '1rem', 
-              color: '#64748b', 
+              color: '#475569', 
               fontWeight: 500,
               maxWidth: '500px',
               margin: '0 auto'
@@ -85,11 +85,11 @@ export function SubscriptionPlans() {
               background: '#fff',
               borderRadius: '24px',
               padding: '0',
-              border: '2px solid #0066cc',
+              border: '2px solid #0284C7',
               position: 'relative',
               display: 'flex',
               flexDirection: 'column',
-              boxShadow: '0 20px 50px rgba(0, 102, 204, 0.08)',
+              boxShadow: '0 20px 50px rgba(2, 132, 199, 0.08)',
               overflow: 'hidden'
             }}
             className="md:flex-row items-stretch"
@@ -98,7 +98,7 @@ export function SubscriptionPlans() {
             <div className="flex-1 p-8 sm:p-12 border-b md:border-b-0 md:border-r border-slate-100 flex flex-col justify-center">
               <div style={{
                 display: 'inline-flex',
-                background: '#0066cc',
+                background: '#0284C7',
                 color: '#fff',
                 fontSize: '0.7rem',
                 fontWeight: 800,
@@ -108,7 +108,7 @@ export function SubscriptionPlans() {
                 letterSpacing: '0.08em',
                 marginBottom: '24px',
                 width: 'fit-content',
-                boxShadow: '0 4px 12px rgba(0, 102, 204, 0.2)'
+                boxShadow: '0 4px 12px rgba(2, 132, 199, 0.2)'
               }}>
                 Standard Monthly
               </div>
@@ -118,24 +118,24 @@ export function SubscriptionPlans() {
                   width: '56px',
                   height: '56px',
                   borderRadius: '16px',
-                  background: 'rgba(0, 102, 204, 0.08)',
+                  background: 'rgba(2, 132, 199, 0.08)',
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center',
-                  color: '#0066cc'
+                  color: '#0284C7'
                 }}>
                   <Milk size={28} />
                 </div>
                 <div>
-                  <h3 style={{ fontSize: '2rem', fontWeight: 800, color: '#0f2e5c', lineHeight: 1 }}>1 Litre / Day</h3>
+                  <h3 style={{ fontSize: '2rem', fontWeight: 800, color: '#0F172A', lineHeight: 1 }}>1 Litre / Day</h3>
                 </div>
               </div>
 
               <div style={{ display: 'flex', alignItems: 'baseline', gap: '8px', margin: '32px 0' }}>
-                <span style={{ fontSize: '3.5rem', fontWeight: 900, color: '#0f2e5c', lineHeight: 1, letterSpacing: '-0.03em' }}>
+                <span style={{ fontSize: '3.5rem', fontWeight: 900, color: '#0F172A', lineHeight: 1, letterSpacing: '-0.03em' }}>
                   ₹1,699
                 </span>
-                <span style={{ fontSize: '1rem', color: '#64748b', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+                <span style={{ fontSize: '1rem', color: '#475569', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.05em' }}>
                   / month
                 </span>
               </div>
@@ -145,15 +145,15 @@ export function SubscriptionPlans() {
                   width: '100%',
                   height: '60px',
                   borderRadius: '12px',
-                  background: 'linear-gradient(to bottom, #3b82f6 0%, #1d4ed8 100%)',
+                  background: 'linear-gradient(to bottom, #0EA5E9 0%, #0369A1 100%)',
                   color: '#fff',
                   fontWeight: 700,
                   fontSize: '1.05rem',
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center',
-                  boxShadow: 'inset 0 1px 0 rgba(255, 255, 255, 0.3), inset 0 -1px 0 rgba(0, 0, 0, 0.15), 0 8px 20px rgba(29, 78, 216, 0.25)',
-                  border: '1px solid rgba(29, 78, 216, 0.15)',
+                  boxShadow: 'inset 0 1px 0 rgba(255, 255, 255, 0.3), inset 0 -1px 0 rgba(0, 0, 0, 0.15), 0 8px 20px rgba(3, 105, 161, 0.25)',
+                  border: '1px solid rgba(3, 105, 161, 0.15)',
                   cursor: 'pointer',
                   transition: 'all 0.2s ease'
                 }}
@@ -166,7 +166,7 @@ export function SubscriptionPlans() {
 
             {/* Right/Bottom Side: Features */}
             <div className="flex-1 bg-slate-50/50 p-8 sm:p-12 flex flex-col justify-center">
-              <h4 style={{ fontSize: '1.1rem', fontWeight: 800, color: '#0f2e5c', marginBottom: '24px' }}>
+              <h4 style={{ fontSize: '1.1rem', fontWeight: 800, color: '#0F172A', marginBottom: '24px' }}>
                 Everything you need
               </h4>
               <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
