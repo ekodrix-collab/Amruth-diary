@@ -2,530 +2,319 @@
 
 import { useState, useEffect } from 'react'
 import {
-  Save, Settings, Package, ShoppingBag, Clock, Store, Bell, Check, Loader2, Plus, Trash2
+  Settings, Save, X, Activity, Users, MapPin, Tag, Database, Link,
+  Search, ArrowUpRight, ArrowDownRight, ChevronRight, CheckCircle2,
+  Bell, Shield, CreditCard, Building2, UserPlus, FileDown, RefreshCw, AlertTriangle
 } from 'lucide-react'
-import { cn } from '@/lib/utils'
+import { ResponsiveContainer, LineChart, Line } from 'recharts'
 
-export default function AdminSettingsPage() {
-  const [activeTab, setActiveTab] = useState('pricing')
-  const [loading, setLoading] = useState(true)
-  const [saving, setSaving] = useState(false)
-  const [saveMessage, setSaveMessage] = useState('')
+// --- MOCK DATA ---
+const sparklineDataBlue = [{ v: 2 }, { v: 2 }, { v: 2 }, { v: 3 }, { v: 3 }, { v: 3 }, { v: 3 }]
+const sparklineDataGreen = [{ v: 10 }, { v: 12 }, { v: 12 }, { v: 13 }, { v: 14 }, { v: 14 }, { v: 14 }]
+const sparklineDataPurple = [{ v: 2 }, { v: 2 }, { v: 3 }, { v: 3 }, { v: 4 }, { v: 4 }, { v: 4 }]
+const sparklineDataSky = [{ v: 100 }, { v: 100 }, { v: 99 }, { v: 100 }, { v: 100 }, { v: 100 }, { v: 100 }]
+const sparklineDataAmber = [{ v: 1 }, { v: 2 }, { v: 3 }, { v: 4 }, { v: 5 }, { v: 6 }, { v: 7 }]
+const sparklineDataRed = [{ v: 1 }, { v: 1 }, { v: 2 }, { v: 2 }, { v: 2 }, { v: 2 }, { v: 2 }]
 
-  // Settings State
-  const [settings, setSettings] = useState<any>({
-    price_per_litre: { amount: 82.67, currency: 'INR' },
-    daily_milk_production: { default_litres: 100 },
-    cutoff_time: { hour: 21, minute: 0 },
-    max_extra_milk_days: { days: 7 },
-    store_info: { name: 'Amruth Milk', phone: '+91 98765 43210', email: 'hello@amruth.com', address: 'Mangalore' },
-    notification_settings: { whatsapp_enabled: true, auto_reminders: true },
-    delivery_settings: { start_time: '06:00', delivery_fee: 0 },
-    waitlist_settings: { response_hours_deadline: 24, auto_notify: true },
-    business_settings: { timezone: 'Asia/Kolkata', billing_cycle_start_day: 1 }
-  })
-
-  // Products State
-  const [products, setProducts] = useState<any[]>([])
-
-  useEffect(() => {
-    fetchData()
-  }, [])
-
-  async function fetchData() {
-    setLoading(true)
-    try {
-      // Fetch settings
-      const settingsRes = await fetch('/api/admin/settings')
-      const settingsData = await settingsRes.json()
-      
-      // Fetch products
-      const productsRes = await fetch('/api/admin/products')
-      const productsData = await productsRes.json()
-
-      if (settingsData.success && settingsData.settings) {
-        const mergedSettings = { ...settings }
-        settingsData.settings.forEach((item: any) => {
-          mergedSettings[item.key] = item.value
-        })
-        setSettings(mergedSettings)
-      }
-
-      if (productsData.success && productsData.products) {
-        setProducts(productsData.products)
-      }
-    } catch (error) {
-      console.error('Failed to fetch data:', error)
-    } finally {
-      setLoading(false)
-    }
-  }
-
-  async function handleSaveSettings() {
-    setSaving(true)
-    setSaveMessage('')
-    try {
-      // Prepare payload as array of {key, value}
-      const payload = Object.keys(settings).map(key => ({
-        key,
-        value: settings[key]
-      }))
-
-      const res = await fetch('/api/admin/settings', {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload)
-      })
-
-      const data = await res.json()
-      if (data.success) {
-        setSaveMessage('Settings saved successfully!')
-        setTimeout(() => setSaveMessage(''), 3000)
-      } else {
-        alert(data.message || 'Failed to save settings')
-      }
-    } catch (err) {
-      console.error(err)
-      alert('An error occurred while saving.')
-    } finally {
-      setSaving(false)
-    }
-  }
-
-  const handleSettingChange = (key: string, subKey: string, value: any) => {
-    setSettings((prev: any) => ({
-      ...prev,
-      [key]: {
-        ...prev[key],
-        [subKey]: value
-      }
-    }))
-  }
-
-  // Handle Product CRUD
-  const [newProduct, setNewProduct] = useState({ name: '', price: '', unit: '', category: 'other' })
+export default function SettingsPage() {
+  const [mounted, setMounted] = useState(false)
+  const [activeTab, setActiveTab] = useState('General')
   
-  async function handleAddProduct() {
-    if (!newProduct.name || !newProduct.price || !newProduct.unit) return alert('Fill required fields')
-    
-    setSaving(true)
-    try {
-      const res = await fetch('/api/admin/products', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          name: newProduct.name,
-          price: parseFloat(newProduct.price),
-          unit: newProduct.unit,
-          category: newProduct.category,
-          is_active: true
-        })
-      })
-      const data = await res.json()
-      if (data.success) {
-        setProducts([data.product, ...products])
-        setNewProduct({ name: '', price: '', unit: '', category: 'other' })
-        setSaveMessage('Product added!')
-        setTimeout(() => setSaveMessage(''), 3000)
-      }
-    } catch (err) {
-      console.error(err)
-    } finally {
-      setSaving(false)
-    }
-  }
+  // Form State
+  const [maintenanceMode, setMaintenanceMode] = useState(false)
+  const [allowWaitlist, setAllowWaitlist] = useState(true)
+  const [autoApprove, setAutoApprove] = useState(false)
 
-  async function handleDeleteProduct(id: string) {
-    if (!confirm('Are you sure you want to delete this product?')) return
-    
-    setSaving(true)
-    try {
-      const res = await fetch(`/api/admin/products?id=${id}`, { method: 'DELETE' })
-      const data = await res.json()
-      if (data.success) {
-        setProducts(products.filter(p => p.id !== id))
-        setSaveMessage('Product deleted!')
-        setTimeout(() => setSaveMessage(''), 3000)
-      }
-    } catch (err) {
-      console.error(err)
-    } finally {
-      setSaving(false)
-    }
-  }
-
-  if (loading) {
-    return (
-      <div className="flex-1 flex items-center justify-center min-h-screen">
-        <Loader2 className="w-8 h-8 animate-spin text-brown-600" />
-      </div>
-    )
-  }
-
-  const tabs = [
-    { id: 'pricing', label: 'Pricing & Products', icon: ShoppingBag },
-    { id: 'operations', label: 'Operations', icon: Settings },
-    { id: 'store', label: 'Business & Store', icon: Store },
-    { id: 'notifications', label: 'Notifications', icon: Bell },
-  ]
+  useEffect(() => setMounted(true), [])
+  if (!mounted) return null
 
   return (
-    <div className="flex-1 p-4 lg:p-8 max-w-6xl mx-auto w-full pb-24">
-      {/* Header */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">
-        <div>
-          <h1 className="text-2xl lg:text-3xl font-black text-brown-900 tracking-tight flex items-center gap-2">
-            <Settings className="w-8 h-8 text-amber-500" />
-            Global Settings
-          </h1>
-          <p className="text-sm text-brown-600/70 mt-1 font-medium">
-            Manage application configuration, rules, and store products.
-          </p>
+    <div className="space-y-6">
+      
+      {/* HEADER */}
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <div className="flex items-center gap-3">
+          <div className="w-12 h-12 bg-slate-100 rounded-xl flex items-center justify-center text-slate-800">
+            <Settings size={24} strokeWidth={2.5} />
+          </div>
+          <div>
+            <h1 className="text-2xl font-black text-slate-800 tracking-tight">Platform Settings</h1>
+            <p className="text-xs font-bold text-slate-500 mt-0.5">Configure core application behaviors, roles, and integrations.</p>
+          </div>
         </div>
         <div className="flex items-center gap-3">
-          {saveMessage && (
-            <span className="text-sm font-semibold text-green-600 flex items-center gap-1 bg-green-50 px-3 py-1.5 rounded-full border border-green-200">
-              <Check className="w-4 h-4" /> {saveMessage}
-            </span>
-          )}
-          <button 
-            onClick={handleSaveSettings}
-            disabled={saving}
-            className="h-11 px-6 rounded-xl bg-brown-900 hover:bg-brown-800 text-white font-bold transition-all shadow-md active:scale-95 disabled:opacity-50 flex items-center gap-2"
-          >
-            {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
-            Save Settings
+          <button className="flex items-center gap-2 px-4 py-2 border border-slate-200 rounded-xl text-xs font-bold text-slate-600 hover:bg-slate-50 shadow-sm transition-all"><X size={16} /> Discard</button>
+          <button className="flex items-center gap-2 px-4 py-2 border border-[#0066cc] rounded-xl text-xs font-bold text-white bg-[#0066cc] hover:bg-blue-700 shadow-sm transition-all">
+            <Save size={16} /> Save Changes
           </button>
         </div>
       </div>
 
-      <div className="flex flex-col lg:flex-row gap-6">
-        {/* Sidebar Tabs */}
-        <div className="w-full lg:w-64 flex-shrink-0 flex flex-row lg:flex-col gap-2 overflow-x-auto pb-2 lg:pb-0 hide-scrollbar">
-          {tabs.map((tab) => {
-            const Icon = tab.icon
-            const isActive = activeTab === tab.id
-            return (
-              <button
-                key={tab.id}
-                onClick={() => setActiveTab(tab.id)}
-                className={cn(
-                  "flex items-center gap-3 px-4 py-3 rounded-2xl font-bold text-sm whitespace-nowrap transition-all text-left",
-                  isActive 
-                    ? "bg-amber-400 text-brown-900 shadow-md shadow-amber-400/20" 
-                    : "bg-white text-brown-600 hover:bg-cream-100 border border-border/50"
-                )}
-              >
-                <Icon className={cn("w-5 h-5", isActive ? "text-brown-900" : "text-brown-400")} />
-                {tab.label}
-              </button>
-            )
-          })}
-        </div>
+      {/* METRICS GRID WITH SPARKLINES */}
+      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
+        <MetricCard title="Active Staff" value="3 Users" subtext="Admin, Managers" trend="+ 1" isUp icon={Users} color="blue" sparkData={sparklineDataBlue} />
+        <MetricCard title="Delivery Zones" value="14" subtext="Active pin codes" trend="+ 2" isUp icon={MapPin} color="green" sparkData={sparklineDataGreen} />
+        <MetricCard title="Pricing Plans" value="4 Plans" subtext="Standard & Custom" trend="+ 1" isUp icon={Tag} color="purple" sparkData={sparklineDataPurple} />
+        <MetricCard title="System Status" value="Online" subtext="100% Uptime" trend="Stable" isUp icon={Activity} color="sky" sparkData={sparklineDataSky} />
+        <MetricCard title="Last Backup" value="03:00 AM" subtext="Today (Success)" trend="Fixed" isUp={false} icon={Database} color="amber" sparkData={sparklineDataAmber} />
+        <MetricCard title="Integrations" value="2 Active" subtext="Stripe, Twilio" trend="Fixed" isUp icon={Link} color="red" sparkData={sparklineDataRed} />
+      </div>
 
-        {/* Tab Content */}
-        <div className="flex-1 space-y-6">
+      {/* MAIN GRID */}
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 pb-8">
+        
+        {/* LEFT COLUMN: SETTINGS INTERFACE */}
+        <div className="lg:col-span-8 bg-white rounded-2xl border border-slate-200 shadow-sm flex flex-col md:flex-row overflow-hidden min-h-[500px]">
           
-          {/* PRICING & PRODUCTS */}
-          {activeTab === 'pricing' && (
-            <div className="space-y-6 animate-in fade-in slide-in-from-bottom-2 duration-300">
-              
-              <div className="bg-white border border-border/50 rounded-3xl p-6 shadow-sm">
-                <h3 className="text-lg font-black text-brown-900 mb-4 flex items-center gap-2">
-                  <Package className="w-5 h-5 text-amber-500" /> Base Subscription Pricing
-                </h3>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div className="space-y-1.5">
-                    <label className="text-xs font-bold text-brown-500 uppercase tracking-wider pl-1">Price Per Litre (₹)</label>
-                    <input 
-                      type="number" 
-                      value={settings.price_per_litre.amount}
-                      onChange={(e) => handleSettingChange('price_per_litre', 'amount', parseFloat(e.target.value))}
-                      className="w-full h-12 bg-cream-50 border border-border rounded-xl px-4 text-brown-900 font-bold focus:outline-none focus:ring-2 focus:ring-amber-400/50" 
-                    />
-                  </div>
-                  <div className="space-y-1.5">
-                    <label className="text-xs font-bold text-brown-500 uppercase tracking-wider pl-1">Currency</label>
-                    <input 
-                      type="text" 
-                      value={settings.price_per_litre.currency}
-                      disabled
-                      className="w-full h-12 bg-cream-100 border border-border rounded-xl px-4 text-brown-900/50 font-bold cursor-not-allowed" 
-                    />
-                  </div>
-                </div>
-                <p className="text-xs text-brown-500 mt-3 font-medium bg-amber-50 p-3 rounded-xl border border-amber-100">
-                  Monthly subscription amounts are calculated as: <code className="font-bold">Price Per Litre × Litres/Day × Days in Month</code>.
-                </p>
-              </div>
+          {/* Vertical Tabs Sidebar */}
+          <div className="w-full md:w-64 border-b md:border-b-0 md:border-r border-slate-100 bg-slate-50/50 p-4 space-y-1">
+            <TabButton icon={Building2} label="General" active={activeTab === 'General'} onClick={() => setActiveTab('General')} />
+            <TabButton icon={Users} label="Staff & Roles" active={activeTab === 'Staff & Roles'} onClick={() => setActiveTab('Staff & Roles')} />
+            <TabButton icon={MapPin} label="Delivery Zones" active={activeTab === 'Delivery Zones'} onClick={() => setActiveTab('Delivery Zones')} />
+            <TabButton icon={CreditCard} label="Billing & Tax" active={activeTab === 'Billing & Tax'} onClick={() => setActiveTab('Billing & Tax')} />
+            <TabButton icon={Bell} label="Notifications" active={activeTab === 'Notifications'} onClick={() => setActiveTab('Notifications')} />
+            <TabButton icon={Link} label="Integrations" active={activeTab === 'Integrations'} onClick={() => setActiveTab('Integrations')} />
+            <div className="pt-4 mt-4 border-t border-slate-200/60">
+              <TabButton icon={Shield} label="Security" active={activeTab === 'Security'} onClick={() => setActiveTab('Security')} />
+            </div>
+          </div>
 
-              <div className="bg-white border border-border/50 rounded-3xl p-6 shadow-sm">
-                <h3 className="text-lg font-black text-brown-900 mb-4 flex items-center gap-2">
-                  <ShoppingBag className="w-5 h-5 text-amber-500" /> Extra Products
-                </h3>
+          {/* Form Content Area */}
+          <div className="flex-1 p-6 lg:p-8">
+            <h2 className="text-lg font-black text-slate-800 mb-6">{activeTab} Settings</h2>
+
+            {activeTab === 'General' && (
+              <div className="space-y-8 max-w-xl">
                 
-                {/* Add New Product */}
-                <div className="flex flex-col md:flex-row gap-3 mb-6 bg-cream-50 p-4 rounded-2xl border border-border">
-                  <input 
-                    type="text" placeholder="Product Name (e.g. Ghee)" 
-                    value={newProduct.name} onChange={(e) => setNewProduct({...newProduct, name: e.target.value})}
-                    className="flex-1 h-11 bg-white border border-border rounded-xl px-3 text-sm font-medium focus:outline-none focus:border-amber-400"
-                  />
-                  <input 
-                    type="number" placeholder="Price (₹)" 
-                    value={newProduct.price} onChange={(e) => setNewProduct({...newProduct, price: e.target.value})}
-                    className="w-32 h-11 bg-white border border-border rounded-xl px-3 text-sm font-medium focus:outline-none focus:border-amber-400"
-                  />
-                  <input 
-                    type="text" placeholder="Unit (e.g. 500ml)" 
-                    value={newProduct.unit} onChange={(e) => setNewProduct({...newProduct, unit: e.target.value})}
-                    className="w-32 h-11 bg-white border border-border rounded-xl px-3 text-sm font-medium focus:outline-none focus:border-amber-400"
-                  />
-                  <button 
-                    onClick={handleAddProduct}
-                    className="h-11 px-4 bg-brown-900 text-white rounded-xl font-bold flex items-center gap-2 hover:bg-brown-800 transition-colors"
-                  >
-                    <Plus className="w-4 h-4" /> Add
-                  </button>
-                </div>
-
-                <div className="overflow-x-auto">
-                  <table className="w-full text-left border-collapse">
-                    <thead>
-                      <tr className="border-b border-border">
-                        <th className="pb-3 text-xs font-bold text-brown-500 uppercase">Product</th>
-                        <th className="pb-3 text-xs font-bold text-brown-500 uppercase">Unit</th>
-                        <th className="pb-3 text-xs font-bold text-brown-500 uppercase text-right">Price</th>
-                        <th className="pb-3 text-xs font-bold text-brown-500 uppercase text-right">Actions</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {products.length === 0 ? (
-                        <tr><td colSpan={4} className="py-6 text-center text-sm text-brown-500">No products found.</td></tr>
-                      ) : (
-                        products.map(p => (
-                          <tr key={p.id} className="border-b border-border/40 hover:bg-cream-50/50">
-                            <td className="py-3 font-bold text-brown-900 text-sm">{p.name}</td>
-                            <td className="py-3 text-brown-600 text-sm font-medium">{p.unit}</td>
-                            <td className="py-3 font-black text-brown-900 text-right text-sm">₹{p.price}</td>
-                            <td className="py-3 text-right">
-                              <button onClick={() => handleDeleteProduct(p.id)} className="text-red-500 hover:text-red-600 p-2 rounded-lg hover:bg-red-50 transition-colors">
-                                <Trash2 className="w-4 h-4" />
-                              </button>
-                            </td>
-                          </tr>
-                        ))
-                      )}
-                    </tbody>
-                  </table>
-                </div>
-              </div>
-            </div>
-          )}
-
-          {/* OPERATIONS */}
-          {activeTab === 'operations' && (
-            <div className="space-y-6 animate-in fade-in slide-in-from-bottom-2 duration-300">
-              
-              <div className="bg-white border border-border/50 rounded-3xl p-6 shadow-sm">
-                <h3 className="text-lg font-black text-brown-900 mb-4 flex items-center gap-2">
-                  <Clock className="w-5 h-5 text-amber-500" /> Operational Rules
-                </h3>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  
-                  <div className="space-y-1.5">
-                    <label className="text-xs font-bold text-brown-500 uppercase tracking-wider pl-1">Daily Global Capacity (Litres)</label>
-                    <input 
-                      type="number" 
-                      value={settings.daily_milk_production.default_litres}
-                      onChange={(e) => handleSettingChange('daily_milk_production', 'default_litres', parseInt(e.target.value))}
-                      className="w-full h-12 bg-cream-50 border border-border rounded-xl px-4 text-brown-900 font-bold focus:outline-none" 
-                    />
-                    <p className="text-[11px] text-brown-500 pl-1">Fallback capacity if no specific daily override exists.</p>
-                  </div>
-
-                  <div className="space-y-1.5">
-                    <label className="text-xs font-bold text-brown-500 uppercase tracking-wider pl-1">Cutoff Time (Hour: 0-23)</label>
-                    <input 
-                      type="number" min="0" max="23"
-                      value={settings.cutoff_time.hour}
-                      onChange={(e) => handleSettingChange('cutoff_time', 'hour', parseInt(e.target.value))}
-                      className="w-full h-12 bg-cream-50 border border-border rounded-xl px-4 text-brown-900 font-bold focus:outline-none" 
-                    />
-                    <p className="text-[11px] text-brown-500 pl-1">e.g., 21 means 9:00 PM the previous night.</p>
-                  </div>
-
-                  <div className="space-y-1.5">
-                    <label className="text-xs font-bold text-brown-500 uppercase tracking-wider pl-1">Max Extra Milk Days</label>
-                    <input 
-                      type="number" 
-                      value={settings.max_extra_milk_days.days}
-                      onChange={(e) => handleSettingChange('max_extra_milk_days', 'days', parseInt(e.target.value))}
-                      className="w-full h-12 bg-cream-50 border border-border rounded-xl px-4 text-brown-900 font-bold focus:outline-none" 
-                    />
-                    <p className="text-[11px] text-brown-500 pl-1">How many days in advance they can request extra milk.</p>
-                  </div>
-
-                  <div className="space-y-1.5">
-                    <label className="text-xs font-bold text-brown-500 uppercase tracking-wider pl-1">Delivery Start Time</label>
-                    <input 
-                      type="time" 
-                      value={settings.delivery_settings.start_time}
-                      onChange={(e) => handleSettingChange('delivery_settings', 'start_time', e.target.value)}
-                      className="w-full h-12 bg-cream-50 border border-border rounded-xl px-4 text-brown-900 font-bold focus:outline-none" 
-                    />
-                  </div>
-
-                </div>
-              </div>
-
-              <div className="bg-white border border-border/50 rounded-3xl p-6 shadow-sm">
-                <h3 className="text-lg font-black text-brown-900 mb-4">Waitlist Rules</h3>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  <div className="space-y-1.5">
-                    <label className="text-xs font-bold text-brown-500 uppercase tracking-wider pl-1">Response Deadline (Hours)</label>
-                    <input 
-                      type="number" 
-                      value={settings.waitlist_settings.response_hours_deadline}
-                      onChange={(e) => handleSettingChange('waitlist_settings', 'response_hours_deadline', parseInt(e.target.value))}
-                      className="w-full h-12 bg-cream-50 border border-border rounded-xl px-4 text-brown-900 font-bold focus:outline-none" 
-                    />
-                  </div>
-                  <div className="flex items-center mt-6">
-                    <label className="flex items-center gap-3 cursor-pointer">
-                      <input 
-                        type="checkbox" 
-                        checked={settings.waitlist_settings.auto_notify}
-                        onChange={(e) => handleSettingChange('waitlist_settings', 'auto_notify', e.target.checked)}
-                        className="w-5 h-5 rounded border-border text-amber-500 focus:ring-amber-500"
-                      />
-                      <span className="text-sm font-bold text-brown-900">Auto-Notify Waitlist on Capacity Freed</span>
-                    </label>
-                  </div>
-                </div>
-              </div>
-
-            </div>
-          )}
-
-          {/* STORE & BUSINESS */}
-          {activeTab === 'store' && (
-            <div className="space-y-6 animate-in fade-in slide-in-from-bottom-2 duration-300">
-              
-              <div className="bg-white border border-border/50 rounded-3xl p-6 shadow-sm">
-                <h3 className="text-lg font-black text-brown-900 mb-4 flex items-center gap-2">
-                  <Store className="w-5 h-5 text-amber-500" /> Store Information
-                </h3>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  <div className="space-y-1.5">
-                    <label className="text-xs font-bold text-brown-500 uppercase tracking-wider pl-1">Business Name</label>
-                    <input 
-                      type="text" 
-                      value={settings.store_info.name}
-                      onChange={(e) => handleSettingChange('store_info', 'name', e.target.value)}
-                      className="w-full h-12 bg-cream-50 border border-border rounded-xl px-4 text-brown-900 font-bold focus:outline-none" 
-                    />
-                  </div>
-                  <div className="space-y-1.5">
-                    <label className="text-xs font-bold text-brown-500 uppercase tracking-wider pl-1">Phone Number</label>
-                    <input 
-                      type="text" 
-                      value={settings.store_info.phone}
-                      onChange={(e) => handleSettingChange('store_info', 'phone', e.target.value)}
-                      className="w-full h-12 bg-cream-50 border border-border rounded-xl px-4 text-brown-900 font-bold focus:outline-none" 
-                    />
-                  </div>
-                  <div className="space-y-1.5">
-                    <label className="text-xs font-bold text-brown-500 uppercase tracking-wider pl-1">Support Email</label>
-                    <input 
-                      type="email" 
-                      value={settings.store_info.email}
-                      onChange={(e) => handleSettingChange('store_info', 'email', e.target.value)}
-                      className="w-full h-12 bg-cream-50 border border-border rounded-xl px-4 text-brown-900 font-bold focus:outline-none" 
-                    />
-                  </div>
-                  <div className="space-y-1.5">
-                    <label className="text-xs font-bold text-brown-500 uppercase tracking-wider pl-1">Address</label>
-                    <input 
-                      type="text" 
-                      value={settings.store_info.address}
-                      onChange={(e) => handleSettingChange('store_info', 'address', e.target.value)}
-                      className="w-full h-12 bg-cream-50 border border-border rounded-xl px-4 text-brown-900 font-bold focus:outline-none" 
-                    />
-                  </div>
-                </div>
-              </div>
-
-              <div className="bg-white border border-border/50 rounded-3xl p-6 shadow-sm">
-                <h3 className="text-lg font-black text-brown-900 mb-4">Business Logic Settings</h3>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  <div className="space-y-1.5">
-                    <label className="text-xs font-bold text-brown-500 uppercase tracking-wider pl-1">Timezone</label>
-                    <input 
-                      type="text" 
-                      value={settings.business_settings.timezone}
-                      onChange={(e) => handleSettingChange('business_settings', 'timezone', e.target.value)}
-                      className="w-full h-12 bg-cream-50 border border-border rounded-xl px-4 text-brown-900 font-bold focus:outline-none" 
-                    />
-                  </div>
-                  <div className="space-y-1.5">
-                    <label className="text-xs font-bold text-brown-500 uppercase tracking-wider pl-1">Billing Cycle Start Day</label>
-                    <input 
-                      type="number" min="1" max="28"
-                      value={settings.business_settings.billing_cycle_start_day}
-                      onChange={(e) => handleSettingChange('business_settings', 'billing_cycle_start_day', parseInt(e.target.value))}
-                      className="w-full h-12 bg-cream-50 border border-border rounded-xl px-4 text-brown-900 font-bold focus:outline-none" 
-                    />
-                    <p className="text-[11px] text-brown-500 pl-1">Day of the month when billing starts (e.g., 1).</p>
-                  </div>
-                </div>
-              </div>
-
-            </div>
-          )}
-
-          {/* NOTIFICATIONS */}
-          {activeTab === 'notifications' && (
-            <div className="space-y-6 animate-in fade-in slide-in-from-bottom-2 duration-300">
-              <div className="bg-white border border-border/50 rounded-3xl p-6 shadow-sm">
-                <h3 className="text-lg font-black text-brown-900 mb-4 flex items-center gap-2">
-                  <Bell className="w-5 h-5 text-amber-500" /> Alert Settings
-                </h3>
-                
+                {/* Text Inputs */}
                 <div className="space-y-4">
-                  <label className="flex items-center justify-between p-4 bg-cream-50 border border-border rounded-2xl cursor-pointer hover:bg-cream-100 transition-colors">
-                    <div>
-                      <p className="font-bold text-brown-900">WhatsApp Notifications</p>
-                      <p className="text-xs text-brown-500 font-medium mt-0.5">Send updates, delivery alerts and billing links via WhatsApp</p>
+                  <h3 className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">Business Details</h3>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div className="space-y-1.5">
+                      <label className="text-xs font-bold text-slate-700">Farm/Business Name</label>
+                      <input type="text" defaultValue="Amruth Dairy" className="w-full px-3 py-2 text-sm font-medium bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all" />
                     </div>
-                    <input 
-                      type="checkbox" 
-                      checked={settings.notification_settings.whatsapp_enabled}
-                      onChange={(e) => handleSettingChange('notification_settings', 'whatsapp_enabled', e.target.checked)}
-                      className="w-5 h-5 rounded border-border text-amber-500 focus:ring-amber-500"
-                    />
-                  </label>
+                    <div className="space-y-1.5">
+                      <label className="text-xs font-bold text-slate-700">Support Email</label>
+                      <input type="email" defaultValue="support@amruthdairy.com" className="w-full px-3 py-2 text-sm font-medium bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all" />
+                    </div>
+                    <div className="space-y-1.5">
+                      <label className="text-xs font-bold text-slate-700">Contact Phone</label>
+                      <input type="text" defaultValue="+91 98765 43210" className="w-full px-3 py-2 text-sm font-medium bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all" />
+                    </div>
+                    <div className="space-y-1.5">
+                      <label className="text-xs font-bold text-slate-700">Currency</label>
+                      <select className="w-full px-3 py-2 text-sm font-medium bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all">
+                        <option>INR (₹)</option>
+                        <option>USD ($)</option>
+                      </select>
+                    </div>
+                  </div>
+                </div>
 
-                  <label className="flex items-center justify-between p-4 bg-cream-50 border border-border rounded-2xl cursor-pointer hover:bg-cream-100 transition-colors">
-                    <div>
-                      <p className="font-bold text-brown-900">Automated Reminders</p>
-                      <p className="text-xs text-brown-500 font-medium mt-0.5">Automatically send payment reminders for unpaid bills</p>
+                {/* Toggles */}
+                <div className="space-y-4">
+                  <h3 className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">Platform Behavior</h3>
+                  
+                  <div className="flex items-center justify-between p-4 bg-slate-50 border border-slate-100 rounded-xl">
+                    <div className="flex flex-col">
+                      <span className="text-sm font-bold text-slate-800">Maintenance Mode</span>
+                      <span className="text-[10px] font-medium text-slate-500 mt-0.5">Disable customer app access for updates.</span>
                     </div>
-                    <input 
-                      type="checkbox" 
-                      checked={settings.notification_settings.auto_reminders}
-                      onChange={(e) => handleSettingChange('notification_settings', 'auto_reminders', e.target.checked)}
-                      className="w-5 h-5 rounded border-border text-amber-500 focus:ring-amber-500"
-                    />
-                  </label>
+                    <ToggleSwitch checked={maintenanceMode} onChange={() => setMaintenanceMode(!maintenanceMode)} />
+                  </div>
+
+                  <div className="flex items-center justify-between p-4 bg-slate-50 border border-slate-100 rounded-xl">
+                    <div className="flex flex-col">
+                      <span className="text-sm font-bold text-slate-800">Allow Waitlist Signups</span>
+                      <span className="text-[10px] font-medium text-slate-500 mt-0.5">Let new users join the queue when capacity is full.</span>
+                    </div>
+                    <ToggleSwitch checked={allowWaitlist} onChange={() => setAllowWaitlist(!allowWaitlist)} />
+                  </div>
+
+                  <div className="flex items-center justify-between p-4 bg-slate-50 border border-slate-100 rounded-xl">
+                    <div className="flex flex-col">
+                      <span className="text-sm font-bold text-slate-800">Auto-Approve Deliveries</span>
+                      <span className="text-[10px] font-medium text-slate-500 mt-0.5">Skip manual verification if delivery boy marks complete.</span>
+                    </div>
+                    <ToggleSwitch checked={autoApprove} onChange={() => setAutoApprove(!autoApprove)} />
+                  </div>
+
                 </div>
 
               </div>
+            )}
+
+            {activeTab !== 'General' && (
+              <div className="flex flex-col items-center justify-center h-full opacity-50">
+                <Settings size={48} className="text-slate-300 mb-4" />
+                <p className="text-sm font-bold text-slate-400">Settings module for {activeTab} goes here.</p>
+              </div>
+            )}
+            
+          </div>
+        </div>
+
+        {/* RIGHT COLUMN */}
+        <div className="lg:col-span-4 space-y-6">
+          
+          {/* Admin Activity Feed */}
+          <div className="bg-white rounded-2xl border border-slate-200 shadow-sm p-6">
+            <h2 className="text-sm font-bold text-slate-800 mb-6">System Activity</h2>
+            <div className="space-y-5 relative before:absolute before:inset-0 before:ml-[11px] before:-translate-x-px md:before:mx-auto md:before:translate-x-0 before:h-full before:w-0.5 before:bg-gradient-to-b before:from-transparent before:via-slate-200 before:to-transparent">
+              
+              <ActivityItem 
+                user="Admin (You)" 
+                action="Updated Pricing Plan" 
+                detail="Changed Standard from ₹60 to ₹65."
+                time="2 hours ago" 
+                color="blue"
+              />
+              <ActivityItem 
+                user="System" 
+                action="Database Backup" 
+                detail="Successfully backed up 2.4GB data."
+                time="03:00 AM" 
+                color="amber"
+              />
+              <ActivityItem 
+                user="Manager (Rahul)" 
+                action="Added Delivery Zone" 
+                detail="Pin code 560102 added."
+                time="Yesterday" 
+                color="green"
+              />
+              
             </div>
-          )}
+          </div>
+
+          {/* Quick Actions */}
+          <div className="bg-white rounded-2xl border border-slate-200 shadow-sm p-6">
+            <h2 className="text-sm font-bold text-slate-800 mb-4">Quick Actions</h2>
+            <div className="grid grid-cols-3 gap-3">
+              <QuickActionButton icon={UserPlus} label="Invite Staff" color="blue" />
+              <QuickActionButton icon={MapPin} label="Edit Zones" color="emerald" />
+              <QuickActionButton icon={Database} label="Backup Now" color="amber" />
+              <QuickActionButton icon={Link} label="API Keys" color="purple" />
+              <QuickActionButton icon={FileDown} label="Logs Export" color="slate" />
+              <QuickActionButton icon={AlertTriangle} label="Clear Cache" color="red" />
+            </div>
+          </div>
 
         </div>
+
       </div>
     </div>
+  )
+}
+
+// --- SUBCOMPONENTS ---
+
+function MetricCard({ title, value, subtext, trend, isUp, icon: Icon, color, sparkData }: any) {
+  const colorMap: any = {
+    blue: { bg: 'bg-blue-50', text: 'text-[#0066cc]', stroke: '#0066cc' },
+    green: { bg: 'bg-green-50', text: 'text-green-600', stroke: '#22c55e' },
+    amber: { bg: 'bg-amber-50', text: 'text-amber-500', stroke: '#f59e0b' },
+    purple: { bg: 'bg-purple-50', text: 'text-purple-500', stroke: '#8b5cf6' },
+    red: { bg: 'bg-red-50', text: 'text-red-500', stroke: '#ef4444' },
+    sky: { bg: 'bg-sky-50', text: 'text-sky-500', stroke: '#0ea5e9' },
+  }
+  const c = colorMap[color]
+
+  return (
+    <div className="bg-white rounded-2xl border border-slate-200 p-4 shadow-sm relative overflow-hidden flex flex-col justify-between min-h-[140px]">
+      <div className="flex justify-between items-start mb-2 relative z-10">
+        <div className={`w-8 h-8 rounded-xl ${c.bg} ${c.text} flex items-center justify-center`}>
+          <Icon size={16} strokeWidth={2.5} />
+        </div>
+      </div>
+      <div className="relative z-10">
+        <p className="text-[10px] font-bold text-slate-500 mb-0.5">{title}</p>
+        <p className="text-xl font-black text-slate-800">{value}</p>
+        <div className="flex flex-col mt-1">
+          <span className="text-[9px] font-bold text-slate-400">{subtext}</span>
+          {trend && (
+             <span className={`text-[10px] font-bold flex items-center gap-0.5 mt-0.5 ${trend === 'Fixed' || trend === 'Stable' ? 'text-slate-400' : isUp === false ? 'text-red-500' : 'text-green-600'}`}>
+              {trend !== 'Fixed' && trend !== 'Stable' && (isUp === false ? <ArrowDownRight size={10}/> : <ArrowUpRight size={10}/>)}
+              {trend}
+            </span>
+          )}
+        </div>
+      </div>
+      <div className="absolute bottom-0 left-0 w-full h-[40px] pointer-events-none">
+        <ResponsiveContainer width="100%" height="100%">
+          <LineChart data={sparkData}>
+            <Line type="monotone" dataKey="v" stroke={c.stroke} strokeWidth={2} dot={{ r: 2, fill: c.stroke, strokeWidth: 1, stroke: '#fff' }} isAnimationActive={false} />
+          </LineChart>
+        </ResponsiveContainer>
+      </div>
+    </div>
+  )
+}
+
+function TabButton({ icon: Icon, label, active, onClick }: any) {
+  return (
+    <button 
+      onClick={onClick}
+      className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all text-xs font-bold ${
+        active 
+          ? 'bg-white shadow-sm border border-slate-200 text-[#0066cc]' 
+          : 'text-slate-500 hover:bg-slate-100 hover:text-slate-800 border border-transparent'
+      }`}
+    >
+      <Icon size={16} />
+      {label}
+    </button>
+  )
+}
+
+function ToggleSwitch({ checked, onChange }: any) {
+  return (
+    <div 
+      className={`w-10 h-6 flex items-center rounded-full p-1 cursor-pointer transition-colors ${checked ? 'bg-[#0066cc]' : 'bg-slate-300'}`}
+      onClick={onChange}
+    >
+      <div className={`bg-white w-4 h-4 rounded-full shadow-md transform transition-transform duration-300 ${checked ? 'translate-x-4' : 'translate-x-0'}`} />
+    </div>
+  )
+}
+
+function ActivityItem({ user, action, detail, time, color }: any) {
+  const colorMap: any = {
+    blue: 'bg-blue-50 text-[#0066cc] border-white',
+    amber: 'bg-amber-50 text-amber-500 border-white',
+    green: 'bg-green-50 text-green-600 border-white',
+  }
+  return (
+    <div className="relative flex items-start gap-4">
+      <div className={`absolute left-0 w-6 h-6 rounded-full border-4 z-10 flex items-center justify-center bg-white ${colorMap[color].split(' ')[1]}`}>
+        <div className={`w-2 h-2 rounded-full ${colorMap[color].split(' ')[0] === 'bg-blue-50' ? 'bg-[#0066cc]' : colorMap[color].split(' ')[0] === 'bg-amber-50' ? 'bg-amber-500' : 'bg-green-600'}`} />
+      </div>
+      <div className="ml-8 flex flex-col">
+        <span className="text-[11px] font-bold text-slate-800">{user} <span className="font-medium text-slate-500 ml-1">{action}</span></span>
+        <span className="text-[10px] text-slate-500 mt-0.5">{detail}</span>
+        <span className="text-[9px] font-bold text-slate-400 mt-1">{time}</span>
+      </div>
+    </div>
+  )
+}
+
+function QuickActionButton({ icon: Icon, label, color }: any) {
+  const colorMap: any = {
+    blue: 'bg-blue-50 text-[#0066cc] hover:bg-[#0066cc] border-blue-100',
+    emerald: 'bg-emerald-50 text-emerald-600 hover:bg-emerald-600 border-emerald-100',
+    purple: 'bg-purple-50 text-purple-600 hover:bg-purple-600 border-purple-100',
+    amber: 'bg-amber-50 text-amber-500 hover:bg-amber-500 border-amber-100',
+    sky: 'bg-sky-50 text-sky-500 hover:bg-sky-500 border-sky-100',
+    slate: 'bg-slate-50 text-slate-600 hover:bg-slate-600 border-slate-200',
+    red: 'bg-red-50 text-red-500 hover:bg-red-500 border-red-100',
+  }
+  return (
+    <button className="flex flex-col items-center justify-center p-3 text-center rounded-xl bg-white border border-slate-100 hover:border-slate-200 shadow-sm transition-all group">
+      <div className={`w-8 h-8 rounded-lg flex items-center justify-center transition-colors mb-2 ${colorMap[color]} group-hover:text-white border`}>
+        <Icon size={14} />
+      </div>
+      <span className="text-[9px] font-bold text-slate-600 leading-tight">{label}</span>
+    </button>
   )
 }
