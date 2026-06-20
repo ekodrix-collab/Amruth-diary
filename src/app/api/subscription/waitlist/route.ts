@@ -1,11 +1,8 @@
 import { NextResponse } from 'next/server';
 import { createClient } from '@/utils/supabase/server';
-import { createClient as createAdminClient } from '@supabase/supabase-js';
+import { createAdminClient } from '@/utils/supabase/admin';
 
-const adminSupabase = createAdminClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.SUPABASE_SERVICE_ROLE_KEY!
-);
+const adminSupabase = createAdminClient();
 
 export async function POST(request: Request) {
   try {
@@ -66,7 +63,7 @@ export async function POST(request: Request) {
       .from('waitlist')
       .insert({
         customer_id: user.id,
-        quantity_litres,
+        requested_quantity_litres: quantity_litres,
         requested_start_date,
         status: 'waiting'
       })
@@ -85,24 +82,12 @@ export async function POST(request: Request) {
       .eq('id', user.id)
       .single();
 
-    // Queue notification
-    if (profile) {
-      await adminSupabase.from('notifications_log').insert({
-        recipient_id: user.id,
-        recipient_phone: profile.phone,
-        recipient_name: profile.full_name,
-        recipient_type: 'customer',
-        notification_type: 'waitlist_joined',
-        message_body: `You're #${entry.position} on the Amruth Milk waitlist! ` +
-          `We'll notify you as soon as a ${quantity_litres}L/day slot opens. ` +
-          `Thanks for your patience! 🥛`
-      });
-    }
+    // Notification system deferred — not in current plan
 
     return NextResponse.json({
       success: true,
       position: entry.position,
-      quantity_litres: entry.quantity_litres,
+      quantity_litres: entry.requested_quantity_litres,
       requested_start_date: entry.requested_start_date,
       message: `You have been added to the waitlist at position #${entry.position}!`
     });

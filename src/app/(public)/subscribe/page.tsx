@@ -1,7 +1,7 @@
 // app/subscribe/page.tsx
 'use client'
 
-import { useState, useEffect, useRef } from 'react'
+import { useState, useEffect, useRef, useCallback } from 'react'
 import { Navbar } from '@/components/layout/Navbar'
 import { Footer } from '@/components/layout/Footer'
 import { motion, AnimatePresence } from 'framer-motion'
@@ -13,16 +13,11 @@ import {
   Smartphone
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
-
-const AREAS = [
-  'Padil', 'Urwa', 'Kottara', 'Kadri',
-  'Lalbagh', 'Bendoorwell', 'Kankanady', 'Bejai'
-]
+import { DELIVERY_AREAS, DELIVERY_TIME_PROMISE } from '@/lib/constants'
+import { fetchPricePerLitreClient, calculateDailyRate, calculateMonthlyAmountWithExclusions, getDaysInMonth } from '@/lib/billing'
+import SubscriptionCalendar from '@/components/SubscriptionCalendar'
 
 type StepNum = 1 | 2 | 3
-
-const PRICE_PER_DAY = 56
-const MONTHLY_PRICE = PRICE_PER_DAY * 30 // 1680
 
 export default function SubscribePage() {
   const [step, setStep] = useState<StepNum>(1)
@@ -41,6 +36,13 @@ export default function SubscribePage() {
   const [paymentSuccess, setPaymentSuccess] = useState(false)
   const [orderId] = useState(`AMR-${Math.floor(10000 + Math.random() * 90000)}`)
 
+  // Admin-managed pricing
+  const [pricePerLitre, setPricePerLitre] = useState(0)
+  const [priceLoading, setPriceLoading] = useState(true)
+
+  // Day-picker state
+  const [excludedDates, setExcludedDates] = useState<string[]>([])
+
   // Session & Auth state variables
   const [isLoggedIn, setIsLoggedIn] = useState(false)
   const [showOtp, setShowOtp] = useState(false)
@@ -50,8 +52,19 @@ export default function SubscribePage() {
   const [resendCountdown, setResendCountdown] = useState(0)
   const intervalRef = useRef<NodeJS.Timeout | null>(null)
 
-  const gst = Math.round(MONTHLY_PRICE * 0.05)
-  const finalPrice = MONTHLY_PRICE + gst
+  // Calculate pricing dynamically based on admin price + selected days
+  const dailyRate = calculateDailyRate(pricePerLitre, 1.0) // 1L subscription
+  const startDateObj = new Date(startDate)
+  const startYear = startDateObj.getFullYear()
+  const startMonth = startDateObj.getMonth() + 1
+  const daysInMonth = getDaysInMonth(startYear, startMonth)
+  const excludedSet = new Set(excludedDates)
+  const monthlyPrice = calculateMonthlyAmountWithExclusions(dailyRate, startYear, startMonth, excludedSet)
+  const deliveryDays = daysInMonth - excludedDates.filter(d => d.startsWith(`${startYear}-${String(startMonth).padStart(2, '0')}`)).length
+
+  const handleExcludedDatesChange = useCallback((dates: string[]) => {
+    setExcludedDates(dates)
+  }, [])
 
   useEffect(() => {
     async function checkUser() {
@@ -72,6 +85,17 @@ export default function SubscribePage() {
       }
     }
     checkUser()
+  }, [])
+
+  // Fetch admin-managed price
+  useEffect(() => {
+    async function loadPrice() {
+      setPriceLoading(true)
+      const price = await fetchPricePerLitreClient()
+      setPricePerLitre(price)
+      setPriceLoading(false)
+    }
+    loadPrice()
   }, [])
 
   useEffect(() => {
@@ -200,7 +224,11 @@ export default function SubscribePage() {
       const res = await fetch('/api/subscription/new', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ quantity: 1.0, start_date: startDate })
+        body: JSON.stringify({
+          quantity: 1.0,
+          start_date: startDate,
+          excluded_dates: excludedDates
+        })
       })
       if (res.status === 401) {
         setFormError('You must be logged in to subscribe.')
@@ -508,7 +536,7 @@ export default function SubscribePage() {
                                   onChange={e => setArea(e.target.value)}
                                   className="sub-input sub-select"
                                 >
-                                  {AREAS.map(a => (
+                                  {DELIVERY_AREAS.map((a: string) => (
                                     <option key={a} value={a}>{a} (Mangalore)</option>
                                   ))}
                                 </select>
@@ -592,7 +620,7 @@ export default function SubscribePage() {
                             {[
                               { label: 'Plan', val: 'Standard Monthly' },
                               { label: 'Volume', val: '1 Litre / Day', blue: true },
-                              { label: 'Schedule', val: 'Daily Delivery' },
+                              { label: 'Delivery Days', val: `${deliveryDays} days this month` },
                               { label: 'Start Date', val: formatDate(startDate) },
                             ].map(r => (
                               <div key={r.label}>
@@ -602,6 +630,14 @@ export default function SubscribePage() {
                             ))}
                           </div>
                         </div>
+
+                        {/* Day Picker Calendar */}
+                        <SubscriptionCalendar
+                          startDate={startDate}
+                          onExcludedDatesChange={handleExcludedDatesChange}
+                          initialExcludedDates={excludedDates}
+                          maxMonthsAhead={1}
+                        />
 
                         <div className="sub-review-block">
                           <p className="sub-review-block-title">Delivery Address</p>
@@ -647,21 +683,21 @@ export default function SubscribePage() {
                           <p className="sub-invoice-title">Order Invoice</p>
                           <div className="sub-invoice-rows">
                             <div className="sub-invoice-row">
-                              <span>Standard Monthly (1L/Day)</span>
-                              <span>₹{MONTHLY_PRICE.toFixed(2)}</span>
+                              <span>Milk (1L/Day × {deliveryDays} days)</span>
+                              <span>₹{priceLoading ? '...' : monthlyPrice.toFixed(2)}</span>
+                            </div>
+                            <div className="sub-invoice-row">
+                              <span>Daily rate</span>
+                              <span>₹{priceLoading ? '...' : dailyRate.toFixed(2)}/day</span>
                             </div>
                             <div className="sub-invoice-row">
                               <span>Delivery charge</span>
                               <span className="sub-invoice-free">FREE</span>
                             </div>
-                            <div className="sub-invoice-row">
-                              <span>CGST + SGST (5%)</span>
-                              <span>+₹{gst.toFixed(2)}</span>
-                            </div>
                           </div>
                           <div className="sub-invoice-total">
                             <span>Amount Due</span>
-                            <span className="sub-invoice-total-amt">₹{finalPrice}</span>
+                            <span className="sub-invoice-total-amt">₹{priceLoading ? '...' : monthlyPrice.toFixed(0)}</span>
                           </div>
                         </div>
 
@@ -675,7 +711,7 @@ export default function SubscribePage() {
                           {isPaying ? (
                             <><span className="sub-spinner" /> Securing Connection...</>
                           ) : (
-                            <><CreditCard size={15} /> Pay ₹{finalPrice} securely</>
+                            <><CreditCard size={15} /> Pay ₹{priceLoading ? '...' : monthlyPrice.toFixed(0)} securely</>
                           )}
                         </button>
 
@@ -729,7 +765,7 @@ export default function SubscribePage() {
                       { icon: Package, label: 'Quantity', val: '1 Litre / Day' },
                       { icon: Clock, label: 'Delivery Time', val: 'Before 7:00 AM' },
                       { icon: Tag, label: 'Plan Type', val: 'Daily Subscription' },
-                      { icon: MapPin, label: 'Price', val: `₹${PRICE_PER_DAY} / Day` },
+                      { icon: MapPin, label: 'Price', val: priceLoading ? 'Loading...' : `₹${dailyRate.toFixed(2)} / Day` },
                     ].map(({ icon: Icon, label, val }) => (
                       <div key={label} className="sub-detail-row">
                         <span className="sub-detail-label">
@@ -745,12 +781,12 @@ export default function SubscribePage() {
                     <div className="sub-monthly-row">
                       <div>
                         <p className="sub-monthly-label">Estimated Monthly</p>
-                        <p className="sub-monthly-days">(30 Days)</p>
-                        <p className="sub-monthly-tax">Inclusive of all taxes</p>
+                        <p className="sub-monthly-days">({daysInMonth} Days)</p>
+                        <p className="sub-monthly-tax">No additional taxes</p>
                       </div>
                       <div className="sub-monthly-price">
                         <span className="sub-monthly-rupee">₹</span>
-                        <span className="sub-monthly-amt">{MONTHLY_PRICE.toLocaleString()}</span>
+                        <span className="sub-monthly-amt">{priceLoading ? '...' : monthlyPrice.toLocaleString()}</span>
                         <span className="sub-monthly-star">✦</span>
                       </div>
                     </div>
@@ -799,7 +835,7 @@ export default function SubscribePage() {
                   </div>
                   <div className="sub-success-row">
                     <span>Amount Paid</span>
-                    <span className="sub-success-mono">₹{finalPrice}</span>
+                    <span className="sub-success-mono">₹{monthlyPrice.toFixed(0)}</span>
                   </div>
                   <div className="sub-success-row">
                     <span>Starts From</span>

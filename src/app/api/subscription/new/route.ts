@@ -1,13 +1,11 @@
 import { NextResponse } from 'next/server';
 import { createClient } from '@/utils/supabase/server';
-import { createClient as createAdminClient } from '@supabase/supabase-js';
+import { createAdminClient } from '@/utils/supabase/admin';
+import { fetchPricePerLitre, calculateDailyRate, calculateMonthlyAmount, calculateProRataAmount, getDaysInMonth } from '@/lib/billing';
 import Razorpay from 'razorpay';
 
 // Admin client bypasses RLS for all DB writes
-const adminSupabase = createAdminClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.SUPABASE_SERVICE_ROLE_KEY!
-);
+const adminSupabase = createAdminClient();
 
 export async function POST(request: Request) {
   try {
@@ -40,20 +38,19 @@ export async function POST(request: Request) {
       }, { status: 400 });
     }
 
-    // 4. CHECK CAPACITY: Call RPC check_capacity
-    const { data: capacityCheck, error: capacityError } = await adminSupabase.rpc('check_capacity', {
-      p_date: start_date,
+    // 4. BOOK CAPACITY: Call RPC book_recurring_capacity
+    const { data: bookingSuccess, error: bookingError } = await adminSupabase.rpc('book_recurring_capacity', {
+      p_start_date: start_date,
       p_litres: quantity
     });
 
-    if (capacityError) {
-      console.error('Capacity check error:', capacityError.message);
-      return NextResponse.json({ success: false, message: 'Failed to check capacity' }, { status: 500 });
+    if (bookingError) {
+      console.error('Capacity booking error:', bookingError.message);
+      return NextResponse.json({ success: false, message: 'Failed to secure capacity' }, { status: 500 });
     }
 
-    const { can_book, is_full } = capacityCheck;
-
-    if (!can_book || is_full) {
+    // If false, it means capacity was insufficient
+    if (!bookingSuccess) {
       // INSERT into waitlist
       const { data: waitlistEntry, error: waitlistError } = await adminSupabase
         .from('waitlist')
@@ -78,9 +75,14 @@ export async function POST(request: Request) {
       }, { status: 200 }); // Status 200 because it's a valid business flow
     }
 
-    // 5. Calculate amounts
-    const monthly_amount = Math.round(2480.00 * quantity * 100) / 100; // e.g. 2480.00
-    
+    // 5. Calculate amounts using admin-managed pricing
+    const pricePerLitre = await fetchPricePerLitre(adminSupabase);
+    const daily_rate = calculateDailyRate(pricePerLitre, quantity);
+    const startDateObj = new Date(start_date);
+    const startYear = startDateObj.getFullYear();
+    const startMonth = startDateObj.getMonth() + 1;
+    const monthly_amount = calculateMonthlyAmount(daily_rate, startYear, startMonth);
+    const daysInMonth = getDaysInMonth(startYear, startMonth);
     // 6. Create Razorpay order
     let razorpay_order_id = null;
     
@@ -109,9 +111,10 @@ export async function POST(request: Request) {
         customer_id: user.id,
         quantity_litres: quantity,
         monthly_amount: monthly_amount,
+        daily_rate: daily_rate,
         start_date: start_date,
         status: initialStatus,
-        razorpay_subscription_id: razorpay_order_id // We use this field to store the initial order ID for simplicity before webhook
+        razorpay_subscription_id: razorpay_order_id
       })
       .select()
       .single();
@@ -122,15 +125,7 @@ export async function POST(request: Request) {
     }
 
     // 8. INSERT billing_months for current month
-    const billingMonthDate = new Date(start_date);
-    billingMonthDate.setDate(1); // Set to 1st of the month
-    const formattedBillingMonth = billingMonthDate.toISOString().split('T')[0];
-
-    // Calculate days in month
-    const nextMonth = new Date(billingMonthDate);
-    nextMonth.setMonth(nextMonth.getMonth() + 1);
-    nextMonth.setDate(0);
-    const daysInMonth = nextMonth.getDate();
+    const formattedBillingMonth = `${startYear}-${String(startMonth).padStart(2, '0')}-01`;
 
     const { error: billingError } = await adminSupabase
       .from('billing_months')
@@ -139,8 +134,8 @@ export async function POST(request: Request) {
         customer_id: user.id,
         billing_month: formattedBillingMonth,
         quantity_litres: quantity,
-        monthly_amount: subscription.monthly_amount,
-        daily_rate: subscription.daily_rate,
+        monthly_amount: monthly_amount,
+        daily_rate: daily_rate,
         days_in_month: daysInMonth
       });
 
@@ -154,6 +149,7 @@ export async function POST(request: Request) {
       success: true,
       subscription_id: subscription.id,
       monthly_amount: monthly_amount,
+      daily_rate: daily_rate,
       razorpay_order_id: razorpay_order_id,
       key_id: process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID
     });

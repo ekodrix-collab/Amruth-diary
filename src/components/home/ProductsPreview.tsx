@@ -83,9 +83,9 @@ const products: ProductItem[] = [
     features: ['100% Pure', 'No Additives', 'A2 Certified'],
     featuresIcons: ['🥛', '🧪', '🛡️'],
     gradient: 'linear-gradient(135deg, #FFFDF9 0%, #FAF5E6 100%)',
-    accentColor: '#0066cc',
-    accentLight: 'rgba(0, 102, 204, 0.08)',
-    buttonColor: 'linear-gradient(135deg, #0F2E5C 0%, #1E4E8C 100%)',
+    accentColor: '#0284C7',
+    accentLight: 'rgba(2, 132, 199, 0.08)',
+    buttonColor: 'linear-gradient(135deg, #0F172A 0%, #1E293B 100%)',
     isSubscription: true
   },
   {
@@ -97,15 +97,15 @@ const products: ProductItem[] = [
     badge: 'Probiotic Rich',
     badgeIcon: '🥣',
     badgeBg: 'rgba(219, 234, 254, 0.65)',
-    badgeTextColor: '#1d4ed8',
+    badgeTextColor: '#0369A1',
     badgeBorder: 'rgba(37, 99, 235, 0.2)',
     tagline: 'Made from A2 Cow Milk',
     features: ['Rich & Thick', 'Good for Gut', 'Daily Fresh'],
     featuresIcons: ['🥄', '✨', '🗓️'],
     gradient: 'linear-gradient(135deg, #F8FAFC 0%, #EDF2F7 100%)',
-    accentColor: '#1d4ed8',
-    accentLight: 'rgba(29, 78, 216, 0.08)',
-    buttonColor: 'linear-gradient(135deg, #0F2E5C 0%, #1E4E8C 100%)',
+    accentColor: '#0369A1',
+    accentLight: 'rgba(3, 105, 161, 0.08)',
+    buttonColor: 'linear-gradient(135deg, #0F172A 0%, #1E293B 100%)',
     isSubscription: false
   },
   {
@@ -185,7 +185,7 @@ export function ProductsPreview() {
     <section 
       id="products" 
       style={{ 
-        background: 'linear-gradient(to bottom, #FCFAF5 0%, #FFFDF9 50%, #ffffff 100%)', 
+        background: 'linear-gradient(to bottom, #FFFDF7 0%, #FFFDF9 50%, #ffffff 100%)', 
         padding: '120px 0', 
         position: 'relative',
         overflow: 'hidden'
@@ -231,7 +231,7 @@ export function ProductsPreview() {
               fontFamily: 'var(--font-playfair), Georgia, serif',
               fontSize: 'clamp(2.25rem, 4.5vw, 3.5rem)', 
               fontWeight: 500, 
-              color: '#0f2e5c', 
+              color: '#0F172A', 
               letterSpacing: '-0.02em', 
               lineHeight: 1.15, 
               marginBottom: '20px' 
@@ -240,7 +240,7 @@ export function ProductsPreview() {
             </h2>
             <p style={{ 
               fontSize: '1.05rem', 
-              color: '#64748b', 
+              color: '#475569', 
               fontWeight: 500,
               maxWidth: '600px',
               margin: '0 auto'
@@ -267,14 +267,14 @@ export function ProductsPreview() {
                 borderRadius: '50%',
                 background: 'rgba(255, 255, 255, 0.9)',
                 backdropFilter: 'blur(10px)',
-                border: '1.5px solid rgba(15, 46, 92, 0.08)',
+                border: '1.5px solid rgba(15, 23, 42, 0.08)',
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
                 cursor: 'pointer',
                 zIndex: 10,
-                boxShadow: '0 10px 25px rgba(15, 46, 92, 0.06)',
-                color: '#0f2e5c',
+                boxShadow: '0 10px 25px rgba(15, 23, 42, 0.06)',
+                color: '#0F172A',
                 transition: 'all 0.3s cubic-bezier(0.16, 1, 0.3, 1)'
               }}
               className="hover:scale-110 hover:bg-white hover:shadow-xl active:scale-95"
@@ -310,7 +310,7 @@ export function ProductsPreview() {
                     flexDirection: 'column',
                     position: 'relative',
                     scrollSnapAlign: 'start',
-                    boxShadow: '0 16px 40px rgba(15, 46, 92, 0.03)',
+                    boxShadow: '0 16px 40px rgba(15, 23, 42, 0.03)',
                     transition: 'all 0.4s cubic-bezier(0.16, 1, 0.3, 1)'
                   }}
                   className="product-card hover:-translate-y-2 hover:shadow-2xl hover:border-amber-300/40 group"
@@ -388,6 +388,7 @@ export function ProductsPreview() {
                         src={product.image}
                         alt={product.name}
                         fill
+                        sizes="(max-width: 768px) 100vw, 350px"
                         style={{ objectFit: 'contain' }}
                         priority
                       />
@@ -425,13 +426,13 @@ export function ProductsPreview() {
                         fontFamily: 'var(--font-playfair), Georgia, serif',
                         fontSize: '1.35rem', 
                         fontWeight: 600, 
-                        color: '#0f2e5c', 
+                        color: '#0F172A', 
                         marginBottom: '4px',
                         letterSpacing: '-0.01em'
                       }}>
                         {product.name}
                       </h3>
-                      <p style={{ fontSize: '0.82rem', color: '#64748b', fontWeight: 600 }}>
+                      <p style={{ fontSize: '0.82rem', color: '#475569', fontWeight: 600 }}>
                         {product.tagline}
                       </p>
                     </div>
@@ -479,8 +480,8 @@ export function ProductsPreview() {
                         <p style={{ fontSize: '0.75rem', fontWeight: 700, color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: '2px' }}>
                           Price
                         </p>
-                        <p style={{ fontSize: '1.3rem', fontWeight: 900, color: '#0f2e5c' }}>
-                          {product.price} <span style={{ fontSize: '0.8rem', fontWeight: 600, color: '#64748b' }}>/ {product.unit}</span>
+                        <p style={{ fontSize: '1.3rem', fontWeight: 900, color: '#0F172A' }}>
+                          {product.price} <span style={{ fontSize: '0.8rem', fontWeight: 600, color: '#475569' }}>/ {product.unit}</span>
                         </p>
                       </div>
 
@@ -496,7 +497,7 @@ export function ProductsPreview() {
                           fontSize: '0.82rem',
                           border: 'none',
                           cursor: 'pointer',
-                          boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.2), 0 8px 16px rgba(15, 46, 92, 0.08)',
+                          boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.2), 0 8px 16px rgba(15, 23, 42, 0.08)',
                           transition: 'all 0.2s cubic-bezier(0.16, 1, 0.3, 1)',
                           display: 'flex',
                           alignItems: 'center',
@@ -526,14 +527,14 @@ export function ProductsPreview() {
                 borderRadius: '50%',
                 background: 'rgba(255, 255, 255, 0.9)',
                 backdropFilter: 'blur(10px)',
-                border: '1.5px solid rgba(15, 46, 92, 0.08)',
+                border: '1.5px solid rgba(15, 23, 42, 0.08)',
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
                 cursor: 'pointer',
                 zIndex: 10,
-                boxShadow: '0 10px 25px rgba(15, 46, 92, 0.06)',
-                color: '#0f2e5c',
+                boxShadow: '0 10px 25px rgba(15, 23, 42, 0.06)',
+                color: '#0F172A',
                 transition: 'all 0.3s cubic-bezier(0.16, 1, 0.3, 1)'
               }}
               className="hover:scale-110 hover:bg-white hover:shadow-xl active:scale-95"

@@ -13,7 +13,8 @@ import {
   LogOut,
   Globe,
   Menu,
-  X
+  X,
+  Settings
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { createClient } from '@/utils/supabase/client'
@@ -23,8 +24,9 @@ const adminNavItems = [
   { href: '/admin/delivery', icon: Truck, label: "Today's Delivery" },
   { href: '/admin/customers', icon: Users, label: 'Customers' },
   { href: '/admin/billing', icon: CreditCard, label: 'Billing' },
-  { href: '/admin/products', icon: Package, label: 'Products' },
+  { href: '/admin/products', icon: Package, label: 'Capacity Management' },
   { href: '/admin/reports', icon: BarChart2, label: 'Reports' },
+  { href: '/admin/settings', icon: Settings, label: 'Settings' },
 ]
 
 export default function AdminLayout({ children }: { children: React.ReactNode }) {

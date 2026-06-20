@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import {
   Calendar, MapPin, CreditCard, CheckCircle,
   ArrowRight, User, Home, Building2, FileText,
@@ -9,25 +9,16 @@ import {
 } from 'lucide-react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { cn } from '@/lib/utils'
+import { DELIVERY_AREAS, QUANTITY_OPTIONS, DELIVERY_TIME_PROMISE } from '@/lib/constants'
+import { fetchPricePerLitreClient, calculateDailyRate, calculateMonthlyAmount, getDaysInMonth, calculateProRataAmount as calcProRata } from '@/lib/billing'
+import SubscriptionCalendar from '@/components/SubscriptionCalendar'
 
 type OnboardingStep = 1 | 2 | 3 | 'success' | 'waitlist'
 
-const AREAS = [
-  'Padil', 'Kulshekar', 'Kadri', 'Alape',
-  'Bajal', 'Pumpwell', 'State Bank', 'Kankanady'
-]
-
 const FEATURES = [
   { icon: ShieldCheck, label: 'Pure & Natural', desc: '100% farm fresh A2 milk' },
-  { icon: Clock, label: 'On-Time Delivery', desc: 'Before 7:00 AM everyday' },
+  { icon: Clock, label: 'On-Time Delivery', desc: `${DELIVERY_TIME_PROMISE} everyday` },
   { icon: Leaf, label: 'No Preservatives', desc: 'No chemicals, no compromise' },
-]
-
-const QUANTITY_OPTIONS = [
-  { litres: 0.5, label: '½ L', price: 1240 },
-  { litres: 1.0, label: '1 L', price: 2480 },
-  { litres: 1.5, label: '1.5 L', price: 3720 },
-  { litres: 2.0, label: '2 L', price: 4960 },
 ]
 
 export default function OnboardingPage() {
@@ -46,6 +37,11 @@ export default function OnboardingPage() {
   const [quantity, setQuantity] = useState(1.0)
   const [startDate, setStartDate] = useState('')
   const [deliveryNotes, setDeliveryNotes] = useState('')
+  const [excludedDates, setExcludedDates] = useState<string[]>([])
+
+  // Admin-managed pricing
+  const [pricePerLitre, setPricePerLitre] = useState(0)
+  const [priceLoading, setPriceLoading] = useState(true)
 
   // Calculations
   const [proRataDays, setProRataDays] = useState(0)
@@ -54,24 +50,41 @@ export default function OnboardingPage() {
   const [dailyRate, setDailyRate] = useState(0)
   const [waitlistPosition, setWaitlistPosition] = useState<number | null>(null)
 
+  const handleExcludedDatesChange = useCallback((dates: string[]) => {
+    setExcludedDates(dates)
+  }, [])
+
   useEffect(() => {
     const tomorrow = new Date()
     tomorrow.setDate(tomorrow.getDate() + 1)
     setStartDate(tomorrow.toISOString().split('T')[0])
   }, [])
 
+  // Fetch admin-managed price on mount
   useEffect(() => {
-    if (!startDate) return
-    const mAmount = Math.round(2480 * quantity * 100) / 100
-    const dRate = Math.round((mAmount / 30) * 10000) / 10000
-    setMonthlyAmount(mAmount)
-    setDailyRate(dRate)
+    async function loadPrice() {
+      setPriceLoading(true)
+      const price = await fetchPricePerLitreClient()
+      setPricePerLitre(price)
+      setPriceLoading(false)
+    }
+    loadPrice()
+  }, [])
+
+  useEffect(() => {
+    if (!startDate || pricePerLitre === 0) return
+    const dRate = calculateDailyRate(pricePerLitre, quantity)
     const start = new Date(startDate)
-    const lastDay = new Date(start.getFullYear(), start.getMonth() + 1, 0).getDate()
-    const remaining = lastDay - start.getDate() + 1
+    const startYear = start.getFullYear()
+    const startMonth = start.getMonth() + 1
+    const mAmount = calculateMonthlyAmount(dRate, startYear, startMonth)
+    setDailyRate(dRate)
+    setMonthlyAmount(mAmount)
+    const daysInMonth = getDaysInMonth(startYear, startMonth)
+    const remaining = daysInMonth - start.getDate() + 1
     setProRataDays(remaining)
     setProRataAmount(Math.round(remaining * dRate * 100) / 100)
-  }, [quantity, startDate])
+  }, [quantity, startDate, pricePerLitre, excludedDates])
 
   useEffect(() => {
     fetch('/api/customer/dashboard')
@@ -124,7 +137,7 @@ export default function OnboardingPage() {
       const res = await fetch('/api/subscription/new', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ quantity, start_date: startDate })
+        body: JSON.stringify({ quantity, start_date: startDate, excluded_dates: excludedDates })
       })
       const data = await res.json()
       if (data.success) {
@@ -306,7 +319,7 @@ export default function OnboardingPage() {
                             onChange={e => setArea(e.target.value)}
                             className="ob-input ob-select"
                           >
-                            {AREAS.map(a => (
+                            {DELIVERY_AREAS.map(a => (
                               <option key={a} value={a}>{a}</option>
                             ))}
                           </select>
@@ -402,7 +415,11 @@ export default function OnboardingPage() {
                     <div className="ob-field">
                       <label className="ob-label-plain">Daily Milk Quantity</label>
                       <div className="ob-qty-grid">
-                        {QUANTITY_OPTIONS.map(({ litres, label, price }) => (
+                        {QUANTITY_OPTIONS.map(({ litres, label }) => {
+                          const qtyMonthly = pricePerLitre > 0
+                            ? calculateMonthlyAmount(calculateDailyRate(pricePerLitre, litres), startDate ? new Date(startDate).getFullYear() : new Date().getFullYear(), startDate ? new Date(startDate).getMonth() + 1 : new Date().getMonth() + 1)
+                            : 0
+                          return (
                           <button
                             key={litres}
                             type="button"
@@ -413,9 +430,10 @@ export default function OnboardingPage() {
                               <div className="ob-qty-check">✓</div>
                             )}
                             <span className="ob-qty-litres">{label}</span>
-                            <span className="ob-qty-price">₹{price}/mo</span>
+                            <span className="ob-qty-price">{priceLoading ? '...' : `₹${Math.round(qtyMonthly)}/mo`}</span>
                           </button>
-                        ))}
+                          )
+                        })}
                       </div>
                     </div>
 
@@ -459,6 +477,16 @@ export default function OnboardingPage() {
                         />
                       </div>
                     </div>
+
+                    {/* Day Picker Calendar */}
+                    {startDate && (
+                      <SubscriptionCalendar
+                        startDate={startDate}
+                        onExcludedDatesChange={handleExcludedDatesChange}
+                        initialExcludedDates={excludedDates}
+                        maxMonthsAhead={1}
+                      />
+                    )}
 
                     {/* Monthly preview card */}
                     <div className="ob-preview-card">

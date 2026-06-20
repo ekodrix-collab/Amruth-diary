@@ -1,11 +1,8 @@
 import { NextResponse } from 'next/server';
 import { createClient } from '@/utils/supabase/server';
-import { createClient as createAdminClient } from '@supabase/supabase-js';
+import { createAdminClient } from '@/utils/supabase/admin';
 
-const adminSupabase = createAdminClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.SUPABASE_SERVICE_ROLE_KEY!
-);
+const adminSupabase = createAdminClient();
 
 export async function POST(request: Request) {
   try {
@@ -110,46 +107,26 @@ export async function POST(request: Request) {
       .eq('subscription_id', subscription.id)
       .eq('delivery_date', skip_date);
 
-    // UPDATE billing_months
-    const creditMonthDate = new Date(credit_month);
-    const daysInMonth = new Date(creditMonthDate.getFullYear(), creditMonthDate.getMonth() + 1, 0).getDate();
+    // UPDATE billing_adjustments (Rule #7: Carry-forward credits go to billing_adjustments table)
+    const { error: adjustmentError } = await adminSupabase
+      .from('billing_adjustments')
+      .insert({
+        subscription_id: subscription.id,
+        customer_id: user.id,
+        adjustment_type: 'skip_credit',
+        amount: credit_amount,
+        target_month: credit_month,
+        notes: `Skip credit for ${skip_date}`
+      });
 
-    const { data: bMonth } = await adminSupabase
-      .from('billing_months')
-      .select('*')
-      .eq('subscription_id', subscription.id)
-      .eq('billing_month', credit_month)
-      .maybeSingle();
-
-    if (bMonth) {
-      await adminSupabase
-        .from('billing_months')
-        .update({
-          skip_credit: Number(bMonth.skip_credit) + Number(credit_amount),
-          days_skipped: (bMonth.days_skipped || 0) + 1,
-          net_due: Math.max(0, Number(bMonth.net_due) - Number(credit_amount))
-        })
-        .eq('id', bMonth.id);
-    } else {
-      await adminSupabase
-        .from('billing_months')
-        .insert({
-          subscription_id: subscription.id,
-          customer_id: user.id,
-          billing_month: credit_month,
-          quantity_litres: subscription.quantity_litres,
-          monthly_amount: subscription.monthly_amount,
-          daily_rate: subscription.daily_rate,
-          days_in_month: daysInMonth,
-          skip_credit: credit_amount,
-          days_skipped: 1,
-          net_due: Math.max(0, Number(subscription.monthly_amount) - Number(credit_amount))
-        });
+    if (adjustmentError) {
+      console.error('Adjustment error:', adjustmentError.message);
+      // Proceed anyway, we can re-sync later, but log it
     }
 
-    // UPDATE daily_capacity
+    // UPDATE milk_capacity
     const { data: capacity } = await adminSupabase
-      .from('daily_capacity')
+      .from('milk_capacity')
       .select('*')
       .eq('date', skip_date)
       .maybeSingle();
@@ -157,8 +134,8 @@ export async function POST(request: Request) {
     if (capacity) {
       const newBooked = Math.max(0, Number(capacity.booked_litres) - Number(subscription.quantity_litres));
       await adminSupabase
-        .from('daily_capacity')
-        .update({ booked_litres: newBooked, is_full: newBooked >= Number(capacity.total_litres) })
+        .from('milk_capacity')
+        .update({ booked_litres: newBooked })
         .eq('id', capacity.id);
     }
 

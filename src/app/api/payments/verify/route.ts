@@ -1,5 +1,8 @@
 import { NextResponse } from 'next/server';
 import { createClient } from '@/utils/supabase/server';
+import { createAdminClient } from '@/utils/supabase/admin';
+
+const adminSupabase = createAdminClient();
 import crypto from 'crypto';
 
 export async function POST(request: Request) {
@@ -44,7 +47,7 @@ export async function POST(request: Request) {
 
     // Update billing month record
     const amountPaid = Number(bMonth.net_due);
-    const { error: updateBMonthError } = await supabase
+    const { error: updateBMonthError } = await adminSupabase
       .from('billing_months')
       .update({
         amount_paid: Number(bMonth.amount_paid) + amountPaid,
@@ -60,7 +63,7 @@ export async function POST(request: Request) {
     }
 
     // Insert payment log
-    const { error: paymentError } = await supabase
+    const { error: paymentError } = await adminSupabase
       .from('payments')
       .insert({
         customer_id: user.id,
@@ -81,14 +84,14 @@ export async function POST(request: Request) {
     }
 
     // Fetch and update subscription status if it was pending_payment
-    const { data: subscription } = await supabase
+    const { data: subscription } = await adminSupabase
       .from('subscriptions')
       .select('*')
       .eq('id', bMonth.subscription_id)
       .single();
 
     if (subscription && subscription.status === 'pending_payment') {
-      await supabase
+      await adminSupabase
         .from('subscriptions')
         .update({
           status: 'active',

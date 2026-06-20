@@ -118,14 +118,12 @@ export default function AdminDashboardHome() {
     },
   ]
 
-  // Mock regional routing breakdown
-  const regionalDemand = [
-    { area: 'Padil (Main Hub)', orders: Math.round(totalDeliveries * 0.4), litres: Math.round(totalMilkLiters * 0.45 * 10) / 10 },
-    { area: 'Kadri', orders: Math.round(totalDeliveries * 0.2), litres: Math.round(totalMilkLiters * 0.18 * 10) / 10 },
-    { area: 'Kulshekar', orders: Math.round(totalDeliveries * 0.15), litres: Math.round(totalMilkLiters * 0.16 * 10) / 10 },
-    { area: 'Pumpwell', orders: Math.round(totalDeliveries * 0.15), litres: Math.round(totalMilkLiters * 0.13 * 10) / 10 },
-    { area: 'Other Locality', orders: Math.round(totalDeliveries * 0.1), litres: Math.round(totalMilkLiters * 0.08 * 10) / 10 },
-  ]
+  // Live regional routing breakdown
+  const regionalDemand = dashboardData?.reports?.area_deliveries?.map((d: any) => ({
+    area: d.zone,
+    orders: d.deliveries,
+    litres: d.volume.replace('L', '').trim()
+  })) || []
 
   return (
     <div className="space-y-8 max-w-6xl pb-10">
@@ -238,7 +236,7 @@ export default function AdminDashboardHome() {
               </div>
               <div>
                 <p className="text-brown-400 font-black text-[9px] uppercase tracking-wider mb-0.5">Active Routes</p>
-                <p className="font-bold text-brown-800">5 Deliveries Zones</p>
+                <p className="font-bold text-brown-800">{regionalDemand.length} Delivery Zones</p>
               </div>
             </div>
           </div>
@@ -249,7 +247,7 @@ export default function AdminDashboardHome() {
           <h3 className="text-xs font-black text-brown-600 uppercase tracking-widest pl-1">Delivery Zone Breakdown</h3>
           
           <div className="bg-warm-white border border-border/80 rounded-2xl shadow-shadow shadow-sm overflow-hidden divide-y divide-border/40">
-            {regionalDemand.map((region, idx) => (
+            {regionalDemand.map((region: any, idx: number) => (
               <div key={idx} className="flex justify-between items-center p-4 hover:bg-cream-50/20 transition-all">
                 <div className="flex items-center gap-2.5">
                   <div className="w-8 h-8 rounded-lg bg-cream-100 flex items-center justify-center text-brown-600">

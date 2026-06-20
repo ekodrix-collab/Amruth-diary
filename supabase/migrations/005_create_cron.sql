@@ -81,20 +81,20 @@ SELECT cron.schedule(
   -- Apply pending quantity changes
   UPDATE public.subscriptions s
   SET 
-    quantity_litres = qc.to_quantity,
+    quantity_litres = qc.requested_quantity,
     monthly_amount = qc.new_monthly_amount,
     daily_rate = qc.new_daily_rate,
-    next_month_quantity = NULL,
+    next_month_quantity_litres = NULL,
     updated_at = NOW()
-  FROM public.quantity_changes qc
+  FROM public.quantity_change_requests qc
   WHERE qc.subscription_id = s.id
     AND qc.status = 'pending'
-    AND qc.effective_month = date_trunc('month', CURRENT_DATE)::DATE;
+    AND qc.effective_from_month = date_trunc('month', CURRENT_DATE)::DATE;
   
-  UPDATE public.quantity_changes
+  UPDATE public.quantity_change_requests
   SET status = 'applied', applied_at = NOW()
   WHERE status = 'pending'
-    AND effective_month = date_trunc('month', CURRENT_DATE)::DATE;
+    AND effective_from_month = date_trunc('month', CURRENT_DATE)::DATE;
   $$
 );
 
@@ -103,8 +103,15 @@ SELECT cron.schedule(
   'setup-daily-capacity',
   '0 18 * * *',  -- 11:30 PM IST (for next day)
   $$
-  INSERT INTO public.daily_capacity (date, total_litres, booked_litres)
-  VALUES (CURRENT_DATE + 91, 100.00, 0.00)
+  -- Sum up active subscription volumes
+  WITH active_subs AS (
+    SELECT COALESCE(SUM(quantity_litres), 0) as total_active
+    FROM public.subscriptions
+    WHERE status IN ('active', 'pending_payment')
+  )
+  INSERT INTO public.milk_capacity (date, total_capacity_litres, booked_litres)
+  SELECT CURRENT_DATE + 91, 100.00, total_active
+  FROM active_subs
   ON CONFLICT (date) DO NOTHING;
   $$
 );

@@ -1,5 +1,8 @@
 import { NextResponse } from 'next/server';
 import { createClient } from '@/utils/supabase/server';
+import { createAdminClient } from '@/utils/supabase/admin';
+
+const adminSupabase = createAdminClient();
 
 export async function POST(request: Request) {
   try {
@@ -58,7 +61,7 @@ export async function POST(request: Request) {
 
     // Insert vacation
     // Triggers will auto-calculate total_days, total_credit, resume_date, credit_month
-    const { data: vacation, error: insertError } = await supabase
+    const { data: vacation, error: insertError } = await adminSupabase
       .from('vacation_pauses')
       .insert({
         subscription_id: subscription.id,
@@ -89,19 +92,18 @@ export async function POST(request: Request) {
       monthDaysMap[monthStr] = (monthDaysMap[monthStr] || 0) + 1;
 
       // Update capacity for dateStr
-      const { data: capacity } = await supabase
-        .from('daily_capacity')
+      const { data: capacity } = await adminSupabase
+        .from('milk_capacity')
         .select('*')
         .eq('date', dateStr)
         .maybeSingle();
 
       if (capacity) {
         const newBooked = Math.max(0, Number(capacity.booked_litres) - Number(subscription.quantity_litres));
-        await supabase
-          .from('daily_capacity')
+        await adminSupabase
+          .from('milk_capacity')
           .update({
-            booked_litres: newBooked,
-            is_full: newBooked >= Number(capacity.total_litres)
+            booked_litres: newBooked
           })
           .eq('id', capacity.id);
       }
@@ -109,47 +111,28 @@ export async function POST(request: Request) {
       currentLoopDate.setUTCDate(currentLoopDate.getUTCDate() + 1);
     }
 
-    // Split billing credits and update/insert billing_months
+    // Split billing credits and insert into billing_adjustments (Rule #7)
     for (const [monthStr, pausedDays] of Object.entries(monthDaysMap)) {
       const creditAmount = Number(pausedDays) * Number(subscription.daily_rate);
-      const daysInMonth = new Date(new Date(monthStr).getFullYear(), new Date(monthStr).getMonth() + 1, 0).getDate();
+      
+      const { error: adjustmentError } = await adminSupabase
+        .from('billing_adjustments')
+        .insert({
+          subscription_id: subscription.id,
+          customer_id: user.id,
+          adjustment_type: 'vacation_credit',
+          amount: creditAmount,
+          target_month: monthStr,
+          notes: `Vacation credit for ${pausedDays} days`
+        });
 
-      const { data: bMonth } = await supabase
-        .from('billing_months')
-        .select('*')
-        .eq('subscription_id', subscription.id)
-        .eq('billing_month', monthStr)
-        .maybeSingle();
-
-      if (bMonth) {
-        await supabase
-          .from('billing_months')
-          .update({
-            pause_credit: Number(bMonth.pause_credit) + creditAmount,
-            days_paused: (bMonth.days_paused || 0) + pausedDays,
-            net_due: Math.max(0, Number(bMonth.net_due) - creditAmount)
-          })
-          .eq('id', bMonth.id);
-      } else {
-        await supabase
-          .from('billing_months')
-          .insert({
-            subscription_id: subscription.id,
-            customer_id: user.id,
-            billing_month: monthStr,
-            quantity_litres: subscription.quantity_litres,
-            monthly_amount: subscription.monthly_amount,
-            daily_rate: subscription.daily_rate,
-            days_in_month: daysInMonth,
-            pause_credit: creditAmount,
-            days_paused: pausedDays,
-            net_due: Math.max(0, Number(subscription.monthly_amount) - creditAmount)
-          });
+      if (adjustmentError) {
+        console.error('Adjustment error:', adjustmentError.message);
       }
     }
 
     // Update runsheet for existing future records
-    await supabase
+    await adminSupabase
       .from('daily_delivery_sheet')
       .update({ is_vacation: true, delivery_status: 'paused', total_litres: 0, vacation_id: vacation.id })
       .eq('subscription_id', subscription.id)

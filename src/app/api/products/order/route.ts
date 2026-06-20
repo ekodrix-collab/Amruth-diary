@@ -1,11 +1,8 @@
 import { NextResponse } from 'next/server';
 import { createClient } from '@/utils/supabase/server';
-import { createClient as createAdminClient } from '@supabase/supabase-js';
+import { createAdminClient } from '@/utils/supabase/admin';
 
-const adminSupabase = createAdminClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.SUPABASE_SERVICE_ROLE_KEY!
-);
+const adminSupabase = createAdminClient();
 
 interface CartItem {
   product_id: string;
@@ -147,24 +144,7 @@ export async function POST(request: Request) {
       paid_at: new Date().toISOString()
     });
 
-    // Queue notification
-    const { data: profile } = await adminSupabase
-      .from('profiles')
-      .select('phone, full_name')
-      .eq('id', user.id)
-      .single();
-
-    if (profile) {
-      const itemSummary = orderItems.map(i => `${i.product_name} × ${i.quantity}`).join(', ');
-      await adminSupabase.from('notifications_log').insert({
-        recipient_id: user.id,
-        recipient_phone: profile.phone,
-        recipient_name: profile.full_name,
-        recipient_type: 'customer',
-        notification_type: 'custom',
-        message_body: `Order confirmed! ${itemSummary} — Total: ₹${totalAmount}. Delivery tomorrow. 🎉`
-      });
-    }
+    // Notification system deferred — not in current plan
 
     return NextResponse.json({
       success: true,

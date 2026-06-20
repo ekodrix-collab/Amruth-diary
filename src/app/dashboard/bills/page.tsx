@@ -45,8 +45,8 @@ export default function BillsPage() {
           setBill(json.current_month)
         } else {
           // If no billing month generated in DB yet, create a default preview
-          const daily = json.subscription ? json.subscription.daily_rate : 82.6667
-          const monthly = json.subscription ? json.subscription.monthly_amount : 2480
+          const daily = json.subscription ? json.subscription.daily_rate : 0
+          const monthly = json.subscription ? json.subscription.monthly_amount : 0
           setBill({
             billing_month: new Date().toISOString().split('T')[0],
             days_delivered: 0,
@@ -300,10 +300,10 @@ export default function BillsPage() {
             </h3>
             <div className="space-y-3">
               <p className="leading-relaxed">
-                Our base pricing is calculated at <span className="font-bold text-brown-800">₹2,480.00 per month</span> for a daily delivery of <span className="font-bold text-brown-800">1.0 Litre</span>.
+                Pricing is set by the admin and calculated based on <span className="font-bold text-brown-800">actual days in the month</span>. Your daily rate is applied to each delivery day.
               </p>
               <p className="leading-relaxed">
-                Skips and pauses accumulate credit at the daily rate of <span className="font-bold text-brown-800">₹82.67</span>, which automatically reduces your next monthly statement.
+                Skips and pauses accumulate credit at your subscription's daily rate, which automatically reduces your next monthly statement.
               </p>
             </div>
             <div className="h-[1px] bg-border/40" />

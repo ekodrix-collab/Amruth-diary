@@ -50,8 +50,8 @@ export function TestimonialsSection() {
             <div
               key={i}
               style={{
-                background: '#FAF7EF',
-                border: '1px solid #ECD8B0',
+                background: '#F8FAFC',
+                border: '1px solid #E2E8F0',
                 borderRadius: '24px',
                 padding: '36px',
                 display: 'flex',

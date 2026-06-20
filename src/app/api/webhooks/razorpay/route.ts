@@ -1,12 +1,9 @@
 import { NextResponse } from 'next/server';
 import crypto from 'crypto';
-import { createClient as createSupabaseClient } from '@supabase/supabase-js';
+import { createAdminClient } from '@/utils/supabase/admin';
 
 // Instantiate admin client with service role key to bypass RLS in unauthenticated webhooks
-const adminClient = createSupabaseClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.SUPABASE_SERVICE_ROLE_KEY!
-);
+const adminClient = createAdminClient();
 
 export async function POST(request: Request) {
   try {

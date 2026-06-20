@@ -43,17 +43,21 @@ export async function GET(request: Request) {
       capacity_used_percent: capacity_used_percent
     };
 
-    // 2. Customers stats
     const { count: activeCount } = await supabase.from('subscriptions').select('*', { count: 'exact', head: true }).eq('status', 'active');
     const { count: pausedCount } = await supabase.from('subscriptions').select('*', { count: 'exact', head: true }).eq('status', 'paused');
     const { count: pendingCount } = await supabase.from('subscriptions').select('*', { count: 'exact', head: true }).eq('status', 'pending_payment');
     const { count: waitlistCount } = await supabase.from('waitlist').select('*', { count: 'exact', head: true }).eq('status', 'waiting');
+    const { count: cancelledCount } = await supabase.from('subscriptions').select('*', { count: 'exact', head: true }).eq('status', 'cancelled');
+
+    const { data: waitlistData } = await supabase.from('waitlist').select('quantity_litres').eq('status', 'waiting');
+    const waitlistLitres = waitlistData?.reduce((acc: number, row: any) => acc + Number(row.quantity_litres), 0) || 0;
 
     const customers = {
       total_active: activeCount || 0,
       total_paused: pausedCount || 0,
       total_pending_payment: pendingCount || 0,
-      in_waitlist: waitlistCount || 0
+      in_waitlist: waitlistCount || 0,
+      waitlist_litres: waitlistLitres
     };
 
     // 3. This Month stats
@@ -135,15 +139,16 @@ export async function GET(request: Request) {
       revenue: `₹${(data.revenue * 30).toFixed(0)}`
     }));
 
+    const totalSubsAllTime = (activeCount || 0) + (pausedCount || 0) + (cancelledCount || 0);
+    const retentionPct = totalSubsAllTime > 0 
+      ? (((activeCount || 0) + (pausedCount || 0)) / totalSubsAllTime * 100).toFixed(1) + '%'
+      : '100%';
+
     const reports = {
       average_daily_demand: `${totalVolume.toFixed(1)} Litres`,
       active_routes: `${Object.keys(zoneMap).length} Routes`,
-      customer_retention: '98.4%',
-      area_deliveries: areaDeliveries.length > 0 ? areaDeliveries : [
-        { zone: 'Padil Hub', deliveries: 120, volume: '204L', revenue: '₹16,864' },
-        { zone: 'Kadri', deliveries: 65, volume: '95L', revenue: '₹7,853' },
-        { zone: 'Kulshekar', deliveries: 48, volume: '72L', revenue: '₹5,952' }
-      ]
+      customer_retention: retentionPct,
+      area_deliveries: areaDeliveries
     };
 
     return NextResponse.json({

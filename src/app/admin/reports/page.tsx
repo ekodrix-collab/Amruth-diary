@@ -13,7 +13,11 @@ export default function AdminReportsPage() {
       const res = await fetch('/api/admin/dashboard')
       const json = await res.json()
       if (json.success && json.reports) {
-        setReportsData(json.reports)
+        setReportsData({
+          ...json.reports,
+          waitlistLitres: json.customers?.waitlist_litres || 0,
+          waitlistCount: json.customers?.in_waitlist || 0
+        })
       }
     } catch (err) {
       console.error('Failed to fetch reports data', err)
@@ -121,10 +125,10 @@ export default function AdminReportsPage() {
             <div className="bg-cream-50/40 border border-border/60 rounded-xl p-4 space-y-3">
               <div className="flex justify-between items-center">
                 <span className="text-[10px] font-black uppercase text-amber-600 tracking-wider">Demand Growth Tracker</span>
-                <span className="text-[9px] font-bold text-green-600 bg-green-50 border border-green-200 px-2 py-0.5 rounded-full">+12% MoM</span>
+                <span className="text-[9px] font-bold text-green-600 bg-green-50 border border-green-200 px-2 py-0.5 rounded-full">Waitlist Queue</span>
               </div>
               <p className="leading-relaxed">
-                Daily milk bookings are projected to increase by <span className="font-bold text-brown-800">45 Litres</span> next month based on recent onboarding trends.
+                Daily milk bookings are projected to increase by <span className="font-bold text-brown-800">{reportsData?.waitlistLitres || 0} Litres</span> based on <span className="font-bold text-brown-800">{reportsData?.waitlistCount || 0} pending requests</span> in the waitlist.
               </p>
             </div>
 
@@ -132,11 +136,7 @@ export default function AdminReportsPage() {
               <p className="text-[9px] font-black text-brown-400 uppercase tracking-wider">Route Optimization Status</p>
               <div className="flex items-center gap-2">
                 <span className="w-2 h-2 rounded-full bg-green-500" />
-                <span>All routes delivering under 7:00 AM target.</span>
-              </div>
-              <div className="flex items-center gap-2">
-                <span className="w-2 h-2 rounded-full bg-green-500" />
-                <span>Average drop time: 42 seconds per client.</span>
+                <span>Monitoring live delivery times across all active routes.</span>
               </div>
             </div>
 
