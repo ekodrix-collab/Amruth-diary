@@ -3,8 +3,9 @@
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { useState, useEffect } from 'react'
-import { Menu, X, ShoppingCart, User } from 'lucide-react'
+import { Menu, X, ShoppingCart, User, LogOut } from 'lucide-react'
 import { cn } from '@/lib/utils'
+import { createClient } from '@/utils/supabase/client'
 
 const navLinks = [
   { href: '#home', label: 'Home' },
@@ -21,6 +22,30 @@ export function Navbar() {
   const [scrolled, setScrolled] = useState(false)
   const [activeLink, setActiveLink] = useState('#home')
   const [cartCount, setCartCount] = useState(0)
+  const [user, setUser] = useState<any>(null)
+  
+  const supabase = createClient()
+
+  useEffect(() => {
+    // Initial check
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      setUser(session?.user || null)
+    })
+
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+      setUser(session?.user || null)
+    })
+
+    return () => {
+      subscription.unsubscribe()
+    }
+  }, [supabase])
+
+  const handleLogout = async () => {
+    await supabase.auth.signOut()
+    setUser(null)
+    window.location.reload()
+  }
 
   useEffect(() => {
     const updateCount = () => {
