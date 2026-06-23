@@ -140,9 +140,6 @@ async function getOrCreateProfile(userId: string, phone: string) {
 // Admins always return false (they go to /admin directly)
 // ─────────────────────────────────────────────────────
 async function checkActiveSubscription(userId: string, role: string): Promise<boolean> {
-  // Admins don't have subscriptions
-  if (role === 'admin') return false;
-
   const { data: subscription } = await adminClient
     .from('subscriptions')
     .select('id, status')

@@ -66,14 +66,14 @@ function YoutubeIcon({ size = 24, ...props }: React.SVGProps<SVGSVGElement> & { 
 const footerLinks = {
   Platform: [
     { label: 'Subscribe Now', href: '/subscribe' },
-    { label: 'Our Products', href: '#products' },
+    { label: 'Our Products', href: '/#products' },
     { label: 'Login', href: '/login' },
     { label: 'My Dashboard', href: '/dashboard' },
   ],
   Company: [
-    { label: 'About Us', href: '#about-us' },
-    { label: 'Our Story', href: '#our-story' },
-    { label: 'How It Works', href: '#about-us' }, // or keep as is or map properly
+    { label: 'About Us', href: '/#about-us' },
+    { label: 'Our Story', href: '/#our-story' },
+    { label: 'How It Works', href: '/#about-us' }, // or keep as is or map properly
     { label: 'Admin Panel', href: '/admin' },
   ],
   Legal: [

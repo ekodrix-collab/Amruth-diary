@@ -50,14 +50,20 @@ export const metadata: Metadata = {
   },
 }
 
+import { ThemeProvider } from '@/components/ThemeProvider'
+
 export default function RootLayout({
   children,
 }: {
   children: React.ReactNode
 }) {
   return (
-    <html lang="en" className={`${plusJakartaSans.variable} ${inter.variable} ${jetbrainsMono.variable} ${playfairDisplay.variable}`}>
-      <body className="font-body antialiased bg-cream-50 text-brown-800">{children}</body>
+    <html lang="en" suppressHydrationWarning className={`${plusJakartaSans.variable} ${inter.variable} ${jetbrainsMono.variable} ${playfairDisplay.variable}`}>
+      <body className="font-body antialiased bg-cream-50 text-brown-800 transition-colors duration-300">
+        <ThemeProvider>
+          {children}
+        </ThemeProvider>
+      </body>
     </html>
   )
 }

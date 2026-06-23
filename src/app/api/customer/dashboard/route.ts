@@ -31,6 +31,8 @@ export async function GET(request: Request) {
         .select('id, quantity_litres, requested_start_date, position, status, created_at')
         .eq('customer_id', user.id)
         .in('status', ['waiting', 'notified'])
+        .order('created_at', { ascending: false })
+        .limit(1)
         .maybeSingle();
 
       return NextResponse.json({

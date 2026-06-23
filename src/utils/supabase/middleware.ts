@@ -52,8 +52,10 @@ export async function updateSession(request: NextRequest) {
 
     const role = profile?.role || 'customer';
 
-    // Check if customer has an active or pending subscription
+    // Check if customer has an active or pending subscription or waitlist
     let hasSubscription = false;
+    let hasWaitlist = false;
+
     if (role === 'customer') {
       const { data: subscription } = await supabase
         .from('subscriptions')
@@ -63,14 +65,26 @@ export async function updateSession(request: NextRequest) {
         .maybeSingle();
 
       hasSubscription = !!subscription;
+
+      if (!hasSubscription) {
+        const { data: waitlist } = await supabase
+          .from('waitlist')
+          .select('id')
+          .eq('customer_id', user.id)
+          .in('status', ['waiting', 'notified'])
+          .maybeSingle();
+        hasWaitlist = !!waitlist;
+      }
     }
 
-        // Redirect logged-in users away from /login
+    const hasDashboardAccess = hasSubscription || hasWaitlist;
+
+    // Redirect logged-in users away from /login
     if (pathname === '/login') {
       const url = request.nextUrl.clone();
       if (role === 'admin') {
         url.pathname = '/admin';
-      } else if (hasSubscription) {
+      } else if (hasDashboardAccess) {
         url.pathname = '/dashboard';
       } else {
         url.pathname = '/onboarding';
@@ -93,7 +107,7 @@ export async function updateSession(request: NextRequest) {
         const url = request.nextUrl.clone();
         url.pathname = '/admin';
         return NextResponse.redirect(url);
-      } else if (!hasSubscription) {
+      } else if (!hasDashboardAccess) {
         const url = request.nextUrl.clone();
         url.pathname = '/onboarding';
         return NextResponse.redirect(url);
@@ -106,7 +120,7 @@ export async function updateSession(request: NextRequest) {
         const url = request.nextUrl.clone();
         url.pathname = '/admin';
         return NextResponse.redirect(url);
-      } else if (hasSubscription) {
+      } else if (hasDashboardAccess) {
         const url = request.nextUrl.clone();
         url.pathname = '/dashboard';
         return NextResponse.redirect(url);

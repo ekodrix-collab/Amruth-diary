@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server';
 import { createClient } from '@/utils/supabase/server';
 import { createAdminClient } from '@/utils/supabase/admin';
-import { fetchPricePerLitre, calculateDailyRate, calculateMonthlyAmount } from '@/lib/billing';
+import { fetchMilkPrices, calculateDailyRate, calculateMonthlyAmount } from '@/lib/billing';
 
 const adminSupabase = createAdminClient();
 
@@ -42,8 +42,8 @@ export async function POST(request: Request) {
     }
 
     // 6. Calculate new pricing using admin-managed price
-    const pricePerLitre = await fetchPricePerLitre(adminSupabase);
-    const new_daily_rate = calculateDailyRate(pricePerLitre, new_quantity);
+    const prices = await fetchMilkPrices(adminSupabase);
+    const new_daily_rate = calculateDailyRate(new_quantity, prices);
 
     // 7. effective_month = first day of NEXT month (quantity changes NEVER apply to current month)
     const effectiveDateObj = new Date();

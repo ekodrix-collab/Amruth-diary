@@ -8,33 +8,95 @@
   --font-sans: var(--font-inter), system-ui, sans-serif;
   --font-mono: var(--font-jetbrains-mono), monospace;
 
-  /* Color Palette — Creamy Theme */
-  --color-cream-50: #FFFDF7;
-  --color-cream-100: #FFF8E8;
-  --color-cream-200: #FDEFC3;
-  --color-warm-white: #FEFEFE;
-  --color-milk-foam: #F9F3E3;
+  /* Color Palette — Dynamic Theme */
+  --color-cream-50: var(--cream-50);
+  --color-cream-100: var(--cream-100);
+  --color-cream-200: var(--cream-200);
+  --color-warm-white: var(--warm-white);
+  --color-milk-foam: var(--milk-foam);
 
-  --color-amber-400: #FBBF24;
-  --color-amber-500: #F59E0B;
-  --color-amber-600: #D97706;
+  --color-amber-400: var(--amber-400);
+  --color-amber-500: var(--amber-500);
+  --color-amber-600: var(--amber-600);
 
-  --color-green-400: #4ADE80;
-  --color-green-500: #22C55E;
-  --color-green-600: #16A34A;
+  --color-green-400: var(--green-400);
+  --color-green-500: var(--green-500);
+  --color-green-600: var(--green-600);
 
-  --color-blue-400: #60A5FA;
-  --color-blue-500: #0EA5E9;
+  --color-blue-400: var(--blue-400);
+  --color-blue-500: var(--blue-500);
 
-  --color-red-400: #F87171;
-  --color-red-500: #EF4444;
+  --color-red-400: var(--red-400);
+  --color-red-500: var(--red-500);
 
-  --color-brown-800: #292524;
-  --color-brown-600: #57534E;
-  --color-brown-400: #A8A29E;
+  --color-brown-800: var(--brown-800);
+  --color-brown-600: var(--brown-600);
+  --color-brown-400: var(--brown-400);
 
-  --color-border: #E8DCC8;
-  --color-shadow: rgba(180, 140, 60, 0.12);
+  --color-border: var(--border);
+  --color-shadow: var(--shadow);
+}
+
+/* Light Theme Variables */
+:root {
+  --cream-50: #FFFDF7;
+  --cream-100: #FFF8E8;
+  --cream-200: #FDEFC3;
+  --warm-white: #FEFEFE;
+  --milk-foam: #F9F3E3;
+
+  --amber-400: #FBBF24;
+  --amber-500: #F59E0B;
+  --amber-600: #D97706;
+
+  --green-400: #4ADE80;
+  --green-500: #22C55E;
+  --green-600: #16A34A;
+
+  --blue-400: #60A5FA;
+  --blue-500: #0EA5E9;
+
+  --red-400: #F87171;
+  --red-500: #EF4444;
+
+  --brown-800: #292524;
+  --brown-600: #57534E;
+  --brown-400: #A8A29E;
+
+  --border: #E8DCC8;
+  --shadow: rgba(180, 140, 60, 0.12);
+}
+
+/* Dark Theme Variables */
+.dark {
+  --cream-50: #0f1115;     /* Very dark background */
+  --cream-100: #171923;    /* Slightly lighter dark background */
+  --cream-200: #222633;    /* Hover state background */
+  --warm-white: #12141a;   /* Cards background */
+  --milk-foam: #1e212b;    /* Highlight background */
+
+  --amber-400: #fbbf24;    /* Keep vibrant */
+  --amber-500: #f59e0b;    
+  --amber-600: #d97706;
+
+  --green-400: #4ade80;
+  --green-500: #22c55e;
+  --green-600: #16a34a;
+
+  --blue-400: #60a5fa;
+  --blue-500: #0ea5e9;
+
+  --red-400: #f87171;
+  --red-500: #ef4444;
+
+  /* Inverted text colors */
+  --brown-800: #f8fafc;    /* Primary text (bright) */
+  --brown-600: #94a3b8;    /* Secondary text */
+  --brown-400: #64748b;    /* Tertiary text */
+
+  --border: #2a2e3d;       /* Dark border */
+  --shadow: rgba(0, 0, 0, 0.5); /* Stronger shadow for dark mode */
+
 
   /* Animations */
   --animate-fade-up: fadeUp 0.3s ease-out;
@@ -108,11 +170,47 @@ body {
 
 /* ── Selection ───────────────────────────────────────────── */
 ::selection {
-  background-color: #FDEFC3;
-  color: #292524;
+  background-color: #e0f2fe;
+  color: #0f2e5c;
 }
 
 /* ── Custom Utilities ────────────────────────────────────── */
+.hide-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+.hide-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+.custom-scrollbar::-webkit-scrollbar {
+  width: 4px;
+}
+.custom-scrollbar::-webkit-scrollbar-track {
+  background: transparent;
+}
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 4px;
+}
+.custom-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: #94a3b8;
+}
+
+@keyframes wave {
+  0% { transform: rotate(0.0deg) }
+  10% { transform: rotate(14.0deg) }
+  20% { transform: rotate(-8.0deg) }
+  30% { transform: rotate(14.0deg) }
+  40% { transform: rotate(-4.0deg) }
+  50% { transform: rotate(10.0deg) }
+  60% { transform: rotate(0.0deg) }
+  100% { transform: rotate(0.0deg) }
+}
+.animate-wave {
+  animation: wave 2.5s infinite;
+}
+
 .container-page {
   max-width: 1200px;
   margin-left: auto;
