@@ -40,7 +40,7 @@ export async function GET(request: Request) {
     } else {
       const { data, error } = await adminClient
         .from('app_settings')
-        .select('key, value, updated_at');
+        .select('key, value, description, updated_at');
 
       if (error) {
         return NextResponse.json(
@@ -48,10 +48,18 @@ export async function GET(request: Request) {
           { status: 500 }
         );
       }
+      
+      const settings = data.map((item) => {
+        let parsedValue = item.value;
+        try {
+          parsedValue = typeof item.value === 'string' ? JSON.parse(item.value) : item.value;
+        } catch(e) {}
+        return { ...item, value: parsedValue };
+      });
 
       return NextResponse.json({
         success: true,
-        settings: data
+        settings
       });
     }
   } catch (err: unknown) {
@@ -134,12 +142,12 @@ export async function PUT(request: Request) {
       );
     }
 
-    // Validate price_per_litre specifically
-    if (key === 'price_per_litre') {
-      const amount = value?.amount;
-      if (typeof amount !== 'number' || amount <= 0 || amount > 10000) {
+    // Validate milk_tier_prices specifically
+    if (key === 'milk_tier_prices') {
+      const prices = value?.prices;
+      if (!prices || typeof prices !== 'object') {
         return NextResponse.json(
-          { success: false, message: 'price_per_litre.amount must be a positive number (max ₹10,000)' },
+          { success: false, message: 'milk_tier_prices must contain a valid prices object' },
           { status: 400 }
         );
       }

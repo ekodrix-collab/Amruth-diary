@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server';
 import { createClient } from '@/utils/supabase/server';
 import { createAdminClient } from '@/utils/supabase/admin';
-import { fetchPricePerLitre, calculateDailyRate, calculateMonthlyAmount, calculateProRataAmount, getDaysInMonth } from '@/lib/billing';
+import { fetchMilkPrices, calculateDailyRate, calculateMonthlyAmount, calculateProRataAmount, getDaysInMonth } from '@/lib/billing';
 import Razorpay from 'razorpay';
 
 // Admin client bypasses RLS for all DB writes
@@ -76,8 +76,8 @@ export async function POST(request: Request) {
     }
 
     // 5. Calculate amounts using admin-managed pricing
-    const pricePerLitre = await fetchPricePerLitre(adminSupabase);
-    const daily_rate = calculateDailyRate(pricePerLitre, quantity);
+    const prices = await fetchMilkPrices(adminSupabase);
+    const daily_rate = calculateDailyRate(quantity, prices);
     const startDateObj = new Date(start_date);
     const startYear = startDateObj.getFullYear();
     const startMonth = startDateObj.getMonth() + 1;

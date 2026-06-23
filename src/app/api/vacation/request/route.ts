@@ -93,7 +93,7 @@ export async function POST(request: Request) {
 
       // Update capacity for dateStr
       const { data: capacity } = await adminSupabase
-        .from('milk_capacity')
+        .from('daily_capacity')
         .select('*')
         .eq('date', dateStr)
         .maybeSingle();
@@ -101,7 +101,7 @@ export async function POST(request: Request) {
       if (capacity) {
         const newBooked = Math.max(0, Number(capacity.booked_litres) - Number(subscription.quantity_litres));
         await adminSupabase
-          .from('milk_capacity')
+          .from('daily_capacity')
           .update({
             booked_litres: newBooked
           })

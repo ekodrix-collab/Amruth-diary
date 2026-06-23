@@ -15,6 +15,12 @@
 
 import { SETTINGS_KEY_PRICE_PER_LITRE } from '@/lib/constants'
 
+export interface PriceSettingValue {
+  amount: number;
+  next_amount?: number;
+  effective_date?: string;
+}
+
 // ─────────────────────────────────────────
 // Calendar helpers
 // ─────────────────────────────────────────
@@ -86,20 +92,7 @@ export function getAllDatesInMonth(year: number, month: number): string[] {
 // Pricing calculations
 // ─────────────────────────────────────────
 
-/**
- * Calculate the daily rate for a given quantity.
- * Daily rate = price_per_litre × quantity_litres
- *
- * @param pricePerLitre - Admin-set price per litre per day (in rupees)
- * @param quantityLitres - Subscription quantity (0.5, 1.0, 1.5, 2.0)
- * @returns Daily rate in rupees (rounded to 2 decimals)
- */
-export function calculateDailyRate(
-  pricePerLitre: number,
-  quantityLitres: number
-): number {
-  return Math.round(pricePerLitre * quantityLitres * 100) / 100
-}
+
 
 /**
  * Calculate the monthly amount for a subscription.
@@ -192,63 +185,116 @@ export function calculateVacationCredit(
  * @param pricePerLitre - Admin-set price per litre
  * @returns Charge amount in rupees
  */
+export interface TieredPricingValue {
+  prices: Record<string, number>; // "0.5": 40, "1": 80, etc.
+  next_prices?: Record<string, number>;
+  effective_date?: string;
+}
+
+const DEFAULT_TIER_PRICES = {
+  "0.5": 41.34,
+  "1": 82.67,
+  "1.5": 124,
+  "2": 165.34
+};
+
+export function calculateDailyRate(
+  quantity: number,
+  prices: Record<string, number>
+): number {
+  const qtyStr1 = quantity.toString();
+  const qtyStr2 = quantity.toFixed(1);
+  if (prices[qtyStr1] !== undefined) {
+    return prices[qtyStr1];
+  }
+  if (prices[qtyStr2] !== undefined) {
+    return prices[qtyStr2];
+  }
+  // Fallback if quantity is non-standard
+  const baseRate = prices["1.0"] || prices["1"] || 82.67;
+  return Math.round(baseRate * quantity * 100) / 100;
+}
+
 export function calculateExtraMilkCharge(
   extraLitres: number,
-  pricePerLitre: number
+  prices: Record<string, number>
 ): number {
-  return Math.round(pricePerLitre * extraLitres * 100) / 100
+  const baseRate = prices["1"] || 82.67;
+  return Math.round(baseRate * extraLitres * 100) / 100;
 }
 
 // ─────────────────────────────────────────
 // Server-side pricing fetch
 // ─────────────────────────────────────────
 
-/**
- * Fetch the current price_per_litre from app_settings table.
- * This MUST be called server-side (API routes only).
- *
- * @param adminClient - Supabase admin client
- * @returns Price per litre in rupees, or default fallback
- */
-export async function fetchPricePerLitre(
+export async function fetchMilkPrices(
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   adminClient: { from: (table: string) => any }
-): Promise<number> {
+): Promise<Record<string, number>> {
   const { data, error } = await adminClient
     .from('app_settings')
     .select('value')
-    .eq('key', SETTINGS_KEY_PRICE_PER_LITRE)
+    .eq('key', 'milk_tier_prices')
     .single()
 
   if (error || !data) {
-    console.warn('[billing] Failed to fetch price_per_litre, using default 82.67')
-    return 82.67 // Fallback — should never reach here in production
+    return DEFAULT_TIER_PRICES;
   }
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const parsed = (data as any).value as { amount?: number }
-  return parsed.amount ?? 82.67
+  const parsed = (data as any).value as TieredPricingValue
+  
+  if (parsed.next_prices && parsed.effective_date) {
+    const today = new Date();
+    const effective = new Date(parsed.effective_date);
+    if (today >= effective) {
+      return parsed.next_prices;
+    }
+  }
+
+  return parsed.prices || DEFAULT_TIER_PRICES;
+}
+
+export async function fetchRawMilkPricing(
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  adminClient: { from: (table: string) => any }
+): Promise<TieredPricingValue> {
+  const { data, error } = await adminClient
+    .from('app_settings')
+    .select('value')
+    .eq('key', 'milk_tier_prices')
+    .single()
+
+  if (error || !data) {
+    return { prices: DEFAULT_TIER_PRICES };
+  }
+
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  return (data as any).value as TieredPricingValue;
 }
 
 // ─────────────────────────────────────────
-// Client-side pricing fetch (for frontend pages)
+// Client-side pricing fetch
 // ─────────────────────────────────────────
 
-/**
- * Fetch price_per_litre via the public API endpoint.
- * Used in frontend pages (onboarding, subscribe, dashboard).
- *
- * @returns Price per litre in rupees
- */
-export async function fetchPricePerLitreClient(): Promise<number> {
+export async function fetchMilkPricesClient(): Promise<Record<string, number>> {
   try {
-    const res = await fetch('/api/admin/settings?key=price_per_litre')
+    const res = await fetch('/api/admin/settings?key=milk_tier_prices')
     const data = await res.json()
-    if (data.success && data.value?.amount) {
-      return data.value.amount
+    if (data.success && data.value) {
+      const parsed = data.value as TieredPricingValue;
+      if (parsed.next_prices && parsed.effective_date) {
+        const today = new Date();
+        const effective = new Date(parsed.effective_date);
+        if (today >= effective) {
+          return parsed.next_prices;
+        }
+      }
+      return parsed.prices || DEFAULT_TIER_PRICES;
     }
   } catch (err) {
     console.warn('[billing] Failed to fetch price from API, using default')
   }
-  return 82.67 // Fallback
+  return DEFAULT_TIER_PRICES;
 }
+

@@ -50,7 +50,7 @@ export async function POST(request: Request) {
     }
 
     const body = await request.json();
-    const { name, description, category, price, unit, is_active } = body;
+    const { name, description, category, price, unit, stock_available, is_active } = body;
 
     if (!name || !price || !unit) {
       return NextResponse.json({ success: false, message: 'Name, price and unit are required' }, { status: 400 });
@@ -64,6 +64,7 @@ export async function POST(request: Request) {
         category: category || 'other',
         price,
         unit,
+        stock_available: stock_available || 0,
         is_active: is_active !== false,
       })
       .select()
@@ -98,7 +99,7 @@ export async function PUT(request: Request) {
     }
 
     const body = await request.json();
-    const { id, name, description, category, price, unit, is_active } = body;
+    const { id, name, description, category, price, unit, stock_available, is_active } = body;
 
     if (!id) {
       return NextResponse.json({ success: false, message: 'Product ID is required' }, { status: 400 });
@@ -112,6 +113,7 @@ export async function PUT(request: Request) {
         category,
         price,
         unit,
+        stock_available,
         is_active,
         updated_at: new Date().toISOString()
       })

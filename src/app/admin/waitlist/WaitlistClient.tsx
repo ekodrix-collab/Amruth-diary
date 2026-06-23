@@ -7,18 +7,17 @@ import { StatusBadge } from '@/components/admin/StatusBadge'
 
 interface WaitlistEntry {
   id: string;
-  requested_quantity_litres: number;
+  quantity_litres: number;
   status: string;
   created_at: string;
   profiles: { full_name: string; area: string };
-  subscription_plans: { name: string };
 }
 
 export function WaitlistClient({ data }: { data: WaitlistEntry[] }) {
   const columns: ColumnDef<WaitlistEntry>[] = [
     { header: 'Name', cell: (row) => row.profiles?.full_name || 'Unknown' },
     { header: 'Area/Pin', cell: (row) => row.profiles?.area || 'N/A' },
-    { header: 'Requested Plan', cell: (row) => row.subscription_plans?.name ? `${row.subscription_plans.name} (${row.requested_quantity_litres}L)` : `${row.requested_quantity_litres}L Custom` },
+    { header: 'Requested Plan', cell: (row) => `${row.quantity_litres}L Custom` },
     { 
       header: 'Days Waiting', 
       align: 'right',

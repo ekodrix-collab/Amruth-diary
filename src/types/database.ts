@@ -125,11 +125,11 @@ export interface Database {
           start_date: string
           end_date: string | null
           status: string | null
-          current_quantity_litres: number
-          next_month_quantity_litres: number | null
+          quantity_litres: number
+          next_month_quantity: number | null
           monthly_amount: number
           daily_rate: number | null
-          carry_forward_balance: number | null
+          balance: number | null
           razorpay_subscription_id: string | null
           delivery_notes: string | null
           created_at: string | null
@@ -142,11 +142,11 @@ export interface Database {
           start_date: string
           end_date?: string | null
           status?: string | null
-          current_quantity_litres: number
-          next_month_quantity_litres?: number | null
+          quantity_litres: number
+          next_month_quantity?: number | null
           monthly_amount: number
           daily_rate?: number | null
-          carry_forward_balance?: number | null
+          balance?: number | null
           razorpay_subscription_id?: string | null
           delivery_notes?: string | null
           created_at?: string | null
@@ -159,11 +159,11 @@ export interface Database {
           start_date?: string
           end_date?: string | null
           status?: string | null
-          current_quantity_litres?: number
-          next_month_quantity_litres?: number | null
+          quantity_litres?: number
+          next_month_quantity?: number | null
           monthly_amount?: number
           daily_rate?: number | null
-          carry_forward_balance?: number | null
+          balance?: number | null
           razorpay_subscription_id?: string | null
           delivery_notes?: string | null
           created_at?: string | null

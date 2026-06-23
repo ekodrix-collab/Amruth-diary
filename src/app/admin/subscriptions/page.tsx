@@ -8,7 +8,7 @@ export default async function SubscriptionsPage() {
 
   const { data, error } = await supabase
     .from('subscriptions')
-    .select(`id, start_date, status, current_quantity_litres, profiles(full_name), subscription_plans(name)`)
+    .select(`id, start_date, status, quantity_litres, profiles(full_name)`)
     .order('start_date', { ascending: false })
 
   if (error) return <div className="text-red-500">Error: {error.message}</div>

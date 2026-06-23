@@ -26,7 +26,7 @@ export default async function AdminDashboardPage() {
     supabase.from('subscriptions').select('id', { count: 'exact', head: true }).eq('status', 'active'),
     supabase.from('subscriptions').select('id', { count: 'exact', head: true }),
     supabase.from('waitlist').select('id', { count: 'exact', head: true }).eq('status', 'waiting'),
-    supabase.from('subscriptions').select('current_quantity_litres, monthly_amount').eq('status', 'active'),
+    supabase.from('subscriptions').select('quantity_litres, monthly_amount').eq('status', 'active'),
     supabase.from('payments').select('amount').eq('status', 'success'),
     supabase.from('daily_delivery_sheet').select('id', { count: 'exact' }).eq('delivery_date', todayStr),
     supabase.from('daily_delivery_sheet').select('id', { count: 'exact' }).eq('delivery_date', todayStr).eq('delivery_status', 'skipped')
@@ -34,7 +34,7 @@ export default async function AdminDashboardPage() {
 
   // 1. Total delivering litres today
   const activeSubs = activeSubsData || []
-  const totalLitresToday = activeSubs.reduce((acc, item) => acc + Number(item.current_quantity_litres || 0), 0)
+  const totalLitresToday = activeSubs.reduce((acc, item) => acc + Number(item.quantity_litres || 0), 0)
 
   // 2. Monthly Revenue (sum payments in current billing cycle, fallback to sum of monthly_amount of active subs)
   const totalRevenue = paymentsData && paymentsData.length > 0
@@ -48,14 +48,14 @@ export default async function AdminDashboardPage() {
   // 4. Fetch Deliveries list (top 6 today)
   const { data: dbDeliveries } = await supabase
     .from('daily_delivery_sheet')
-    .select('id, delivery_status, total_quantity, profiles(full_name, area)')
+    .select('id, delivery_status, total_litres, profiles(full_name, area)')
     .eq('delivery_date', todayStr)
     .limit(6)
 
   // Fallback to active subscriptions mapped as pending deliveries if sheet is empty
   const { data: dbActiveSubs } = await supabase
     .from('subscriptions')
-    .select('id, current_quantity_litres, profiles(full_name, area)')
+    .select('id, quantity_litres, profiles(full_name, area)')
     .eq('status', 'active')
     .limit(6)
 
@@ -64,14 +64,14 @@ export default async function AdminDashboardPage() {
         id: item.id,
         customerName: (item.profiles as any)?.full_name || 'Customer',
         area: (item.profiles as any)?.area || 'General',
-        qty: `${item.total_quantity}L`,
+        qty: `${item.total_litres}L`,
         status: item.delivery_status,
       }))
     : (dbActiveSubs || []).map(item => ({
         id: item.id,
         customerName: (item.profiles as any)?.full_name || 'Customer',
         area: (item.profiles as any)?.area || 'General',
-        qty: `${item.current_quantity_litres}L`,
+        qty: `${item.quantity_litres}L`,
         status: 'pending',
       }))
 

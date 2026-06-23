@@ -124,9 +124,9 @@ export async function POST(request: Request) {
       // Proceed anyway, we can re-sync later, but log it
     }
 
-    // UPDATE milk_capacity
+    // UPDATE daily_capacity
     const { data: capacity } = await adminSupabase
-      .from('milk_capacity')
+      .from('daily_capacity')
       .select('*')
       .eq('date', skip_date)
       .maybeSingle();
@@ -134,7 +134,7 @@ export async function POST(request: Request) {
     if (capacity) {
       const newBooked = Math.max(0, Number(capacity.booked_litres) - Number(subscription.quantity_litres));
       await adminSupabase
-        .from('milk_capacity')
+        .from('daily_capacity')
         .update({ booked_litres: newBooked })
         .eq('id', capacity.id);
     }

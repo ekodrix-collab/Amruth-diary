@@ -8,7 +8,7 @@ export default async function DeliveriesPage() {
 
   const { data, error } = await supabase
     .from('daily_delivery_sheet')
-    .select(`id, delivery_date, total_quantity, delivery_status, profiles(full_name, area)`)
+    .select(`id, delivery_date, total_litres, delivery_status, profiles(full_name, area)`)
     .order('delivery_date', { ascending: false })
     .limit(100)
 

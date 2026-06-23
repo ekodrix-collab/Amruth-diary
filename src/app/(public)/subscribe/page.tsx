@@ -14,7 +14,7 @@ import {
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { DELIVERY_AREAS, DELIVERY_TIME_PROMISE } from '@/lib/constants'
-import { fetchPricePerLitreClient, calculateDailyRate, calculateMonthlyAmountWithExclusions, getDaysInMonth } from '@/lib/billing'
+import { fetchMilkPricesClient, calculateDailyRate, calculateMonthlyAmountWithExclusions, getDaysInMonth } from '@/lib/billing'
 import SubscriptionCalendar from '@/components/SubscriptionCalendar'
 
 type StepNum = 1 | 2 | 3
@@ -37,7 +37,7 @@ export default function SubscribePage() {
   const [orderId] = useState(`AMR-${Math.floor(10000 + Math.random() * 90000)}`)
 
   // Admin-managed pricing
-  const [pricePerLitre, setPricePerLitre] = useState(0)
+  const [milkPrices, setMilkPrices] = useState<Record<string, number>>({})
   const [priceLoading, setPriceLoading] = useState(true)
 
   // Day-picker state
@@ -53,13 +53,13 @@ export default function SubscribePage() {
   const intervalRef = useRef<NodeJS.Timeout | null>(null)
 
   // Calculate pricing dynamically based on admin price + selected days
-  const dailyRate = calculateDailyRate(pricePerLitre, 1.0) // 1L subscription
+  const dailyRate = calculateDailyRate(1.0, milkPrices) // 1L subscription
   const startDateObj = new Date(startDate)
   const startYear = startDateObj.getFullYear()
   const startMonth = startDateObj.getMonth() + 1
   const daysInMonth = getDaysInMonth(startYear, startMonth)
   const excludedSet = new Set(excludedDates)
-  const monthlyPrice = calculateMonthlyAmountWithExclusions(dailyRate, startYear, startMonth, excludedSet)
+  const monthlyPrice = Object.keys(milkPrices).length > 0 ? calculateMonthlyAmountWithExclusions(dailyRate, startYear, startMonth, excludedSet) : 0
   const deliveryDays = daysInMonth - excludedDates.filter(d => d.startsWith(`${startYear}-${String(startMonth).padStart(2, '0')}`)).length
 
   const handleExcludedDatesChange = useCallback((dates: string[]) => {
@@ -91,8 +91,8 @@ export default function SubscribePage() {
   useEffect(() => {
     async function loadPrice() {
       setPriceLoading(true)
-      const price = await fetchPricePerLitreClient()
-      setPricePerLitre(price)
+      const prices = await fetchMilkPricesClient()
+      setMilkPrices(prices)
       setPriceLoading(false)
     }
     loadPrice()

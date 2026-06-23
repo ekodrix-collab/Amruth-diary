@@ -15,9 +15,8 @@ interface SubscriptionData {
   id: string
   start_date: string
   status: string
-  current_quantity_litres: number
+  quantity_litres: number
   profiles: { full_name: string }
-  subscription_plans: { name: string }
 }
 
 /* ── tiny helper ── */
@@ -280,7 +279,7 @@ function DistributionBar({ data }: { data: SubscriptionData[] }) {
 function QuantityBreakdown({ data }: { data: SubscriptionData[] }) {
   const qtyMap: Record<number, number> = {}
   data.forEach((d) => {
-    qtyMap[d.current_quantity_litres] = (qtyMap[d.current_quantity_litres] || 0) + 1
+    qtyMap[d.quantity_litres] = (qtyMap[d.quantity_litres] || 0) + 1
   })
   const entries = Object.entries(qtyMap).sort((a, b) => Number(a[0]) - Number(b[0]))
   const max = Math.max(...Object.values(qtyMap))
@@ -388,7 +387,7 @@ function QuantityBreakdown({ data }: { data: SubscriptionData[] }) {
             fontFamily: 'var(--font-display, system-ui)',
           }}
         >
-          {data.reduce((s, d) => s + d.current_quantity_litres, 0).toFixed(1)}
+          {data.reduce((s, d) => s + d.quantity_litres, 0).toFixed(1)}
           <span style={{ fontSize: 11, fontWeight: 600, color: '#94a3b8', marginLeft: 3 }}>
             L / day
           </span>
@@ -409,7 +408,7 @@ export function SubscriptionsClient({ data }: { data: SubscriptionData[] }) {
   /* ── derived stats ── */
   const stats = useMemo(() => {
     const active = data.filter((d) => d.status.toLowerCase() === 'active').length
-    const totalLitres = data.reduce((s, d) => s + d.current_quantity_litres, 0)
+    const totalLitres = data.reduce((s, d) => s + d.quantity_litres, 0)
     const pending = data.filter((d) =>
       ['pending', 'waitlist'].includes(d.status.toLowerCase())
     ).length
@@ -422,19 +421,17 @@ export function SubscriptionsClient({ data }: { data: SubscriptionData[] }) {
     let d = data
     if (search)
       d = d.filter(
-        (r) =>
-          r.profiles?.full_name?.toLowerCase().includes(search.toLowerCase()) ||
-          r.subscription_plans?.name?.toLowerCase().includes(search.toLowerCase())
+        (r) => r.profiles?.full_name?.toLowerCase().includes(search.toLowerCase())
       )
     if (statusFilter !== 'all')
       d = d.filter((r) => r.status.toLowerCase() === statusFilter)
     if (qtyFilter !== 'all')
-      d = d.filter((r) => r.current_quantity_litres === Number(qtyFilter))
+      d = d.filter((r) => r.quantity_litres === Number(qtyFilter))
     return d
   }, [data, search, statusFilter, qtyFilter])
 
   const uniqueStatuses = [...new Set(data.map((d) => d.status.toLowerCase()))]
-  const uniqueQtys = [...new Set(data.map((d) => d.current_quantity_litres))].sort((a, b) => a - b)
+  const uniqueQtys = [...new Set(data.map((d) => d.quantity_litres))].sort((a, b) => a - b)
 
   /* ── columns ── */
   const columns: ColumnDef<SubscriptionData>[] = [
@@ -479,7 +476,7 @@ export function SubscriptionsClient({ data }: { data: SubscriptionData[] }) {
     {
       header: 'Plan',
       cell: (row) => {
-        const plan = row.subscription_plans?.name || 'Custom Plan'
+        const plan = 'Standard Plan'
         return (
           <div
             style={{
@@ -502,7 +499,7 @@ export function SubscriptionsClient({ data }: { data: SubscriptionData[] }) {
       header: 'Daily Qty',
       align: 'center',
       cell: (row) => {
-        const qty = row.current_quantity_litres
+        const qty = row.quantity_litres
         const isHigh = qty >= 2
         return (
           <div
