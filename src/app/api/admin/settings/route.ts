@@ -142,20 +142,12 @@ export async function PUT(request: Request) {
       );
     }
 
-    // Validate price_per_litre specifically
-    if (key === 'price_per_litre') {
-      const amount = value?.amount;
-      if (typeof amount !== 'number' || amount <= 0 || amount > 10000) {
+    // Validate milk_tier_prices specifically
+    if (key === 'milk_tier_prices') {
+      const prices = value?.prices;
+      if (!prices || typeof prices !== 'object') {
         return NextResponse.json(
-          { success: false, message: 'price_per_litre.amount must be a positive number (max ₹10,000)' },
-          { status: 400 }
-        );
-      }
-      
-      const nextAmount = value?.next_amount;
-      if (nextAmount !== undefined && (typeof nextAmount !== 'number' || nextAmount <= 0 || nextAmount > 10000)) {
-        return NextResponse.json(
-          { success: false, message: 'price_per_litre.next_amount must be a positive number (max ₹10,000)' },
+          { success: false, message: 'milk_tier_prices must contain a valid prices object' },
           { status: 400 }
         );
       }

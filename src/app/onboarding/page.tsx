@@ -10,7 +10,7 @@ import {
 import { motion, AnimatePresence } from 'framer-motion'
 import { cn } from '@/lib/utils'
 import { DELIVERY_AREAS, QUANTITY_OPTIONS, DELIVERY_TIME_PROMISE } from '@/lib/constants'
-import { fetchPricePerLitreClient, calculateDailyRate, calculateMonthlyAmount, getDaysInMonth, calculateProRataAmount as calcProRata } from '@/lib/billing'
+import { fetchMilkPricesClient, calculateDailyRate, calculateMonthlyAmount, getDaysInMonth, calculateProRataAmount as calcProRata } from '@/lib/billing'
 import SubscriptionCalendar from '@/components/SubscriptionCalendar'
 
 type OnboardingStep = 1 | 2 | 3 | 'success' | 'waitlist'
@@ -40,7 +40,7 @@ export default function OnboardingPage() {
   const [excludedDates, setExcludedDates] = useState<string[]>([])
 
   // Admin-managed pricing
-  const [pricePerLitre, setPricePerLitre] = useState(0)
+  const [milkPrices, setMilkPrices] = useState<Record<string, number>>({})
   const [priceLoading, setPriceLoading] = useState(true)
 
   // Calculations
@@ -64,16 +64,16 @@ export default function OnboardingPage() {
   useEffect(() => {
     async function loadPrice() {
       setPriceLoading(true)
-      const price = await fetchPricePerLitreClient()
-      setPricePerLitre(price)
+      const prices = await fetchMilkPricesClient()
+      setMilkPrices(prices)
       setPriceLoading(false)
     }
     loadPrice()
   }, [])
 
   useEffect(() => {
-    if (!startDate || pricePerLitre === 0) return
-    const dRate = calculateDailyRate(pricePerLitre, quantity)
+    if (!startDate || Object.keys(milkPrices).length === 0) return
+    const dRate = calculateDailyRate(quantity, milkPrices)
     const start = new Date(startDate)
     const startYear = start.getFullYear()
     const startMonth = start.getMonth() + 1
@@ -84,7 +84,7 @@ export default function OnboardingPage() {
     const remaining = daysInMonth - start.getDate() + 1
     setProRataDays(remaining)
     setProRataAmount(Math.round(remaining * dRate * 100) / 100)
-  }, [quantity, startDate, pricePerLitre, excludedDates])
+  }, [quantity, startDate, milkPrices, excludedDates])
 
   useEffect(() => {
     fetch('/api/customer/dashboard')
@@ -416,8 +416,8 @@ export default function OnboardingPage() {
                       <label className="ob-label-plain">Daily Milk Quantity</label>
                       <div className="ob-qty-grid">
                         {QUANTITY_OPTIONS.map(({ litres, label }) => {
-                          const qtyMonthly = pricePerLitre > 0
-                            ? calculateMonthlyAmount(calculateDailyRate(pricePerLitre, litres), startDate ? new Date(startDate).getFullYear() : new Date().getFullYear(), startDate ? new Date(startDate).getMonth() + 1 : new Date().getMonth() + 1)
+                          const qtyMonthly = Object.keys(milkPrices).length > 0
+                            ? calculateMonthlyAmount(calculateDailyRate(litres, milkPrices), startDate ? new Date(startDate).getFullYear() : new Date().getFullYear(), startDate ? new Date(startDate).getMonth() + 1 : new Date().getMonth() + 1)
                             : 0
                           return (
                           <button

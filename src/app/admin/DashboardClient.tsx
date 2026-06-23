@@ -65,7 +65,7 @@ export default function DashboardClient({
 
   // Milk Pricing Modal State
   const [showPriceModal, setShowPriceModal] = useState(false)
-  const [newPrice, setNewPrice] = useState('85') // default placeholder
+  const [prices, setPrices] = useState({ '0.5': '41', '1.0': '82', '1.5': '124', '2.0': '165' })
   const [priceApplyMode, setPriceApplyMode] = useState<'next_month' | 'immediate'>('next_month')
   const [isUpdatingPrice, setIsUpdatingPrice] = useState(false)
   const [priceMessage, setPriceMessage] = useState<{text: string, type: 'success' | 'error'} | null>(null)
@@ -74,30 +74,36 @@ export default function DashboardClient({
     try {
       setIsUpdatingPrice(true)
       setPriceMessage(null)
+
+      const numPrices = {
+        '0.5': Number(prices['0.5']),
+        '1.0': Number(prices['1.0']),
+        '1.5': Number(prices['1.5']),
+        '2.0': Number(prices['2.0'])
+      }
       
-      const priceVal = Number(newPrice)
-      if (isNaN(priceVal) || priceVal <= 0) {
-        throw new Error("Please enter a valid positive price.")
+      if (Object.values(numPrices).some(val => isNaN(val) || val <= 0)) {
+        throw new Error("Please enter valid positive prices for all tiers.")
       }
 
-      const body: any = { key: 'price_per_litre' };
+      const body: any = { key: 'milk_tier_prices' };
       
       if (priceApplyMode === 'immediate') {
-        body.value = { amount: priceVal }
+        body.value = { prices: numPrices }
       } else {
         // Apply next month
         const today = new Date();
         const nextMonth = new Date(today.getFullYear(), today.getMonth() + 1, 1);
         const effectiveDateStr = `${nextMonth.getFullYear()}-${String(nextMonth.getMonth() + 1).padStart(2, '0')}-01`;
         
-        // We need to keep the current amount. Ideally we fetch it first, but let's assume we update next_amount
-        const res = await fetch('/api/admin/settings?key=price_per_litre');
+        // Fetch current to keep it
+        const res = await fetch('/api/admin/settings?key=milk_tier_prices');
         const currentData = await res.json();
-        const currentAmount = currentData?.value?.amount || 82.67;
+        const currentPrices = currentData?.value?.prices || { '0.5': 41.34, '1.0': 82.67, '1.5': 124, '2.0': 165.34 };
 
         body.value = {
-          amount: currentAmount,
-          next_amount: priceVal,
+          prices: currentPrices,
+          next_prices: numPrices,
           effective_date: effectiveDateStr
         }
       }
@@ -896,20 +902,26 @@ export default function DashboardClient({
             </div>
             
             <p style={{ color: '#475569', fontSize: '14px', marginBottom: '24px', lineHeight: 1.5 }}>
-              Set the new base price per litre. This will automatically recalculate the monthly prices for the 0.5L, 1L, 1.5L, and 2L subscription plans.
+              Set the new daily price for each tier explicitly. This allows you to set custom prices for different quantities.
             </p>
 
-            <div style={{ marginBottom: '24px' }}>
-              <label style={{ display: 'block', fontSize: '12px', fontWeight: 700, color: '#64748b', marginBottom: '8px', textTransform: 'uppercase' }}>
-                New Price per Litre (₹)
-              </label>
-              <input 
-                type="number" 
-                value={newPrice} 
-                onChange={(e) => setNewPrice(e.target.value)}
-                placeholder="e.g. 85"
-                style={{ width: '100%', padding: '16px', borderRadius: '12px', border: '2px solid #e2e8f0', outline: 'none', fontSize: '24px', fontWeight: 800 }}
-              />
+            <div style={{ marginBottom: '24px', display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
+              <div>
+                <label style={{ display: 'block', fontSize: '12px', fontWeight: 700, color: '#64748b', marginBottom: '8px', textTransform: 'uppercase' }}>0.5 L (₹)</label>
+                <input type="number" value={prices['0.5']} onChange={(e) => setPrices({...prices, '0.5': e.target.value})} style={{ width: '100%', padding: '12px', borderRadius: '12px', border: '2px solid #e2e8f0', outline: 'none', fontSize: '16px', fontWeight: 800 }} />
+              </div>
+              <div>
+                <label style={{ display: 'block', fontSize: '12px', fontWeight: 700, color: '#64748b', marginBottom: '8px', textTransform: 'uppercase' }}>1.0 L (₹)</label>
+                <input type="number" value={prices['1.0']} onChange={(e) => setPrices({...prices, '1.0': e.target.value})} style={{ width: '100%', padding: '12px', borderRadius: '12px', border: '2px solid #e2e8f0', outline: 'none', fontSize: '16px', fontWeight: 800 }} />
+              </div>
+              <div>
+                <label style={{ display: 'block', fontSize: '12px', fontWeight: 700, color: '#64748b', marginBottom: '8px', textTransform: 'uppercase' }}>1.5 L (₹)</label>
+                <input type="number" value={prices['1.5']} onChange={(e) => setPrices({...prices, '1.5': e.target.value})} style={{ width: '100%', padding: '12px', borderRadius: '12px', border: '2px solid #e2e8f0', outline: 'none', fontSize: '16px', fontWeight: 800 }} />
+              </div>
+              <div>
+                <label style={{ display: 'block', fontSize: '12px', fontWeight: 700, color: '#64748b', marginBottom: '8px', textTransform: 'uppercase' }}>2.0 L (₹)</label>
+                <input type="number" value={prices['2.0']} onChange={(e) => setPrices({...prices, '2.0': e.target.value})} style={{ width: '100%', padding: '12px', borderRadius: '12px', border: '2px solid #e2e8f0', outline: 'none', fontSize: '16px', fontWeight: 800 }} />
+              </div>
             </div>
 
             <div style={{ marginBottom: '24px' }}>
