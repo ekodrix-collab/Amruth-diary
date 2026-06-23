@@ -40,7 +40,7 @@ export async function GET(request: Request) {
     } else {
       const { data, error } = await adminClient
         .from('app_settings')
-        .select('key, value, updated_at');
+        .select('key, value, description, updated_at');
 
       if (error) {
         return NextResponse.json(
@@ -48,10 +48,18 @@ export async function GET(request: Request) {
           { status: 500 }
         );
       }
+      
+      const settings = data.map((item) => {
+        let parsedValue = item.value;
+        try {
+          parsedValue = typeof item.value === 'string' ? JSON.parse(item.value) : item.value;
+        } catch(e) {}
+        return { ...item, value: parsedValue };
+      });
 
       return NextResponse.json({
         success: true,
-        settings: data
+        settings
       });
     }
   } catch (err: unknown) {
@@ -140,6 +148,14 @@ export async function PUT(request: Request) {
       if (typeof amount !== 'number' || amount <= 0 || amount > 10000) {
         return NextResponse.json(
           { success: false, message: 'price_per_litre.amount must be a positive number (max ₹10,000)' },
+          { status: 400 }
+        );
+      }
+      
+      const nextAmount = value?.next_amount;
+      if (nextAmount !== undefined && (typeof nextAmount !== 'number' || nextAmount <= 0 || nextAmount > 10000)) {
+        return NextResponse.json(
+          { success: false, message: 'price_per_litre.next_amount must be a positive number (max ₹10,000)' },
           { status: 400 }
         );
       }

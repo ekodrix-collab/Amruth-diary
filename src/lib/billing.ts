@@ -15,6 +15,12 @@
 
 import { SETTINGS_KEY_PRICE_PER_LITRE } from '@/lib/constants'
 
+export interface PriceSettingValue {
+  amount: number;
+  next_amount?: number;
+  effective_date?: string;
+}
+
 // ─────────────────────────────────────────
 // Calendar helpers
 // ─────────────────────────────────────────
@@ -204,7 +210,7 @@ export function calculateExtraMilkCharge(
 // ─────────────────────────────────────────
 
 /**
- * Fetch the current price_per_litre from app_settings table.
+ * Fetch the current price_per_litre from system_settings table.
  * This MUST be called server-side (API routes only).
  *
  * @param adminClient - Supabase admin client
@@ -226,7 +232,17 @@ export async function fetchPricePerLitre(
   }
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const parsed = (data as any).value as { amount?: number }
+  const parsed = (data as any).value as PriceSettingValue
+  
+  // Apply scheduled price change if effective date has passed
+  if (parsed.next_amount && parsed.effective_date) {
+    const today = new Date();
+    const effective = new Date(parsed.effective_date);
+    if (today >= effective) {
+      return parsed.next_amount;
+    }
+  }
+
   return parsed.amount ?? 82.67
 }
 
@@ -244,8 +260,16 @@ export async function fetchPricePerLitreClient(): Promise<number> {
   try {
     const res = await fetch('/api/admin/settings?key=price_per_litre')
     const data = await res.json()
-    if (data.success && data.value?.amount) {
-      return data.value.amount
+    if (data.success && data.value) {
+      const parsed = data.value as PriceSettingValue;
+      if (parsed.next_amount && parsed.effective_date) {
+        const today = new Date();
+        const effective = new Date(parsed.effective_date);
+        if (today >= effective) {
+          return parsed.next_amount;
+        }
+      }
+      return parsed.amount ?? 82.67;
     }
   } catch (err) {
     console.warn('[billing] Failed to fetch price from API, using default')

@@ -15,7 +15,9 @@ import {
   Activity,
   CheckCircle2,
   Database,
-  ArrowUpRight
+  ArrowUpRight,
+  X,
+  AlertCircle
 } from 'lucide-react'
 import Link from 'next/link'
 import { StatusBadge } from '@/components/admin/StatusBadge'
@@ -60,6 +62,67 @@ export default function DashboardClient({
 }: DashboardClientProps) {
   const [greeting, setGreeting] = useState('Good Morning')
   const [formattedDate, setFormattedDate] = useState('')
+
+  // Milk Pricing Modal State
+  const [showPriceModal, setShowPriceModal] = useState(false)
+  const [newPrice, setNewPrice] = useState('85') // default placeholder
+  const [priceApplyMode, setPriceApplyMode] = useState<'next_month' | 'immediate'>('next_month')
+  const [isUpdatingPrice, setIsUpdatingPrice] = useState(false)
+  const [priceMessage, setPriceMessage] = useState<{text: string, type: 'success' | 'error'} | null>(null)
+
+  const handlePriceUpdate = async () => {
+    try {
+      setIsUpdatingPrice(true)
+      setPriceMessage(null)
+      
+      const priceVal = Number(newPrice)
+      if (isNaN(priceVal) || priceVal <= 0) {
+        throw new Error("Please enter a valid positive price.")
+      }
+
+      const body: any = { key: 'price_per_litre' };
+      
+      if (priceApplyMode === 'immediate') {
+        body.value = { amount: priceVal }
+      } else {
+        // Apply next month
+        const today = new Date();
+        const nextMonth = new Date(today.getFullYear(), today.getMonth() + 1, 1);
+        const effectiveDateStr = `${nextMonth.getFullYear()}-${String(nextMonth.getMonth() + 1).padStart(2, '0')}-01`;
+        
+        // We need to keep the current amount. Ideally we fetch it first, but let's assume we update next_amount
+        const res = await fetch('/api/admin/settings?key=price_per_litre');
+        const currentData = await res.json();
+        const currentAmount = currentData?.value?.amount || 82.67;
+
+        body.value = {
+          amount: currentAmount,
+          next_amount: priceVal,
+          effective_date: effectiveDateStr
+        }
+      }
+
+      const response = await fetch('/api/admin/settings', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(body)
+      })
+
+      const data = await response.json()
+      if (!response.ok) throw new Error(data.message || 'Failed to update price')
+
+      setPriceMessage({ text: 'Milk price updated successfully!', type: 'success' })
+      setTimeout(() => {
+        setShowPriceModal(false)
+        setPriceMessage(null)
+      }, 2000)
+
+    } catch (err: any) {
+      setPriceMessage({ text: err.message, type: 'error' })
+    } finally {
+      setIsUpdatingPrice(false)
+    }
+  }
 
   useEffect(() => {
     const hr = new Date().getHours()
@@ -609,6 +672,21 @@ export default function DashboardClient({
               <Package size={20} className="text-[#2563eb]" />
               <span className="text-[10px] font-bold text-[#475569] group-hover:text-[#2563eb]">Update Stock</span>
             </Link>
+
+            <button 
+              onClick={() => setShowPriceModal(true)}
+              className="group flex flex-col items-center justify-center gap-1.5 rounded-xl border border-[#e8edf5] bg-[#f8fafc] transition-all hover:bg-[#eff6ff] hover:border-[#bfdbfe] hover:-translate-y-0.5 cursor-pointer"
+              style={{ height: '68px' }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.boxShadow = '0 4px 12px rgba(37,99,235,0.1)'
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.boxShadow = 'none'
+              }}
+            >
+              <IndianRupee size={20} className="text-[#2563eb]" />
+              <span className="text-[10px] font-bold text-[#475569] group-hover:text-[#2563eb]">Update Milk Price</span>
+            </button>
           </div>
         </div>
 
@@ -796,6 +874,111 @@ export default function DashboardClient({
 
       </div>
 
+      {/* PRICE UPDATE MODAL */}
+      {showPriceModal && (
+        <div style={{
+          position: 'fixed', top: 0, left: 0, right: 0, bottom: 0,
+          background: 'rgba(15, 23, 42, 0.4)', backdropFilter: 'blur(4px)',
+          display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 100
+        }}>
+          <div style={{
+            background: '#fff', borderRadius: '24px', padding: '32px', width: '100%', maxWidth: '500px',
+            boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.25)'
+          }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '12px', color: '#0f172a' }}>
+                <IndianRupee size={24} />
+                <h3 style={{ fontSize: '20px', fontWeight: 800, margin: 0 }}>Update Milk Base Price</h3>
+              </div>
+              <button onClick={() => setShowPriceModal(false)} style={{ background: 'none', border: 'none', cursor: 'pointer' }}>
+                <X size={20} color="#64748b" />
+              </button>
+            </div>
+            
+            <p style={{ color: '#475569', fontSize: '14px', marginBottom: '24px', lineHeight: 1.5 }}>
+              Set the new base price per litre. This will automatically recalculate the monthly prices for the 0.5L, 1L, 1.5L, and 2L subscription plans.
+            </p>
+
+            <div style={{ marginBottom: '24px' }}>
+              <label style={{ display: 'block', fontSize: '12px', fontWeight: 700, color: '#64748b', marginBottom: '8px', textTransform: 'uppercase' }}>
+                New Price per Litre (₹)
+              </label>
+              <input 
+                type="number" 
+                value={newPrice} 
+                onChange={(e) => setNewPrice(e.target.value)}
+                placeholder="e.g. 85"
+                style={{ width: '100%', padding: '16px', borderRadius: '12px', border: '2px solid #e2e8f0', outline: 'none', fontSize: '24px', fontWeight: 800 }}
+              />
+            </div>
+
+            <div style={{ marginBottom: '24px' }}>
+              <label style={{ display: 'block', fontSize: '12px', fontWeight: 700, color: '#64748b', marginBottom: '12px', textTransform: 'uppercase' }}>
+                Application Method
+              </label>
+              
+              <div className="space-y-3">
+                <label className="flex items-start gap-3 p-4 rounded-xl border border-[#e2e8f0] cursor-pointer hover:bg-[#f8fafc] transition-colors">
+                  <input 
+                    type="radio" 
+                    name="applyMode" 
+                    value="next_month"
+                    checked={priceApplyMode === 'next_month'}
+                    onChange={() => setPriceApplyMode('next_month')}
+                    className="mt-1 w-4 h-4 text-blue-600 border-gray-300 focus:ring-blue-500"
+                  />
+                  <div>
+                    <div className="font-bold text-[#0f172a] text-sm">Apply on Next Renewal (Recommended)</div>
+                    <div className="text-xs text-[#64748b] mt-1 leading-snug">
+                      New signups get the new price immediately. Existing customers finish their current month at their old price, avoiding billing confusion mid-month.
+                    </div>
+                  </div>
+                </label>
+
+                <label className="flex items-start gap-3 p-4 rounded-xl border border-[#e2e8f0] cursor-pointer hover:bg-[#f8fafc] transition-colors">
+                  <input 
+                    type="radio" 
+                    name="applyMode" 
+                    value="immediate"
+                    checked={priceApplyMode === 'immediate'}
+                    onChange={() => setPriceApplyMode('immediate')}
+                    className="mt-1 w-4 h-4 text-blue-600 border-gray-300 focus:ring-blue-500"
+                  />
+                  <div>
+                    <div className="font-bold text-[#0f172a] text-sm">Apply Immediately</div>
+                    <div className="text-xs text-[#64748b] mt-1 leading-snug">
+                      Instantly changes the price for everyone. Note: This will cause current month bills to be pro-rated, which may confuse existing customers.
+                    </div>
+                  </div>
+                </label>
+              </div>
+            </div>
+
+            {priceMessage && (
+              <div style={{ 
+                padding: '12px 16px', borderRadius: '8px', marginBottom: '24px', fontSize: '14px', fontWeight: 500,
+                background: priceMessage.type === 'success' ? '#dcfce7' : '#fef2f2',
+                color: priceMessage.type === 'success' ? '#166534' : '#991b1b'
+              }}>
+                {priceMessage.text}
+              </div>
+            )}
+
+            <button 
+              onClick={handlePriceUpdate}
+              disabled={isUpdatingPrice}
+              style={{
+                width: '100%', padding: '16px', background: '#2563eb', color: '#fff', border: 'none',
+                borderRadius: '12px', fontSize: '16px', fontWeight: 700, cursor: isUpdatingPrice ? 'not-allowed' : 'pointer',
+                opacity: isUpdatingPrice ? 0.7 : 1,
+                boxShadow: '0 4px 14px rgba(37,99,235,0.3)'
+              }}
+            >
+              {isUpdatingPrice ? 'Updating Price...' : 'Update Price & Recalculate Plans'}
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   )
 }
